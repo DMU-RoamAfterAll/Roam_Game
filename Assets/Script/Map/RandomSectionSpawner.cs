@@ -54,9 +54,62 @@ public class RandomSectionSpawner : MonoBehaviour
 
         List<Vector2> points = GenerateGuaranteedPoints(sectionCount, initialMinDistance, seed);
 
+        CreateSection(points);
+    }
+
+    List<Vector2> GenerateGuaranteedPoints(int count, float minDist, int seed) {
+        List<Vector2> result = new List<Vector2>();
+        System.Random rng = new System.Random(seed);
+
+        int maxAttemptsPerPoint = 500;
+        float minDistStep = minDist * 0.1f; // 줄일 때 10%씩 감소
+
+        List<Vector2> allPoints = new List<Vector2>(mainSections);
+
+        while (result.Count < count) {
+            int attempts = 0;
+            bool pointPlaced = false;
+
+            while (attempts < maxAttemptsPerPoint) {
+                float x = (float)(rng.NextDouble() * (maxX - minX) + minX);
+                float y = (float)(rng.NextDouble() * (maxY - minY) + minY);
+                Vector2 candidate = new Vector2(x, y);
+
+                bool isValid = true;
+                foreach (var point in allPoints) {
+                    if (Vector2.Distance(point, candidate) < minDist) {
+                        isValid = false;
+                        break;
+                    }
+                }
+
+                if (isValid) {
+                    result.Add(candidate);
+                    allPoints.Add(candidate);
+                    pointPlaced = true;
+                    break;
+                }
+
+                attempts++;
+            }
+
+            if (!pointPlaced) {
+                minDist = Mathf.Max(minDist - minDistStep, 0f);
+                Debug.LogWarning($"거리 조건 완화됨: 현재 최소 거리 {minDist:F2}");
+            }
+        }
+
+        return result;
+    }
+
+    void CreateSection(List<Vector2> points) {
         List<int> eventPool = Enumerable.Range(0, sectionCount).OrderBy(x => Random.value).ToList();
 
         for(int i = 0; i < sectionCount; i++) {
+            foreach(var mainSectionPoint in mainSections) {
+                if(points[i] == mainSectionPoint) return;
+            }
+
             int fileIndex = eventPool[i];
             string filePath = eventFiles[fileIndex];
 
@@ -76,51 +129,5 @@ public class RandomSectionSpawner : MonoBehaviour
 
             sections.Add(section);
         }
-    }
-
-    List<Vector2> GenerateGuaranteedPoints(int count, float minDist, int seed) {
-        List<Vector2> result = new List<Vector2>();
-        System.Random rng = new System.Random(seed);
-
-        int maxAttemptsPerPoint = 500;
-        float minDistStep = minDist * 0.1f; // 줄일 때 10%씩 감소
-
-        foreach (var main in mainSections) {
-            result.Add(main);
-        }
-
-        while (result.Count < count) {
-            int attempts = 0;
-            bool pointPlaced = false;
-
-            while (attempts < maxAttemptsPerPoint) {
-                float x = (float)(rng.NextDouble() * (maxX - minX) + minX);
-                float y = (float)(rng.NextDouble() * (maxY - minY) + minY);
-                Vector2 candidate = new Vector2(x, y);
-
-                bool isValid = true;
-                foreach (var point in result) {
-                    if (Vector2.Distance(point, candidate) < minDist) {
-                        isValid = false;
-                        break;
-                    }
-                }
-
-                if (isValid) {
-                    result.Add(candidate);
-                    pointPlaced = true;
-                    break;
-                }
-
-                attempts++;
-            }
-
-            if (!pointPlaced) {
-                minDist = Mathf.Max(minDist - minDistStep, 0f);
-                Debug.LogWarning($"거리 조건 완화됨: 현재 최소 거리 {minDist:F2}");
-            }
-        }
-
-        return result;
     }
 }
