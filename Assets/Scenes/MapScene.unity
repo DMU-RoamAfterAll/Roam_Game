@@ -933,7 +933,7 @@ MonoBehaviour:
   maxY: 5.5
   sectionCount: 0
   initialMinDistance: 2
-  seed: 1234
+  seed: 54321
   sectionPrefab: {fileID: 2616647439733425939, guid: d414b0f23182c47ae8b806b2defb3357, type: 3}
   mainSections:
   - {x: 0.2, y: 0.3}
