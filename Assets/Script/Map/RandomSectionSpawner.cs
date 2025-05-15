@@ -9,8 +9,7 @@ public class EventJsonData {
     public string eventType;
 }
 
-public class RandomSectionSpawner : MonoBehaviour
-{
+public class RandomSectionSpawner : MonoBehaviour {
     [SerializeField] private List<SectionData> sections = new List<SectionData>();
 
     [Header("Candidate Scale")]
@@ -36,6 +35,9 @@ public class RandomSectionSpawner : MonoBehaviour
     public string eventFolderPath;
     public string[] eventFiles;
 
+    [Header("Script")]
+    private ObjectLineConnector objectLineConnector;
+
     void Start() {
         if (sectionPrefab == null) {
             Debug.LogError("Point Prefab이 설정되지 않았습니다!");
@@ -53,6 +55,7 @@ public class RandomSectionSpawner : MonoBehaviour
         }
 
         List<Vector2> points = GenerateGuaranteedPoints(sectionCount, initialMinDistance, seed);
+        objectLineConnector = this.GetComponent<ObjectLineConnector>();
 
         CreateSection(points);
     }
@@ -126,8 +129,13 @@ public class RandomSectionSpawner : MonoBehaviour
             section.rate = data.rate[0];
             section.eventType = data.eventType;
             section.isVisited = false;
+            section.isCleared = false;
+            section.sectionPosition = new Vector2(points[i].x, points[i].y);
 
             sections.Add(section);
         }
+
+        
+        objectLineConnector.ConnectorLine(sections.Select(s => s.sectionPosition).ToList());
     }
 }

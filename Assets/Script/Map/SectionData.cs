@@ -5,7 +5,8 @@ public class SectionData : MonoBehaviour {
     public char rate;
     public string eventType;
     public bool isVisited;
-
+    public bool isCleared;
+    public Vector2 sectionPosition;
 
     public int stepCost;
 }
