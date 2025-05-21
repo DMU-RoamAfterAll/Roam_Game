@@ -12,6 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f8ab687619e64ffabb672b5a51c51d0, type: 3}
   m_Name: GameData
   m_EditorClassIdentifier: 
-  playerName: 
-  seed: 0
-  areaCount: 0
+  playerName: Potato
+  seed: 12345
+  areaCount: 1
+  areaDataFolderPath: Assets/Resources/AreaData
+  edgePrefab: {fileID: 5266680173097583215, guid: 97e8ee79c31334138960d632d3e6d10e, type: 3}
+  sectionPrefab: {fileID: 2616647439733425939, guid: d414b0f23182c47ae8b806b2defb3357, type: 3}
+  mainSectionPrefab: {fileID: 2616647439733425939, guid: 004fcb2efe2ad42b4856c98a5c4f9683, type: 3}
