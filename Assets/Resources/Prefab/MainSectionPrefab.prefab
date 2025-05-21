@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 2422447243043988356}
   - component: {fileID: 8476008201140355765}
   - component: {fileID: 5016582968547176021}
-  - component: {fileID: -7404848617795941601}
+  - component: {fileID: 5748386649042195316}
   m_Layer: 0
-  m_Name: SectionPrefab
+  m_Name: MainSectionPrefab
   m_TagString: Section
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -79,7 +79,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 0, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -108,7 +108,7 @@ MonoBehaviour:
   isCleared: 0
   sectionPosition: {x: 0, y: 0}
   stepCost: 0
---- !u!58 &-7404848617795941601
+--- !u!58 &5748386649042195316
 CircleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
