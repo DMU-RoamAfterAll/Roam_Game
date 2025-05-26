@@ -1,0 +1,5 @@
+{
+    "areaName": "Swamp",
+    "sectionDataFolderPath": "Assets/Resources/EventData/SwampEvents",
+    "mainSectionDataFolderPath" : "Assets/Resources/MainEventData/MainSwampEvents"
+}
