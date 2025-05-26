@@ -27,6 +27,8 @@ public class GameDataManager : MonoBehaviour {
         gameData.seed = 54321;
         gameData.areaCount = 1;
         gameData.initialMinDistance = 3f;
+        gameData.initialMaxDistance = 5f;
+        gameData.maxRadius = 30f;
 
         gameData.areaDataFolderPath = "Assets/Resources/AreaData";
     }

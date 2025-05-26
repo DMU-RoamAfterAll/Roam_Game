@@ -9,6 +9,8 @@ public class GameData : ScriptableObject {
     public int areaCount;
 
     public float initialMinDistance;
+    public float initialMaxDistance;
+    public float maxRadius;
 
     public string areaDataFolderPath;
 
