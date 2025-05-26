@@ -1,0 +1,5 @@
+{
+    "areaName": "City",
+    "sectionDataFolderPath": "Assets/Resources/EventData/CityEvents",
+    "mainSectionDataFolderPath" : "Assets/Resources/MainEventData/MainCityEvents"
+}
