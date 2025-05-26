@@ -13,14 +13,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   areaName: City
-  edgePoint:
-  - {x: -5, y: -10}
-  - {x: 5, y: -10}
-  - {x: -5, y: 10}
-  - {x: 5, y: 10}
-  maxX: 5
-  minX: -5
-  maxY: 10
-  minY: -10
   sectionDataFolderPath: Assets/Resources/EventData/CityEvents
   mainSectionDataFolderPath: Assets/Resources/MainEventData/MainCityEvents
