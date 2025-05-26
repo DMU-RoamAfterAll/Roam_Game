@@ -1,0 +1,5 @@
+{
+    "areaName": "Mountain",
+    "sectionDataFolderPath": "Assets/Resources/EventData/MountainEvents",
+    "mainSectionDataFolderPath" : "Assets/Resources/MainEventData/MainMountainEvents"
+}
