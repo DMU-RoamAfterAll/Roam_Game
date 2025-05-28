@@ -6,7 +6,9 @@ public class CameraFollow : MonoBehaviour {
     public Vector3 offset;             // 카메라 위치 오프셋
 
     void LateUpdate() {
-        if (target == null) return;
+        if (target == null) {
+            target = GameObject.FindGameObjectWithTag("Player").transform;
+        }
 
         Vector3 desiredPosition = target.position + offset;
         desiredPosition.z = -10f; // 2D 카메라는 일반적으로 z축 -10에 위치

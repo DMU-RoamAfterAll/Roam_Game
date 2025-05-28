@@ -4,10 +4,13 @@ using System.IO;
 using Newtonsoft.Json;
 
 public class CreateAreaAssets : MonoBehaviour {
-    public static string folderPath;
+    public string folderPath;
 
-    [MenuItem("Tools/Create Area Data Assets")]
-    public static void CreateAreaDataAssets() {
+    void Start() {
+        CreateAreaDataAssets();
+    }
+
+    public void CreateAreaDataAssets() {
         folderPath = GameDataManager.Data.areaDataFolderPath;
         Debug.Log("folderPath : " + folderPath);
 
@@ -17,23 +20,32 @@ public class CreateAreaAssets : MonoBehaviour {
 
         foreach(string jsonFilePath in jsonFiles) {
             string jsonContent = File.ReadAllText(jsonFilePath);
-            AreaData jsonData = JsonConvert.DeserializeObject<AreaData>(jsonContent);
-
             string areaName = Path.GetFileNameWithoutExtension(jsonFilePath);
-            jsonData.areaName = areaName;
-
             string assetPath = $"{folderPath}/{areaName}Data.asset";
+
+            AreaData jsonData = ScriptableObject.CreateInstance<AreaData>();
+            jsonData.name = areaName + "Data";
+            JsonConvert.PopulateObject(jsonContent, jsonData);
+
+            jsonData.areaName = areaName;
             
             AreaData existingData = AssetDatabase.LoadAssetAtPath<AreaData>(assetPath);
+    
             if (existingData == null) {
                 AssetDatabase.CreateAsset(jsonData, assetPath);
                 Debug.Log($"Created new AreaData: {areaName}");
-            } else {
+            }
+            else {
                 EditorUtility.CopySerialized(jsonData, existingData);
                 Debug.Log($"Updated existing AreaData: {areaName}");
             }
 
             GameObject areaObject = new GameObject(areaName);
+            areaObject.transform.SetParent(this.transform);
+            
+            if(areaName == "Tutorial") areaObject.tag = Tag.Tutorial;
+            else areaObject.tag = Tag.Area;
+
             AreaDataManager areaManager = areaObject.AddComponent<AreaDataManager>();
             areaManager.areaData = jsonData;
 
