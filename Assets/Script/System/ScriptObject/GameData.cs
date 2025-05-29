@@ -17,4 +17,7 @@ public class GameData : ScriptableObject {
     public GameObject edgePrefab;
     public GameObject sectionPrefab;
     public GameObject mainSectionPrefab;
+
+    public int areaNumber;
+    public int riverHeight;
 }
