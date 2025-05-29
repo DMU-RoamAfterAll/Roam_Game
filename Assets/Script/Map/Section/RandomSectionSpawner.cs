@@ -7,12 +7,14 @@ using System.Security.Cryptography;
 
 [System.Serializable]
 public class EventJsonData {
+    public string id;
     public string rate;
     public string eventType;
 }
 
 [System.Serializable]
 public class MainEventJsonData {
+    public string id;
     public string rate;
     public string eventType;
     public float x;
@@ -21,6 +23,7 @@ public class MainEventJsonData {
 
 public class RandomSectionSpawner : MonoBehaviour {
     [SerializeField] private List<SectionData> sections = new List<SectionData>();
+    public List<SectionData> Sections => sections;
 
     [Header("Section Count, Distance")]
     public int sectionCount;
@@ -45,6 +48,15 @@ public class RandomSectionSpawner : MonoBehaviour {
     public string[] eventFiles;
     public string[] mainEventFiles;
 
+    [Header("Coordinate")]
+    public Vector2 center;
+    public float centerX;
+    public float centerY;
+    public float maxX;
+    public float minX;
+    public float maxY;
+    public float minY;
+
     [Header("Script")]
     public AreaData areaData;
 
@@ -63,6 +75,11 @@ public class RandomSectionSpawner : MonoBehaviour {
         sectionPrefab = GameDataManager.Data.sectionPrefab;
         mainSectionPrefab = GameDataManager.Data.mainSectionPrefab;
 
+        maxX = float.MinValue;
+        minX = float.MaxValue;
+        maxY = float.MinValue;
+        minY = float.MaxValue;
+
         if (Directory.Exists(eventFolderPath)) {
             eventFiles = Directory.GetFiles(eventFolderPath, "*.json").OrderBy(f => f).ToArray();
             sectionCount = eventFiles.Length;
@@ -77,30 +94,42 @@ public class RandomSectionSpawner : MonoBehaviour {
             Debug.LogError("메인 이벤트 파일 위치 오류!");
         }
 
+        #region Function
+
         CreateMainSection();
 
         List<Vector2> points = GenerateGuaranteedPoints(sectionCount, initialMinDistance, initialMaxDistance, maxRadius);
         CreateSection(points);
+
+        AdjustMainSection();
+
+        GetBound();
+
+        AreaLocateControl.totalAreaCount++;
+
+        #endregion
+        
     }
 
     List<Vector2> GenerateGuaranteedPoints(int count, float minDist, float maxDist, float maxRadius) {
         List<Vector2> generatedPoints = new List<Vector2>();
         System.Random rng = new System.Random(UniqueSeed());
-        List<Vector2> allPoints = new List<Vector2>(mainSections);
 
-        // 시작점이 없으면 중심에서 시작
-        if (allPoints.Count == 0)
-            allPoints.Add(Vector2.zero);
+        List<Vector2> allPoints = new List<Vector2>{ Vector2.zero };
+        generatedPoints.Add(Vector2.zero);
+
+        int attempts = 0;
 
         while (generatedPoints.Count < count)
         {
-            Vector2 basePoint = allPoints[rng.Next(allPoints.Count)];
+            attempts++;
+            Vector2 randomPoint = allPoints[rng.Next(allPoints.Count)];
             float angle = (float)(rng.NextDouble() * Mathf.PI * 2);
             float distance = minDist + (float)rng.NextDouble() * (maxDist - minDist);
             Vector2 offset = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * distance;
-            Vector2 candidate = basePoint + offset;
+            Vector2 candidate = randomPoint + offset;
 
-            if (candidate.magnitude > maxRadius)
+            if (Vector2.Distance(candidate, randomPoint) > maxRadius)
                 continue;
 
             bool tooClose = allPoints.Any(p => Vector2.Distance(candidate, p) < minDist);
@@ -113,6 +142,11 @@ public class RandomSectionSpawner : MonoBehaviour {
 
             generatedPoints.Add(candidate);
             allPoints.Add(candidate);
+
+            if (attempts % 100 == 0) {
+                Debug.LogError($"[GeneratePoints] Failed to generate enough points after {attempts} attempts. Terminating early.");
+                break;
+            }
         }
 
         return generatedPoints;
@@ -134,7 +168,7 @@ public class RandomSectionSpawner : MonoBehaviour {
             go.transform.SetParent(this.transform);
 
             SectionData section = go.GetComponent<SectionData>();
-            section.id = fileIndex;
+            section.id = this.gameObject.name + "/" + data.id;
             section.rate = data.rate[0];
             section.eventType = data.eventType;
             section.isVisited = false;
@@ -152,13 +186,14 @@ public class RandomSectionSpawner : MonoBehaviour {
 
             MainEventJsonData data = JsonUtility.FromJson<MainEventJsonData>(json);
             Vector2 position = new Vector2(data.x, data.y);
+
             GameObject go = Instantiate(mainSectionPrefab, position, Quaternion.identity);
 
             go.name = $"MainSection_{i}";
             go.transform.SetParent(this.transform);
 
             SectionData section = go.GetComponent<SectionData>();
-            section.id = i;
+            section.id = this.gameObject.name + "/" + data.id.ToString();
             section.rate = data.rate[0];
             section.eventType = data.eventType;
             section.isVisited = false;
@@ -174,11 +209,83 @@ public class RandomSectionSpawner : MonoBehaviour {
             .ToArray();
     }
 
+    void AdjustMainSection() {
+        var mainObjs = GetComponentsInChildren<SectionData>()
+            .Where(s => s.eventType == "Main" && s.transform.parent == this.transform)
+            .ToList();
+
+        var originalPositions = mainObjs.ToDictionary(m => m, m => m.sectionPosition);
+
+        foreach (var main in mainObjs) {
+            Vector2 mainOriginalPos = originalPositions[main];
+            Vector2 closest = Vector2.zero;
+            float closestDist = float.MaxValue;
+
+            foreach (var other in mainObjs) {
+                if (other == main) continue;
+                float dist = Vector2.Distance(mainOriginalPos, originalPositions[other]);
+                if (dist < closestDist) {
+                    closestDist = dist;
+                    closest = originalPositions[other];
+                }
+            }
+
+            foreach (var section in sections) {
+                if (section.eventType == "Main" || section == main || section.transform.parent != this.transform) continue;
+                float dist = Vector2.Distance(mainOriginalPos, section.sectionPosition);
+                if (dist < closestDist) {
+                    closestDist = dist;
+                    closest = section.sectionPosition;
+                }
+            }
+
+            if (closestDist > initialMaxDistance) {
+                Vector2 direction = (closest - mainOriginalPos).normalized;
+                Vector2 newPos = closest - direction * initialMaxDistance;
+                main.sectionPosition = newPos;
+                main.transform.position = new Vector3(newPos.x, newPos.y, 0);
+            }
+        }
+    }
+
     int UniqueSeed() {
         string combinedSeed = seed.ToString() + "_" + gameObject.name;
         using (SHA256 sha = SHA256.Create()) {
             byte[] hash = sha.ComputeHash(Encoding.UTF8.GetBytes(combinedSeed));
             return System.BitConverter.ToInt32(hash, 0);
+        }
+    }
+
+    void GetBound() {
+        foreach(var section in sections) {
+            float x = section.sectionPosition.x;
+            float y = section.sectionPosition.y;
+
+            if(x > maxX) {
+                maxX = x;
+            }
+
+            if(x < minX) {
+                minX = x;
+            }
+
+            if(y > maxY) {
+                maxY = y;
+            }
+
+            if(y < minY) {
+                minY = y;
+            }
+
+            centerX = (minX + maxX) / 2f;
+            centerY = (minY + maxY) / 2f;
+
+            center = new Vector2(centerX, centerY);
+        }
+
+        foreach(var section in sections) {
+            if(this.gameObject.name != "Tutorial") section.sectionPosition -= center;
+            section.transform.position = new Vector2(section.sectionPosition.x, section.sectionPosition.y);
         }
     }
 }
