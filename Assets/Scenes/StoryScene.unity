@@ -560,7 +560,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70d876787c1db4ce985ad118ed21ef4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dialogueFile: {fileID: 4900000, guid: 6ccb3f266a2ba498fb6d87ec70429643, type: 3}
+  dialogueFile: {fileID: 4900000, guid: 37eae264c3273497192e7e0add300f78, type: 3}
   dialogueText: {fileID: 649648997}
   choiceButtonPrefab: {fileID: 6591956400443085167, guid: 4254abb7753344cba941e13305f80157, type: 3}
   choiceButtonContainer: {fileID: 1661200134}
