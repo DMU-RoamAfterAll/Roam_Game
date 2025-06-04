@@ -1,8 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-[CreateAssetMenu(fileName = "AreaData", menuName = "ScriptableObject/AreaData", order = 1)]
-public class AreaData : ScriptableObject {
+[CreateAssetMenu(fileName = "AreaAsset", menuName = "ScriptableObject/AreaData", order = 1)]
+public class AreaAsset : ScriptableObject {
     [Header("Area Settings")]
     public string areaName;
 
