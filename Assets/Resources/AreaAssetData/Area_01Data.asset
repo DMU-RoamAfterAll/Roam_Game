@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a23d3b3b756bc4f4fba0012b3bb2c3d1, type: 3}
-  m_Name: Area_05Data
+  m_Script: {fileID: 11500000, guid: 1357c96b8a4074742b0dac10d7352ff2, type: 3}
+  m_Name: Area_01Data
   m_EditorClassIdentifier: 
-  areaName: Area_05
-  sectionDataFolderPath: Assets/Resources/EventData/Area_05Events
-  mainSectionDataFolderPath: Assets/Resources/MainEventData/MainArea_05Events
+  areaName: Area_01
+  sectionDataFolderPath: Assets/Resources/EventData/Area_01Events
+  mainSectionDataFolderPath: Assets/Resources/MainEventData/MainArea_01Events
