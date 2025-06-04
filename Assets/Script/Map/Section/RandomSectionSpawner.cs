@@ -58,10 +58,10 @@ public class RandomSectionSpawner : MonoBehaviour {
     public float minY;
 
     [Header("Script")]
-    public AreaData areaData;
+    public AreaAsset areaAsset;
 
     void Start() {
-        areaData = Resources.Load<AreaData>($"AreaData/{this.gameObject.name}Data");
+        areaAsset = Resources.Load<AreaAsset>($"AreaAssetData/{this.gameObject.name}Data");
 
         initialMinDistance = GameDataManager.Data.initialMinDistance;
         initialMaxDistance = GameDataManager.Data.initialMaxDistance;
@@ -69,8 +69,8 @@ public class RandomSectionSpawner : MonoBehaviour {
 
         maxRadius = GameDataManager.Data.maxRadius;
 
-        eventFolderPath = areaData.sectionDataFolderPath;
-        mainEventFolderPath = areaData.mainSectionDataFolderPath;
+        eventFolderPath = areaAsset.sectionDataFolderPath;
+        mainEventFolderPath = areaAsset.mainSectionDataFolderPath;
 
         sectionPrefab = GameDataManager.Data.sectionPrefab;
         mainSectionPrefab = GameDataManager.Data.mainSectionPrefab;
@@ -173,6 +173,7 @@ public class RandomSectionSpawner : MonoBehaviour {
             section.eventType = data.eventType;
             section.isVisited = false;
             section.isCleared = false;
+            section.isPlayerOn = false;
             section.sectionPosition = pos;
 
             sections.Add(section);
@@ -198,6 +199,7 @@ public class RandomSectionSpawner : MonoBehaviour {
             section.eventType = data.eventType;
             section.isVisited = false;
             section.isCleared = false;
+            section.isPlayerOn = false;
             section.sectionPosition = position;
 
             sections.Add(section);

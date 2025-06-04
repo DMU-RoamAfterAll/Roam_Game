@@ -1,10 +1,10 @@
 using UnityEngine;
 
-public class AreaDataManager : MonoBehaviour {
-    public AreaData areaData;
+public class AreaAssetManager : MonoBehaviour {
+    public AreaAsset areaAsset;
 
     void Start() {
-        if (areaData == null) {
+        if (areaAsset == null) {
             Debug.LogError("AreaData is not assigned!");
             return;
         }

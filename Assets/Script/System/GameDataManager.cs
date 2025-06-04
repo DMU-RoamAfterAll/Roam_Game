@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 using System.IO;
 
 public class GameDataManager : MonoBehaviour {
@@ -7,6 +8,8 @@ public class GameDataManager : MonoBehaviour {
     public GameData gameData;
 
     public static GameData Data => Instance.gameData;
+
+    public List<GameObject> areaObjects;
 
     void Awake() {
         if (Instance != null && Instance != this)  {
@@ -26,14 +29,13 @@ public class GameDataManager : MonoBehaviour {
 
         gameData.playerName = "Potato";
         gameData.seed = 54321;
-        gameData.areaCount = 1;
         gameData.initialMinDistance = 5f;
         gameData.initialMaxDistance = 8f;
         gameData.maxRadius = 30f;
 
-        gameData.areaDataFolderPath = "Assets/Resources/AreaData";
+        gameData.areaAssetDataFolderPath = "Assets/Resources/AreaAssetData";
 
-        gameData.areaNumber = (Directory.GetFiles(gameData.areaDataFolderPath, "*.json")).Length;
+        gameData.areaNumber = (Directory.GetFiles(gameData.areaAssetDataFolderPath, "*.json")).Length;
         gameData.riverHeight = 5;
 
         Application.targetFrameRate = 60;
