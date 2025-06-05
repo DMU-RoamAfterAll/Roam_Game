@@ -525,7 +525,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 994506505}
-  - component: {fileID: 994506506}
   - component: {fileID: 994506507}
   m_Layer: 0
   m_Name: DialogueManager
@@ -549,22 +548,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &994506506
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 994506504}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 70d876787c1db4ce985ad118ed21ef4c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  dialogueFile: {fileID: 4900000, guid: 37eae264c3273497192e7e0add300f78, type: 3}
-  dialogueText: {fileID: 649648997}
-  choiceButtonPrefab: {fileID: 6591956400443085167, guid: 4254abb7753344cba941e13305f80157, type: 3}
-  choiceButtonContainer: {fileID: 1661200134}
 --- !u!114 &994506507
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -579,6 +562,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   jsonFileName: T1_section
   jsonFolderPath: SectionData\SectionEvent
+  dialogueText: {fileID: 649648997}
+  choiceButtonPrefab: {fileID: 6591956400443085167, guid: 4254abb7753344cba941e13305f80157, type: 3}
+  choiceButtonContainer: {fileID: 1661200134}
 --- !u!1 &1566281277
 GameObject:
   m_ObjectHideFlags: 0

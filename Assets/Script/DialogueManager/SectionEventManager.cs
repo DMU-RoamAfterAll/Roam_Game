@@ -3,6 +3,7 @@ using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 //-------------------------------------------------------
 // ** Json 데이터 클래스 구조 **
@@ -10,7 +11,10 @@ using System.Collections.Generic;
 [System.Serializable]
 public class BaseNode //공통 노드
 {
+    public List<Dictionary<string, object>> action; //아이템 습득 및 손실
+    public List<string> text; //선택지 출력 결과
     public string next; //텍스트 이동을 위한 키값
+    
 }
 
 [System.Serializable]
@@ -22,10 +26,11 @@ public class TextNode : BaseNode //본문 노드
 [System.Serializable]
 public class MenuOption //조사 선택지 노드
 {
-	public string id; //선택지 키값
-	public string label; //조사 선택지
-	public List<string> text; //선택지 출력 결과
-	public List<Dictionary<string, object>> action; //아이템 습득 및 손실
+    public string id; // 선택지 키값
+    public string label; // 선택지에 보여질 텍스트
+    public List<string> text; // 선택지 클릭 시 출력될 텍스트
+    public List<Dictionary<string, object>> action; // 행동 정보 (아이템 획득 등)
+    public string next; // 다음 노드 키
 }
 [System.Serializable]
 public class MenuNode : BaseNode //조사 노드
@@ -43,13 +48,18 @@ public class SectionEventManager : MonoBehaviour
     private Dictionary<string, object> sectionData = new Dictionary<string, object>();
     //파싱된 Json데이터
 
+    //임시 변수들
+    public Text dialogueText;
+    TextNode testjson = null;
+
     void Start()
     {
         LoadJson(jsonFileName); //Json파일 로드
 
         //Json테스트 출력
-        TextNode testjson = sectionData["Text1"] as TextNode;
+        testjson = GetTextNode("Text1");
         Debug.Log(testjson.value[0]);
+        StartDialogue("Text1");
     }
 
     void Update()
@@ -61,6 +71,8 @@ public class SectionEventManager : MonoBehaviour
     public void LoadJson(string jsonFileName)
     {
         string filePath = Path.Combine(jsonFolderPath, jsonFileName);
+        filePath = filePath.Replace("\\", "/"); // 경로 구분자 통일
+
         TextAsset jsonFile = Resources.Load<TextAsset>(filePath); //Json 파일 로드
         if (jsonFile == null)
         {
@@ -69,7 +81,7 @@ public class SectionEventManager : MonoBehaviour
         }
         //Json파일에서 텍스트 데이터를 가져와 Json객체 구조로 변경
         string jsonText = jsonFile.text;
-		JObject root = JObject.Parse(jsonText);
+        JObject root = JObject.Parse(jsonText);
 
         // 각 노드를 순회하며 타입에 따라 파싱
         foreach (var pair in root)
@@ -94,5 +106,161 @@ public class SectionEventManager : MonoBehaviour
             }
         }
         Debug.Log("Reading File : " + jsonFileName + ".json"); //파일 로드 확인 로그
+    }
+
+    //텍스트 노드를 꺼내는 메소드
+    //사용 예시 : 
+    /*
+    TextNode node = sectionEventManager.GetTextNode("Text2");
+    Debug.Log(node.value[0]);
+    */
+    public TextNode GetTextNode(string key)
+    {
+        if (sectionData.TryGetValue(key, out object node) && node is TextNode text)
+            return text;
+        return null;
+    }
+
+    //메뉴 노드를 꺼내는 메소드
+    public MenuNode GetMenuNode(string key)
+    {
+        if (sectionData.TryGetValue(key, out object node) && node is MenuNode menu)
+            return menu;
+        return null;
+    }
+
+    //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ테스트 출력 부분ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+
+    void StartDialogue(string nodeKey)
+    {
+        if (sectionData.TryGetValue(nodeKey, out object node))
+        {
+            if (node is TextNode textNode)
+            {
+                DisplayTextNode(textNode);
+            }
+            else if (node is MenuNode menuNode)
+            {
+                DisplayMenuNode(menuNode);
+            }
+            else
+            {
+                Debug.LogError($"알 수 없는 노드 타입: {node.GetType()}");
+            }
+        }
+        else
+        {
+            Debug.LogError($"Node '{nodeKey}' not found in dialogue data");
+        }
+    }
+
+    public GameObject choiceButtonPrefab; // 버튼 프리팹
+    public Transform choiceButtonContainer; // 버튼 부모 오브젝트
+
+    void DisplayTextNode(TextNode node)
+    {
+        // 텍스트 본문 출력
+        dialogueText.text = string.Join("\n", node.value);
+
+        // 버튼 영역 초기화
+        foreach (Transform child in choiceButtonContainer)
+        {
+            Destroy(child.gameObject);
+        }
+
+        // 다음 노드로 이동하는 버튼 생성
+        if (!string.IsNullOrEmpty(node.next))
+        {
+            GameObject buttonObj = Instantiate(choiceButtonPrefab, choiceButtonContainer);
+            Button button = buttonObj.GetComponent<Button>();
+            Text buttonText = buttonObj.GetComponentInChildren<Text>();
+
+            buttonText.text = "다음으로";
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(() => StartDialogue(node.next));
+        }
+    }
+    void DisplayMenuNode(MenuNode node)
+    {
+        // 공통 텍스트 출력 (있으면)
+        dialogueText.text = node.text != null ? string.Join("\n", node.text) : "";
+
+        // 기존 버튼 제거
+        foreach (Transform child in choiceButtonContainer)
+        {
+            Destroy(child.gameObject);
+        }
+        
+        float yOffset = -40f; // 버튼 간 세로 간격
+        float startY = 0f; // 시작 위치 기준값
+        int index = 0;
+
+        // 각 선택지에 대해 버튼 생성
+        foreach (MenuOption option in node.value)
+        {
+            GameObject buttonObj = Instantiate(choiceButtonPrefab, choiceButtonContainer);
+            buttonObj.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, startY + index * yOffset);
+
+            Button button = buttonObj.GetComponent<Button>();
+            Text buttonText = buttonObj.GetComponentInChildren<Text>();
+
+            buttonText.text = option.label;
+
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(() =>
+            {
+                Debug.Log($"선택됨: {option.id}");
+
+                // 선택지 클릭 후 기존 버튼 제거
+                foreach (Transform child in choiceButtonContainer)
+                {
+                    Destroy(child.gameObject);
+                }
+
+                // 선택지 텍스트 출력
+                if (option.text != null && option.text.Count > 0)
+                {
+                    dialogueText.text = string.Join("\n", option.text);
+                }
+                else
+                {
+                    dialogueText.text = "";
+                }
+
+                // 액션 처리
+                if (option.action != null)
+                {
+                    foreach (var act in option.action)
+                    {
+                        foreach (var key in act.Keys)
+                        {
+                            Debug.Log($"[Action 실행] {key} → {act[key]}");
+                            // 여기에 실제 아이템 획득 로직 추가 가능
+                        }
+                    }
+                }
+
+                // MenuNode의 next를 사용해서 "다음으로" 버튼 생성
+                if (!string.IsNullOrEmpty(node.next))
+                {
+                    GameObject nextButton = Instantiate(choiceButtonPrefab, choiceButtonContainer);
+                    Button nextBtn = nextButton.GetComponent<Button>();
+                    Text nextBtnText = nextButton.GetComponentInChildren<Text>();
+
+                    nextBtnText.text = "다음으로";
+                    nextBtn.onClick.RemoveAllListeners();
+                    nextBtn.onClick.AddListener(() =>
+                    {
+                        StartDialogue(node.next);
+                    });
+                }
+                else
+                {
+                    Debug.Log("MenuNode의 next 값이 없습니다. 종료 또는 대기 처리 필요.");
+                }
+            });
+
+            index++;
+        }
     }
 }
