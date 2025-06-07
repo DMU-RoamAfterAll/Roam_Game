@@ -1,4 +1,5 @@
 using System.IO;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -59,8 +60,12 @@ public class RandomSectionSpawner : MonoBehaviour {
 
     [Header("Script")]
     public AreaAsset areaAsset;
+    
+    void Awake() {
+        StartCoroutine(StartCoroutine());
+    }
 
-    void Start() {
+    IEnumerator StartCoroutine() {
         areaAsset = Resources.Load<AreaAsset>($"AreaAssetData/{this.gameObject.name}Data");
 
         initialMinDistance = GameDataManager.Data.initialMinDistance;
@@ -96,10 +101,10 @@ public class RandomSectionSpawner : MonoBehaviour {
 
         #region Function
 
-        CreateMainSection();
+        yield return StartCoroutine(CreateMainSection());
 
         List<Vector2> points = GenerateGuaranteedPoints(sectionCount, initialMinDistance, initialMaxDistance, maxRadius);
-        CreateSection(points);
+        yield return StartCoroutine(CreateSection(points));
 
         AdjustMainSection();
 
@@ -108,7 +113,6 @@ public class RandomSectionSpawner : MonoBehaviour {
         AreaLocateControl.totalAreaCount++;
 
         #endregion
-        
     }
 
     List<Vector2> GenerateGuaranteedPoints(int count, float minDist, float maxDist, float maxRadius) {
@@ -152,7 +156,7 @@ public class RandomSectionSpawner : MonoBehaviour {
         return generatedPoints;
     }
 
-    void CreateSection(List<Vector2> points) {
+    IEnumerator CreateSection(List<Vector2> points) {
         List<int> eventPool = Enumerable.Range(0, sectionCount).OrderBy(x => Random.value).ToList();
 
         for (int i = 0; i < sectionCount; i++) {
@@ -177,10 +181,13 @@ public class RandomSectionSpawner : MonoBehaviour {
             section.sectionPosition = pos;
 
             sections.Add(section);
+
+            float waitTime = Random.Range(0.5f, 1.2f);
+            yield return new WaitForSeconds(waitTime);
         }
     }
 
-    void CreateMainSection() {
+    IEnumerator CreateMainSection() {
         for (int i = 0; i < mainSectionCount; i++) {
             string filePath = mainEventFiles[i];
             string json = File.ReadAllText(filePath);
@@ -203,6 +210,9 @@ public class RandomSectionSpawner : MonoBehaviour {
             section.sectionPosition = position;
 
             sections.Add(section);
+
+            float waitTime = Random.Range(0.5f, 1.2f);
+            yield return new WaitForSeconds(waitTime);
         }
 
         mainSections = sections
