@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using System.Collections; 
 
 //-------------------------------------------------------
 // ** Json 데이터 클래스 구조 **
@@ -26,11 +27,11 @@ public class TextNode : BaseNode //본문 노드
 [System.Serializable]
 public class MenuOption //조사 선택지 노드
 {
-    public string id; // 선택지 키값
-    public string label; // 선택지에 보여질 텍스트
-    public List<string> text; // 선택지 클릭 시 출력될 텍스트
-    public List<Dictionary<string, object>> action; // 행동 정보 (아이템 획득 등)
-    public string next; // 다음 노드 키
+    public string id; //선택지 키값
+    public string label; //선택지에 보여질 텍스트
+    public List<string> text; //선택지 클릭 시 출력될 텍스트
+    public List<Dictionary<string, object>> action; //행동 정보 (아이템 획득 등)
+    public string next; //다음 노드 키
 }
 [System.Serializable]
 public class MenuNode : BaseNode //조사 노드
@@ -43,10 +44,20 @@ public class MenuNode : BaseNode //조사 노드
 public class SectionEventManager : MonoBehaviour
 {
     public string jsonFileName = ""; //불러올 Json파일 이름
-    public string jsonFolderPath =
-    "SectionData\\SectionEvent"; //Json폴더가 담긴 파일의 경로
+    public string jsonFolderPath = "SectionData\\SectionEvent"; //Json폴더가 담긴 파일의 경로
     private Dictionary<string, object> sectionData = new Dictionary<string, object>();
     //파싱된 Json데이터
+
+    public GameObject choiceButtonPrefab; //버튼 프리팹
+    public Transform choiceButtonContainer; //버튼 부모 오브젝트
+    public Image sceneImage; //UI에 띄울 이미지 컴포넌트
+
+    //다음으로 버튼튼 y값 수정
+    public float customY = -200f; 
+    //선택지 버튼 변수
+    float yOffset = -40f; //버튼 간 세로 간격
+    public float startY = -10f; //시작 위치 기준값
+    int index = 1;
 
     //임시 변수들
     public Text dialogueText;
@@ -154,48 +165,55 @@ public class SectionEventManager : MonoBehaviour
         }
     }
 
-    public GameObject choiceButtonPrefab; // 버튼 프리팹
-    public Transform choiceButtonContainer; // 버튼 부모 오브젝트
-
     void DisplayTextNode(TextNode node)
     {
-        // 텍스트 본문 출력
-        dialogueText.text = string.Join("\n", node.value);
+        StopAllCoroutines();
 
-        // 버튼 영역 초기화
         foreach (Transform child in choiceButtonContainer)
         {
             Destroy(child.gameObject);
         }
 
-        // 다음 노드로 이동하는 버튼 생성
+        HandleNodeActions(node.action); //이미지 로드
+
         if (!string.IsNullOrEmpty(node.next))
         {
-            GameObject buttonObj = Instantiate(choiceButtonPrefab, choiceButtonContainer);
-            Button button = buttonObj.GetComponent<Button>();
-            Text buttonText = buttonObj.GetComponentInChildren<Text>();
+            StartCoroutine(TypeTextCoroutine(string.Join("\n", node.value), () =>
+            {
+                GameObject buttonObj = Instantiate(choiceButtonPrefab, choiceButtonContainer);
+                Button button = buttonObj.GetComponent<Button>();
+                Text buttonText = buttonObj.GetComponentInChildren<Text>();
+                buttonText.text = "다음으로";
+                button.onClick.RemoveAllListeners();
+                button.onClick.AddListener(() => StartDialogue(node.next));
 
-            buttonText.text = "다음으로";
-            button.onClick.RemoveAllListeners();
-            button.onClick.AddListener(() => StartDialogue(node.next));
+                //ui임시 중앙정렬
+                RectTransform rect = buttonObj.GetComponent<RectTransform>();
+                rect.anchorMin = new Vector2(0.5f, 0.5f);  // 앵커 중앙
+                rect.anchorMax = new Vector2(0.5f, 0.5f);
+                rect.pivot = new Vector2(0.5f, 0.5f);       // 피벗 중앙
+                rect.anchoredPosition = new Vector2(0f, customY); // X는 중앙, Y는 직접 지정
+            }));
+        }
+        else
+        {
+            StartCoroutine(TypeTextCoroutine(string.Join("\n", node.value), null));
         }
     }
     void DisplayMenuNode(MenuNode node)
     {
-        // 공통 텍스트 출력 (있으면)
+        //공통 텍스트 출력
         dialogueText.text = node.text != null ? string.Join("\n", node.text) : "";
 
-        // 기존 버튼 제거
+        //기존 버튼 제거
         foreach (Transform child in choiceButtonContainer)
         {
             Destroy(child.gameObject);
         }
-        
-        float yOffset = -40f; // 버튼 간 세로 간격
-        float startY = 0f; // 시작 위치 기준값
-        int index = 0;
 
-        // 각 선택지에 대해 버튼 생성
+        HandleNodeActions(node.action); //이미지 로드
+
+        //각 선택지에 대해 버튼 생성
         foreach (MenuOption option in node.value)
         {
             GameObject buttonObj = Instantiate(choiceButtonPrefab, choiceButtonContainer);
@@ -211,23 +229,46 @@ public class SectionEventManager : MonoBehaviour
             {
                 Debug.Log($"선택됨: {option.id}");
 
-                // 선택지 클릭 후 기존 버튼 제거
+                //선택지 클릭 후 기존 버튼 제거
                 foreach (Transform child in choiceButtonContainer)
                 {
                     Destroy(child.gameObject);
                 }
 
-                // 선택지 텍스트 출력
+                //선택지 텍스트 출력
                 if (option.text != null && option.text.Count > 0)
                 {
-                    dialogueText.text = string.Join("\n", option.text);
+                    StopAllCoroutines();
+                    StartCoroutine(TypeTextCoroutine(string.Join("\n", option.text), () =>
+                    {
+                        if (!string.IsNullOrEmpty(node.next))
+                        {
+                            GameObject nextButton = Instantiate(choiceButtonPrefab, choiceButtonContainer);
+                            Button nextBtn = nextButton.GetComponent<Button>();
+                            Text nextBtnText = nextBtn.GetComponentInChildren<Text>();
+                            nextBtnText.text = "다음으로";
+                            nextBtn.onClick.RemoveAllListeners();
+                            nextBtn.onClick.AddListener(() => StartDialogue(node.next));
+
+                            //ui임시 중앙정렬
+                            RectTransform rect = nextButton.GetComponent<RectTransform>();
+                            rect.anchorMin = new Vector2(0.5f, 0.5f);  // 앵커 중앙
+                            rect.anchorMax = new Vector2(0.5f, 0.5f);
+                            rect.pivot = new Vector2(0.5f, 0.5f);       // 피벗 중앙
+                            rect.anchoredPosition = new Vector2(0f, customY); // X는 중앙, Y는 직접 지정
+                        }
+                        else
+                        {
+                            Debug.Log("MenuNode의 next 값이 없습니다. 종료 또는 대기 처리 필요.");
+                        }
+                    }));
                 }
                 else
                 {
                     dialogueText.text = "";
                 }
 
-                // 액션 처리
+                //액션 처리
                 if (option.action != null)
                 {
                     foreach (var act in option.action)
@@ -235,32 +276,58 @@ public class SectionEventManager : MonoBehaviour
                         foreach (var key in act.Keys)
                         {
                             Debug.Log($"[Action 실행] {key} → {act[key]}");
-                            // 여기에 실제 아이템 획득 로직 추가 가능
                         }
                     }
                 }
-
-                // MenuNode의 next를 사용해서 "다음으로" 버튼 생성
-                if (!string.IsNullOrEmpty(node.next))
-                {
-                    GameObject nextButton = Instantiate(choiceButtonPrefab, choiceButtonContainer);
-                    Button nextBtn = nextButton.GetComponent<Button>();
-                    Text nextBtnText = nextButton.GetComponentInChildren<Text>();
-
-                    nextBtnText.text = "다음으로";
-                    nextBtn.onClick.RemoveAllListeners();
-                    nextBtn.onClick.AddListener(() =>
-                    {
-                        StartDialogue(node.next);
-                    });
-                }
-                else
-                {
-                    Debug.Log("MenuNode의 next 값이 없습니다. 종료 또는 대기 처리 필요.");
-                }
             });
-
             index++;
         }
     }
+    IEnumerator TypeTextCoroutine(string fullText, System.Action onComplete = null, float delay = 0.03f)
+    {
+        dialogueText.text = "";
+        foreach (char c in fullText)
+        {
+            dialogueText.text += c;
+            yield return new WaitForSeconds(delay);
+        }
+        onComplete?.Invoke();
+    }
+
+    //action태그 처리 메소드 (현재 Image의 처리만 존재)
+    void HandleNodeActions(List<Dictionary<string, object>> actions)
+    {
+        if (actions == null) return;
+
+        foreach (var act in actions)
+        {
+            foreach (var key in act.Keys)
+            {
+                if (key == "Image" && act[key] is string imageName)
+                {
+                    Sprite newSprite = LoadSceneSprite(imageName);
+                    if (newSprite != null)
+                    {
+                        sceneImage.sprite = newSprite;
+                        Debug.Log($"[이미지 변경] {imageName}");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[이미지 로드 실패] {imageName}");
+                    }
+                }
+            }
+        }
+    }
+
+    //삽화 이미지 로더 메소드
+    Sprite LoadSceneSprite(string imageName)
+    {
+        string path = $"SectionData/SectionImage/{imageName}";
+        Texture2D texture = Resources.Load<Texture2D>(path);
+        if (texture == null) return null;
+
+        return Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+    }
+
 }
