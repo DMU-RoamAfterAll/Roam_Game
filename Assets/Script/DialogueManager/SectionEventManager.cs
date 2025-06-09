@@ -187,17 +187,16 @@ public class SectionEventManager : MonoBehaviour
                 button.onClick.RemoveAllListeners();
                 button.onClick.AddListener(() => StartDialogue(node.next));
 
-                //ui임시 중앙정렬
                 RectTransform rect = buttonObj.GetComponent<RectTransform>();
-                rect.anchorMin = new Vector2(0.5f, 0.5f);  // 앵커 중앙
+                rect.anchorMin = new Vector2(0.5f, 0.5f);
                 rect.anchorMax = new Vector2(0.5f, 0.5f);
-                rect.pivot = new Vector2(0.5f, 0.5f);       // 피벗 중앙
-                rect.anchoredPosition = new Vector2(0f, customY); // X는 중앙, Y는 직접 지정
+                rect.pivot = new Vector2(0.5f, 0.5f);
+                rect.anchoredPosition = new Vector2(0f, customY);
             }));
         }
         else
         {
-            StartCoroutine(TypeTextCoroutine(string.Join("\n", node.value), null));
+            StartCoroutine(TypeTextCoroutine(string.Join("\n", node.value)));
         }
     }
     void DisplayMenuNode(MenuNode node)
@@ -250,12 +249,11 @@ public class SectionEventManager : MonoBehaviour
                             nextBtn.onClick.RemoveAllListeners();
                             nextBtn.onClick.AddListener(() => StartDialogue(node.next));
 
-                            //ui임시 중앙정렬
                             RectTransform rect = nextButton.GetComponent<RectTransform>();
-                            rect.anchorMin = new Vector2(0.5f, 0.5f);  // 앵커 중앙
+                            rect.anchorMin = new Vector2(0.5f, 0.5f);
                             rect.anchorMax = new Vector2(0.5f, 0.5f);
-                            rect.pivot = new Vector2(0.5f, 0.5f);       // 피벗 중앙
-                            rect.anchoredPosition = new Vector2(0f, customY); // X는 중앙, Y는 직접 지정
+                            rect.pivot = new Vector2(0.5f, 0.5f);
+                            rect.anchoredPosition = new Vector2(0f, customY);
                         }
                         else
                         {
@@ -283,13 +281,30 @@ public class SectionEventManager : MonoBehaviour
             index++;
         }
     }
-    IEnumerator TypeTextCoroutine(string fullText, System.Action onComplete = null, float delay = 0.03f)
+
+    //스크립트 타이핑 효과 코루틴
+    IEnumerator TypeTextCoroutine(string fullText, System.Action onComplete = null,
+         float delayPerChar = 0.03f, float delayPerSentence = 0.4f)
     {
         dialogueText.text = "";
-        foreach (char c in fullText)
+        //문장 단위로 분리
+        string[] sentences = fullText.Split(new[] { '\n' }, System.StringSplitOptions.None);
+
+        for (int i = 0; i < sentences.Length; i++)
         {
-            dialogueText.text += c;
-            yield return new WaitForSeconds(delay);
+            string sentence = sentences[i];
+            foreach (char c in sentence)
+            {
+                dialogueText.text += c;
+                yield return new WaitForSeconds(delayPerChar);
+            }
+
+            //마지막 문장이 아니면 줄바꿈 추가
+            if (i < sentences.Length - 1)
+            {
+                dialogueText.text += "\n";
+                yield return new WaitForSeconds(delayPerSentence);
+            }
         }
         onComplete?.Invoke();
     }
