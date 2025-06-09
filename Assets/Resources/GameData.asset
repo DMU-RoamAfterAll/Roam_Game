@@ -14,8 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerName: Potato
   seed: 12345
-  areaCount: 1
-  areaDataFolderPath: Assets/Resources/AreaData
+  areaNumber: 0
+  riverHeight: 0
+  maxRadius: 0
+  areaAssetDataFolderPath: 
+  initialMinDistance: 0
+  initialMaxDistance: 0
   edgePrefab: {fileID: 5266680173097583215, guid: 97e8ee79c31334138960d632d3e6d10e, type: 3}
   sectionPrefab: {fileID: 2616647439733425939, guid: d414b0f23182c47ae8b806b2defb3357, type: 3}
   mainSectionPrefab: {fileID: 2616647439733425939, guid: 004fcb2efe2ad42b4856c98a5c4f9683, type: 3}
+  linkSectionPrefab: {fileID: 944879611818450130, guid: 923c19022142c46cd9fdc3e3db298efd, type: 3}
