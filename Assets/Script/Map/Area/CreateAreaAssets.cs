@@ -1,5 +1,7 @@
 using UnityEngine;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using System.IO;
 using Newtonsoft.Json;
 
@@ -7,52 +9,57 @@ public class CreateAreaAssets : MonoBehaviour {
     public string folderPath;
 
     void Start() {
+#if UNITY_EDITOR
         CreateAreaDataAssets();
+#endif
     }
 
+#if UNITY_EDITOR
     public void CreateAreaDataAssets() {
-        folderPath = GameDataManager.Data.areaDataFolderPath;
+        folderPath = GameDataManager.Data.areaAssetDataFolderPath;
         Debug.Log("folderPath : " + folderPath);
 
-        if(!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+        if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
 
         string[] jsonFiles = Directory.GetFiles(folderPath, "*.json");
 
-        foreach(string jsonFilePath in jsonFiles) {
+        foreach (string jsonFilePath in jsonFiles) {
             string jsonContent = File.ReadAllText(jsonFilePath);
             string areaName = Path.GetFileNameWithoutExtension(jsonFilePath);
             string assetPath = $"{folderPath}/{areaName}Data.asset";
 
-            AreaData jsonData = ScriptableObject.CreateInstance<AreaData>();
+            AreaAsset jsonData = ScriptableObject.CreateInstance<AreaAsset>();
             jsonData.name = areaName + "Data";
             JsonConvert.PopulateObject(jsonContent, jsonData);
 
             jsonData.areaName = areaName;
-            
-            AreaData existingData = AssetDatabase.LoadAssetAtPath<AreaData>(assetPath);
-    
+
+            AreaAsset existingData = AssetDatabase.LoadAssetAtPath<AreaAsset>(assetPath);
+
             if (existingData == null) {
                 AssetDatabase.CreateAsset(jsonData, assetPath);
-                Debug.Log($"Created new AreaData: {areaName}");
+                Debug.Log($"Created new AreaAsset: {areaName}");
             }
             else {
                 EditorUtility.CopySerialized(jsonData, existingData);
-                Debug.Log($"Updated existing AreaData: {areaName}");
+                Debug.Log($"Updated existing AreaAsset: {areaName}");
             }
 
             GameObject areaObject = new GameObject(areaName);
             areaObject.transform.SetParent(this.transform);
-            
-            if(areaName == "Tutorial") areaObject.tag = Tag.Tutorial;
+            GameDataManager.Instance.areaObjects.Add(areaObject);
+
+            if (areaName == "Tutorial") areaObject.tag = Tag.Tutorial;
             else areaObject.tag = Tag.Area;
 
-            AreaDataManager areaManager = areaObject.AddComponent<AreaDataManager>();
-            areaManager.areaData = jsonData;
+            AreaAssetManager areaManager = areaObject.AddComponent<AreaAssetManager>();
+            areaManager.areaAsset = jsonData;
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
         }
 
-        Debug.Log("All AreaData assets created succesfully!");
+        Debug.Log("All AreaAsset created succesfully!");
     }
+#endif
 }
