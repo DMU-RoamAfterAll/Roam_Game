@@ -37,6 +37,8 @@ public class StepManager : MonoBehaviour {
     void Start() {
         totalStepsText = GameObject.Find("TotalStepData").GetComponent<TMP_Text>();
         sessionStepsText = GameObject.Find("SessionStepData").GetComponent<TMP_Text>();
+
+        Application.targetFrameRate = 60;
         
         #if UNITY_IOS && !UNITY_EDITOR
 
@@ -75,8 +77,8 @@ public class StepManager : MonoBehaviour {
             androidSessionSteps = stepPlugin.Call<int>("getSessionStepCount");
 
             totalStepsText.text = $"today step Count : {androidTodaySteps:N0}";
-            sessionStepsText.text = $"session step Count : {androidSessionSteps:N0}";
-
+            //sessionStepsText.text = $"session step Count : {androidSessionSteps:N0}";
+            sessionStepsText.text = null;
             Debug.Log($"[StepManager] Android Step Count - Today: {androidTodaySteps}, Session: {androidSessionSteps}");
         }
         #else
