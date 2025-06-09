@@ -14,6 +14,3 @@ public class PlayerControl : MonoBehaviour {
         }
     }
 }
-
-
-//나중에 다시 고치기
