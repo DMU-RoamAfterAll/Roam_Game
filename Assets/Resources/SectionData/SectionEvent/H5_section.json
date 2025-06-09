@@ -1,0 +1,149 @@
+{
+  "Text1": {
+    "value": [
+      "당신은 도심 외곽의 폐건물에 도착했다.",
+      "건물은 절반가량 무너져 있으며, 내부는 유리 조각과 쓰레기 더미로 가득하다.",
+      "안쪽 어딘가에서 짧고 날카로운 기계음이 간헐적으로 울리고 있다."
+    ],
+    "next": "Text2"
+  },
+  "Text2": {
+    "value": [
+      "당신은 발자국이 어지럽게 흩어진 건물 안으로 발을 들인다.",
+      "그 중 몇몇은 비교적 선명하게 안쪽으로 이어지다, 어느 지점에서 갑자기 끊긴다."
+    ],
+    "next": "Menu1"
+  },
+  "Menu1": {
+    "value": [
+      {
+        "id": "Trace",
+        "label": "발자국을 따라간다",
+        "text": [],
+        "condition": "",
+        "next": "TraceSkillCheck"
+      },
+      {
+        "id": "Garbage",
+        "label": "쓰레기 더미를 조사한다",
+        "text": [],
+        "condition": "",
+        "next": "MenuGarbage"
+      },
+      {
+        "id": "Window",
+        "label": "창문 쪽으로 이동한다",
+        "text": [],
+        "condition": "",
+        "next": "MenuWindow"
+      }
+    ],
+    "next": null
+  },
+  "TraceSkillCheck": {
+    "value": [],
+    "action": [],
+    "next": null,
+    "text": [],
+    "condition": "HasSkill:관찰력",
+    "success": {
+      "text": [
+        "피자국은 벽을 타고 창문 밖으로 이어진다. 누군가 창문을 통해 탈출한 것으로 보인다.",
+        "당신은 이 경로를 마음속에 새긴다."
+      ]
+    },
+    "failure": {
+      "text": [
+        "발자국이 끊긴 지점에서 당신은 더 이상 방향을 찾지 못한다.",
+        "이 경험을 통해, 당신은 관찰력의 중요성을 깨닫는다."
+      ],
+      "action": [
+        { "GainSkill": "관찰력" }
+      ]
+    }
+  },
+  "MenuGarbage": {
+    "value": [
+      {
+        "id": "Mirror",
+        "label": "거울 파편을 살펴본다",
+        "text": [],
+        "next": "MirrorSkillCheck"
+      },
+      {
+        "id": "Dig",
+        "label": "아래쪽을 파헤쳐본다",
+        "text": [
+          "당신은 쓰레기를 더 깊이 파헤친다.",
+          "녹슨 깡통 밑에서 건전지 한 개를 발견한다."
+        ],
+        "action": [
+          { "Get": ["건전지", 1] }
+        ],
+        "next": null
+      }
+    ],
+    "next": null
+  },
+  "MirrorSkillCheck": {
+    "value": [],
+    "action": [],
+    "next": null,
+    "condition": "HasSkill:관찰력",
+    "success": {
+      "text": [
+        "거울에는 희미한 손자국이 남아 있고, 그것은 벽을 따라 창문 쪽으로 이어진다.",
+        "누군가 거울을 짚으며 창문 쪽으로 향했음을 추측할 수 있다."
+      ]
+    },
+    "failure": {
+      "text": [
+        "당신은 손자국이 있다는 것까지만 알아챈다.",
+        "그것이 어떤 의미인지는 알 수 없다."
+      ],
+      "action": [
+        { "GainSkill": "관찰력" }
+      ]
+    }
+  },
+  "MenuWindow": {
+    "value": [
+      {
+        "id": "Out",
+        "label": "창문 밖으로 내려간다",
+        "text": [],
+        "next": "WindowSkillCheck"
+      },
+      {
+        "id": "Back",
+        "label": "창문을 포기하고 돌아선다",
+        "text": [
+          "창문 근처에서 인기척을 느낀 당신은 위험을 피하고자 발길을 돌린다.",
+          "건물을 빠져나오며 조사를 마무리한다."
+        ],
+        "next": null
+      }
+    ],
+    "next": null
+  },
+  "WindowSkillCheck": {
+    "value": [],
+    "action": [],
+    "next": null,
+    "condition": "HasSkill:관찰력",
+    "success": {
+      "text": [
+        "쓰레기통 주변의 진흙 바닥에 발자국 패턴이 남아 있다.",
+        "오른발을 절뚝거리며 도주한 흔적이 선명하다."
+      ]
+    },
+    "failure": {
+      "text": [
+        "당신은 발자국이 있다는 것만 인지할 뿐, 그것이 어디로 이어졌는지는 파악하지 못한다."
+      ],
+      "action": [
+        { "GainSkill": "관찰력" }
+      ]
+    }
+  }
+}
