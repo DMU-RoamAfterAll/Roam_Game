@@ -404,6 +404,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameData: {fileID: 11400000, guid: 7a56eed7509e74e15848ec54a9048f8b, type: 2}
+  areaObjects: []
 --- !u!1 &1490040432
 GameObject:
   m_ObjectHideFlags: 0

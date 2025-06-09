@@ -35,13 +35,9 @@ public class AreaLocateControl : MonoBehaviour {
     void FindAreaPoint() {
         totalAreaCount--;
 
-        spawners = Object.FindObjectsByType<RandomSectionSpawner>(FindObjectsSortMode.None)
+        spawners = GameDataManager.Instance.areaObjects
             .Where(spawner => spawner.CompareTag(Tag.Area))
-            .OrderBy(spawner =>
-            {
-                string[] parts = spawner.gameObject.name.Split('_');
-                return int.Parse(parts[1]);
-            })
+            .Select(go => go.GetComponent<RandomSectionSpawner>())
             .ToArray();
 
         float x = 0;
@@ -106,5 +102,7 @@ public class AreaLocateControl : MonoBehaviour {
         for(int i = 0; i < totalAreaCount; i++) {
             spawners[i].gameObject.transform.position = basePoint[i];
         }
+
+        LinkSectionSpawner linkSectionSpawner = this.gameObject.AddComponent<LinkSectionSpawner>();
     }
 }
