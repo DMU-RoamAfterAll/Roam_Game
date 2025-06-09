@@ -6,6 +6,7 @@ public class SectionData : MonoBehaviour {
     public string eventType;
     public bool isVisited;
     public bool isCleared;
+    public bool isPlayerOn;
     public Vector2 sectionPosition;
 
     public int stepCost;
