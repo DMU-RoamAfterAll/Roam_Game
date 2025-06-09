@@ -4,20 +4,23 @@ using System.Collections.Generic;
 [CreateAssetMenu(fileName = "GameData", menuName = "ScriptableObject/GameData", order = 1)]
 
 public class GameData : ScriptableObject {
+    [Header("GameData")]
     public string playerName;
     public int seed;
-    public int areaCount;
 
+    [Header("AreaAssetData")]
+    public int areaNumber;
+    public int riverHeight;
+    public float maxRadius;
+    public string areaAssetDataFolderPath;
+
+    [Header("SectionData")]
     public float initialMinDistance;
     public float initialMaxDistance;
-    public float maxRadius;
 
-    public string areaDataFolderPath;
-
+    [Header("Prefab")]
     public GameObject edgePrefab;
     public GameObject sectionPrefab;
     public GameObject mainSectionPrefab;
-
-    public int areaNumber;
-    public int riverHeight;
+    public GameObject linkSectionPrefab;
 }
