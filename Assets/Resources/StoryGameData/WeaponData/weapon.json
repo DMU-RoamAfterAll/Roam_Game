@@ -1,0 +1,26 @@
+[
+  {
+    "code": "wp_2001",
+    "name": "삽",
+    "description": "흙을 파는 데 적합해 보인다. 무기로 쓴다면 제법 위협적일지도 모르겠다.",
+    "category": ["무기", "사용 아이템"],
+    "damage": 4,
+    "durability": 4
+  },
+  {
+    "code": "wp_2002",
+    "name": "식칼",
+    "description": "주방에서 쓰던 흔적이 있다. 날이 살아 있어서 무기로도 충분히 쓸 수 있을 것 같다.",
+    "category": ["무기"],
+    "damage": 10,
+    "durability": 5
+  },
+  {
+    "code": "wp_2003",
+    "name": "쇠 파이프",
+    "description": "표면이 녹슬었지만 무게감이 있다. 제대로 휘두르면 꽤 큰 피해를 줄 수 있을 듯하다.",
+    "category": ["무기"],
+    "damage": 6,
+    "durability": 3
+  }
+]
