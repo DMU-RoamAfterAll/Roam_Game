@@ -167,6 +167,7 @@ public class RandomSectionSpawner : MonoBehaviour {
 
             Vector2 pos = points[i];
             GameObject go = Instantiate(sectionPrefab, new Vector3(pos.x, pos.y, 0f), Quaternion.identity);
+            GameDataManager.Instance.sections.Add(go);
 
             go.name = $"Section_{i}";
             go.transform.SetParent(this.transform);
@@ -196,6 +197,7 @@ public class RandomSectionSpawner : MonoBehaviour {
             Vector2 position = new Vector2(data.x, data.y);
 
             GameObject go = Instantiate(mainSectionPrefab, position, Quaternion.identity);
+            GameDataManager.Instance.mainSections.Add(go);
 
             go.name = $"MainSection_{i}";
             go.transform.SetParent(this.transform);
