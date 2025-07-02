@@ -7,7 +7,7 @@ public class PlayerControl : MonoBehaviour {
             RaycastHit2D hit = Physics2D.Raycast(mousePos, Vector2.zero);
 
             if(hit.collider != null) {
-                if(hit.collider.CompareTag("Section") || hit.collider.CompareTag("MainSection") || hit.collider.CompareTag("LinkSection")) {
+                if(hit.collider.CompareTag("Section")) {
                     this.gameObject.transform.position = hit.collider.gameObject.transform.position;
                 }
             }
