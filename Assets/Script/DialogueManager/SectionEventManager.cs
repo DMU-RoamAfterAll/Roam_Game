@@ -44,7 +44,7 @@ public class MenuNode : BaseNode //조사 노드
 public class SectionEventManager : MonoBehaviour
 {
     public string jsonFileName = ""; //불러올 Json파일 이름
-    public string jsonFolderPath = "SectionData\\SectionEvent"; //Json폴더가 담긴 파일의 경로
+    public string jsonFolderPath = "SectionData\\SectionEvent\\TutorialSection"; //Json폴더가 담긴 파일의 경로
     private Dictionary<string, object> sectionData = new Dictionary<string, object>();
     //파싱된 Json데이터
 
@@ -338,7 +338,7 @@ public class SectionEventManager : MonoBehaviour
     //삽화 이미지 로더 메소드
     Sprite LoadSceneSprite(string imageName)
     {
-        string path = $"SectionData/SectionImage/{imageName}";
+        string path = $"SectionData/SectionImage/TSectionImage/{imageName}";
         Texture2D texture = Resources.Load<Texture2D>(path);
         if (texture == null) return null;
 
