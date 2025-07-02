@@ -7,8 +7,6 @@ TagManager:
   - Section
   - Area
   - Tutorial
-  - LinkSection
-  - MainSection
   layers:
   - Default
   - TransparentFX
