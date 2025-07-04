@@ -4,7 +4,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using UnityEngine.UI;
-using System.Collections; 
+using System.Collections;
+using KoreanTyper;
 
 //-------------------------------------------------------
 // ** Json 데이터 클래스 구조 **
@@ -43,14 +44,16 @@ public class MenuNode : BaseNode //조사 노드
 
 public class SectionEventManager : MonoBehaviour
 {
-    public string jsonFileName = ""; //불러올 Json파일 이름
-    public string jsonFolderPath = "SectionData\\SectionEvent\\TutorialSection"; //Json폴더가 담긴 파일의 경로
-    private Dictionary<string, object> sectionData = new Dictionary<string, object>();
-    //파싱된 Json데이터
+    //----------------------------------------------------------------
+    //<<변수 정의>>
+    public string jsonFileName = ""; //불러올 Json파일 이름, 외부에서 받아옴
+    private string jsonFolderPath = "StoryGameData/SectionData/SectionEvent/TutorialSection"; //Json폴더가 담긴 파일의 경로
+    private string imageFolderPath = "StoryGameData/SectionData/SectionImage/TSectionImage"; //게임 삽화가 담긴 파일의 경로
+    private Dictionary<string, object> sectionData = new Dictionary<string, object>(); //파싱된 Json데이터
 
     public GameObject choiceButtonPrefab; //버튼 프리팹
     public Transform choiceButtonContainer; //버튼 부모 오브젝트
-    public Image sceneImage; //UI에 띄울 이미지 컴포넌트
+    private Image sceneImage; //UI에 띄울 이미지 컴포넌트
 
     //다음으로 버튼튼 y값 수정
     public float customY = -200f; 
@@ -59,12 +62,21 @@ public class SectionEventManager : MonoBehaviour
     public float startY = -10f; //시작 위치 기준값
     int index = 1;
 
-    //임시 변수들
-    public Text dialogueText;
-    TextNode testjson = null;
+    //타이핑 변수
+    private Text dialogueText; //출력될 텍스트 컴포넌트
+    public float delayPerChar = 0.01f; //문장 타이핑 딜레이
+    public float delayPerSentence = 0.25f; //문장간 딜레이
 
+    //디버깅용 변수
+    TextNode testjson = null;
+    //----------------------------------------------------------------
+    
     void Start()
     {
+        //참조 캐싱
+        dialogueText = GameObject.Find("ScriptText").GetComponent<Text>();
+        sceneImage = GameObject.Find("SceneImage").GetComponent<Image>();
+
         LoadJson(jsonFileName); //Json파일 로드
 
         //Json테스트 출력
@@ -81,8 +93,8 @@ public class SectionEventManager : MonoBehaviour
     //Json Event 데이터 파일 로드
     public void LoadJson(string jsonFileName)
     {
-        string filePath = Path.Combine(jsonFolderPath, jsonFileName);
-        filePath = filePath.Replace("\\", "/"); // 경로 구분자 통일
+        string filePath = $"{jsonFolderPath}/{jsonFileName}";
+        Debug.Log(filePath);
 
         TextAsset jsonFile = Resources.Load<TextAsset>(filePath); //Json 파일 로드
         if (jsonFile == null)
@@ -283,28 +295,23 @@ public class SectionEventManager : MonoBehaviour
     }
 
     //스크립트 타이핑 효과 코루틴
-    IEnumerator TypeTextCoroutine(string fullText, System.Action onComplete = null,
-         float delayPerChar = 0.03f, float delayPerSentence = 0.4f)
+    IEnumerator TypeTextCoroutine(string fullText,
+    System.Action onComplete = null)
     {
-        dialogueText.text = "";
-        //문장 단위로 분리
-        string[] sentences = fullText.Split(new[] { '\n' }, System.StringSplitOptions.None);
-
-        for (int i = 0; i < sentences.Length; i++)
+        dialogueText.text = ""; //타이핑 첫 시작시 내용 초기화
+        int typingLength = fullText.GetTypingLength(); //문장 길이 측정
+        
+        for (int j = 0; j <= typingLength; j++) //타이핑 효과
         {
-            string sentence = sentences[i];
-            foreach (char c in sentence)
+            dialogueText.text = fullText.Typing(j);
+            if (!string.IsNullOrEmpty(dialogueText.text))
             {
-                dialogueText.text += c;
-                yield return new WaitForSeconds(delayPerChar);
+                if (dialogueText.text[dialogueText.text.Length - 1] == '\n')
+                {
+                    yield return new WaitForSeconds(delayPerSentence); //문장 끝일때 딜레이 추가
+                }
             }
-
-            //마지막 문장이 아니면 줄바꿈 추가
-            if (i < sentences.Length - 1)
-            {
-                dialogueText.text += "\n";
-                yield return new WaitForSeconds(delayPerSentence);
-            }
+            yield return new WaitForSeconds(delayPerChar); //타이핑 딜레이
         }
         onComplete?.Invoke();
     }
@@ -318,6 +325,7 @@ public class SectionEventManager : MonoBehaviour
         {
             foreach (var key in act.Keys)
             {
+                //삽화 이미지 로드 처리
                 if (key == "Image" && act[key] is string imageName)
                 {
                     Sprite newSprite = LoadSceneSprite(imageName);
@@ -338,8 +346,10 @@ public class SectionEventManager : MonoBehaviour
     //삽화 이미지 로더 메소드
     Sprite LoadSceneSprite(string imageName)
     {
-        string path = $"SectionData/SectionImage/TSectionImage/{imageName}";
-        Texture2D texture = Resources.Load<Texture2D>(path);
+        string imagePath = $"{imageFolderPath}/{imageName}";
+        Debug.Log(imagePath);
+
+        Texture2D texture = Resources.Load<Texture2D>(imagePath);
         if (texture == null) return null;
 
         return Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
