@@ -23,6 +23,8 @@ public class LinkSection : MonoBehaviour {
 
         GameObject go = Instantiate(linkObjPrefab, spawnPos, Quaternion.identity);
         go.transform.SetParent(this.transform);
+        this.gameObject.GetComponent<SectionData>().linkSections.Add(go);
+        go.GetComponent<LinkPosition>().linkedObject = linkObj;
         GameDataManager.Instance.linkSections.Add(go);
     }
 }
