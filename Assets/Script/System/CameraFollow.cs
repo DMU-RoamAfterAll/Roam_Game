@@ -1,13 +1,55 @@
 using UnityEngine;
 
 public class CameraFollow : MonoBehaviour {
-    public Transform target;           // 따라갈 대상
-    public float smoothSpeed = 0.125f; // 부드럽게 따라가는 정도
-    public Vector3 offset;             // 카메라 위치 오프셋
+    [Header("Data")]
+    public Transform target;
+    public float smoothSpeed;
+    public float moveSpeed;
+    public bool isLockOn;
+    public Vector3 offset;
+
+    void Start() {
+        smoothSpeed = 0.25f;
+        moveSpeed = 20f;
+        isLockOn = true;
+    }
+
+    void Update() {
+        MoveCamera();
+    }
 
     void LateUpdate() {
+        if(isLockOn) {
+            LockOn();
+        }
+    }
+
+    void MoveCamera() {
+        #if UNITY_EDITOR || UNITY_STANDALONE_OSX
+
+        float horizontal = Input.GetAxis("Horizontal");
+        float vertical = Input.GetAxis("Vertical");
+
+        Vector3 cameraPosition = this.transform.position;
+
+        cameraPosition.x += Time.deltaTime * horizontal * moveSpeed;
+        cameraPosition.y += Time.deltaTime * vertical * moveSpeed;
+
+        this.transform.position = cameraPosition;
+
+        #elif UNITY_IOS || UNITY_ANDROID
+
+
+        #else
+
+        weatherText.text = "cant support platform";
+
+        #endif
+    }
+
+    void LockOn() {
         if (target == null) {
-            target = GameObject.FindGameObjectWithTag("Player").transform;
+            target = GameDataManager.Instance.Player.transform;
         }
 
         Vector3 desiredPosition = target.position + offset;
@@ -15,5 +57,13 @@ public class CameraFollow : MonoBehaviour {
 
         Vector3 smoothedPosition = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed);
         transform.position = smoothedPosition;
+    }
+
+    public void SwitchLockOn() {
+        isLockOn = !isLockOn;
+    }
+
+    void LimitMoveArea() {
+
     }
 }

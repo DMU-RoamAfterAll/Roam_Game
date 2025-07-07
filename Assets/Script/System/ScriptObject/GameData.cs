@@ -19,8 +19,11 @@ public class GameData : ScriptableObject {
     public float initialMaxDistance;
 
     [Header("Prefab")]
-    public GameObject edgePrefab;
     public GameObject sectionPrefab;
     public GameObject mainSectionPrefab;
     public GameObject linkSectionPrefab;
+    public GameObject sightSectionPrefab;
+
+    [Header("Object")]
+    public GameObject sightObjects;
 }
