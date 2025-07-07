@@ -5,6 +5,10 @@ using System.IO;
 
 public class GameDataManager : MonoBehaviour {
     public static GameDataManager Instance { get; private set; }
+    public GameObject Player;
+    public GameObject originSection;
+    public string playerLocate;
+
     public GameData gameData;
 
     public static GameData Data => Instance.gameData;
@@ -28,6 +32,7 @@ public class GameDataManager : MonoBehaviour {
         #region 임시 테스트용
         
         linkTrigger = false;
+
         #endregion
     }
 
@@ -37,16 +42,22 @@ public class GameDataManager : MonoBehaviour {
             return;
         }
 
+        Player = GameObject.FindGameObjectWithTag(Tag.Player);
+        originSection = GameObject.FindGameObjectWithTag(Tag.Origin);
+        playerLocate = "origin";
+
         gameData.playerName = "Potato";
         gameData.seed = 54321;
-        gameData.initialMinDistance = 5f;
-        gameData.initialMaxDistance = 8f;
+        gameData.initialMinDistance = 10f;
+        gameData.initialMaxDistance = 12f;
         gameData.maxRadius = 30f;
 
         gameData.areaAssetDataFolderPath = "Assets/Resources/AreaAssetData";
 
         gameData.areaNumber = (Directory.GetFiles(gameData.areaAssetDataFolderPath, "*.json")).Length;
         gameData.riverHeight = 5;
+
+        gameData.sightObjects = GameObject.Find("SightObjects");
 
         Application.targetFrameRate = 60;
     }

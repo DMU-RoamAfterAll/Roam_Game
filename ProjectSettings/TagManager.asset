@@ -9,6 +9,7 @@ TagManager:
   - Tutorial
   - LinkSection
   - MainSection
+  - Origin
   layers:
   - Default
   - TransparentFX
