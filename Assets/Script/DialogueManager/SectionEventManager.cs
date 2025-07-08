@@ -6,46 +6,77 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using System.Collections;
 using KoreanTyper;
+using System;
+using System.Security.Cryptography.X509Certificates;
 
-//-------------------------------------------------------
+//-------------------------------------------------------------------------------
 // ** Json 데이터 클래스 구조 **
+//-------------------------------------------------------------------------------
 
 [System.Serializable]
-public class BaseNode //공통 노드
+//공통 보조 노드
+public class CommonNode
 {
-    public List<Dictionary<string, object>> action; //아이템 습득 및 손실
-    public List<string> text; //선택지 출력 결과
-    public string next; //텍스트 이동을 위한 키값
-    
+    public string next; //다음 출력을 위한 노드 키값, 본문이 출력된 후 해당 노드로 이동
+    public ActionNode action; //키값을 주어 다양한 기능을 제어 가능
 }
 
 [System.Serializable]
-public class TextNode : BaseNode //본문 노드
+//모든 노드 안에 작성 가능한 부가 기능 노드, 키값을 주어 다양한 기능을 제어 가능
+public class ActionNode
 {
-    public List<string> value; //텍스트 본문
+    public string image; //삽화를 변경하기 위한 삽화 명을 작성하는 노드, 본문을 출력하기 전 삽화 변경이 이루어짐
+    public ItemData get; //아이템 획득 기능을 위한 노드, <"아이템 코드", 갯수>형식으로 작성
+    public ItemData lost; //아이템 유실 기능을 위한 노드, <"아이템 코드", 갯수>형식으로 작성
+    public FlagData flagSet; //플래그 설정을 위한 플래그 명을 작성하는 노드, <"플래그명", boolean>형식으로 작성
+    public List<FlagData> flagCheck; //본문을 내보내기 위해 플래그를 확인하는 노드, <"플래그명", boolean>형식으로 작성
+                                      //(리스트 형식으로 복수 체크 가능)
 }
 
 [System.Serializable]
-public class MenuOption //조사 선택지 노드
+//아이템 제어를 위한 데이터 모델
+public class ItemData
 {
-    public string id; //선택지 키값
-    public string label; //선택지에 보여질 텍스트
-    public List<string> text; //선택지 클릭 시 출력될 텍스트
-    public List<Dictionary<string, object>> action; //행동 정보 (아이템 획득 등)
-    public string next; //다음 노드 키
-}
-[System.Serializable]
-public class MenuNode : BaseNode //조사 노드
-{
-    public List<MenuOption> value; //조사 선택지 노드가 담긴 리스트
+    public string ItemCode; //아이템 코드명
+    public int ItemAmount; //아이템 갯수
 }
 
-//-------------------------------------------------------
+[System.Serializable]
+//플래그 제어를 위한 데이터 모델
+public class FlagData
+{
+    public string flagName; //플래그
+    public bool flagState; //플래그 상태
+}
+
+//-------------------------------------------------------------------------------
+
+[System.Serializable]
+//텍스트 본문을 출력하는 노드, Text1 Text2 ... 혹은 Result1 Result2 ... 등으로 작성
+public class TextNode : CommonNode
+{
+    public List<string> value; //본문 내용을 적는 노드, 리스트를 사용하여 여러 문장을 나누어 작성
+}
+
+//-------------------------------------------------------------------------------
+
+[System.Serializable]
+//선택지를 생성하는 노드, Menu1 Menu2 ... 등으로 작성
+public class MenuNode
+{
+    public List<MenuOption> menuOption;
+}
+
+public class MenuOption : CommonNode
+{
+    public string id; //선택지를 구분하기 위한 키값
+    public string label; //선택지 내용
+}
+
+//-------------------------------------------------------------------------------
 
 public class SectionEventManager : MonoBehaviour
 {
-    //----------------------------------------------------------------
-    //<<변수 정의>>
     public string jsonFileName = ""; //불러올 Json파일 이름, 외부에서 받아옴
     private string jsonFolderPath = "StoryGameData/SectionData/SectionEvent/TutorialSection"; //Json폴더가 담긴 파일의 경로
     private string imageFolderPath = "StoryGameData/SectionData/SectionImage/TSectionImage"; //게임 삽화가 담긴 파일의 경로
@@ -56,7 +87,7 @@ public class SectionEventManager : MonoBehaviour
     private Image sceneImage; //UI에 띄울 이미지 컴포넌트
 
     //다음으로 버튼튼 y값 수정
-    public float customY = -200f; 
+    public float customY = -200f;
     //선택지 버튼 변수
     float yOffset = -40f; //버튼 간 세로 간격
     public float startY = -10f; //시작 위치 기준값
@@ -69,8 +100,7 @@ public class SectionEventManager : MonoBehaviour
 
     //디버깅용 변수
     TextNode testjson = null;
-    //----------------------------------------------------------------
-    
+
     void Start()
     {
         //참조 캐싱
@@ -90,7 +120,10 @@ public class SectionEventManager : MonoBehaviour
 
     }
 
-    //Json Event 데이터 파일 로드
+    /// <summary>
+    /// Json Event 데이터 파일 로드
+    /// </summary>
+    /// <param name="jsonFileName">Json 파일명(확장자 미포함)</param>
     public void LoadJson(string jsonFileName)
     {
         string filePath = $"{jsonFolderPath}/{jsonFileName}";
@@ -118,7 +151,7 @@ public class SectionEventManager : MonoBehaviour
                 MenuNode menu = nodeObj.ToObject<MenuNode>();
                 sectionData[key] = menu; //키가 존재하지 않으면 동적 추가
             }
-            else if (key.StartsWith("Text"))
+            else if (key.StartsWith("Text") || key.StartsWith("Result"))
             {
                 TextNode text = nodeObj.ToObject<TextNode>();
                 sectionData[key] = text; //키가 존재하지 않으면 동적 추가
@@ -131,12 +164,13 @@ public class SectionEventManager : MonoBehaviour
         Debug.Log("Reading File : " + jsonFileName + ".json"); //파일 로드 확인 로그
     }
 
-    //텍스트 노드를 꺼내는 메소드
-    //사용 예시 : 
-    /*
-    TextNode node = sectionEventManager.GetTextNode("Text2");
-    Debug.Log(node.value[0]);
-    */
+    /// <summary>
+    /// 텍스트 노드를 꺼내는 메소드
+    /// ex) TextNode node = sectionEventManager.GetTextNode("Text2");
+    ///     Debug.Log(node.value[0]);
+    /// </summary>
+    /// <param name="key">꺼낼 텍스트 노드의 key값</param>
+    /// <returns>해당 텍스트 노드</returns>
     public TextNode GetTextNode(string key)
     {
         if (sectionData.TryGetValue(key, out object node) && node is TextNode text)
@@ -144,7 +178,11 @@ public class SectionEventManager : MonoBehaviour
         return null;
     }
 
-    //메뉴 노드를 꺼내는 메소드
+    /// <summary>
+    /// 메뉴 노드를 꺼내는 메소드
+    /// </summary>
+    /// <param name="key">꺼낼 메뉴 노드의 key값</param>
+    /// <returns>해당 메뉴 노드</returns>
     public MenuNode GetMenuNode(string key)
     {
         if (sectionData.TryGetValue(key, out object node) && node is MenuNode menu)
@@ -152,8 +190,78 @@ public class SectionEventManager : MonoBehaviour
         return null;
     }
 
-    //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ테스트 출력 부분ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+    //스크립트 타이핑 효과 코루틴
+    IEnumerator TypeTextCoroutine(string fullText,
+    System.Action onComplete = null)
+    {
+        dialogueText.text = ""; //타이핑 첫 시작시 내용 초기화
+        int typingLength = fullText.GetTypingLength(); //문장 길이 측정
 
+        for (int j = 0; j <= typingLength; j++) //타이핑 효과
+        {
+            dialogueText.text = fullText.Typing(j);
+            if (!string.IsNullOrEmpty(dialogueText.text))
+            {
+                if (dialogueText.text[dialogueText.text.Length - 1] == '\n')
+                {
+                    yield return new WaitForSeconds(delayPerSentence); //문장 끝일때 딜레이 추가
+                }
+            }
+            yield return new WaitForSeconds(delayPerChar); //타이핑 딜레이
+        }
+        onComplete?.Invoke();
+    }
+
+    /// <summary>
+    /// 액션 노드 처리 메소드
+    /// </summary>
+    /// <param name="actions">대상 액션 노드</param>
+    void HandleNodeActions(ActionNode actions)
+    {
+        if (actions == null) return;
+
+        //삽화 변경
+        if (actions.image != "" && actions.image != "" && actions.image is string imageName)
+        {
+            Sprite newSprite = LoadSceneSprite(imageName);
+            if (newSprite != null)
+            {
+                sceneImage.sprite = newSprite;
+                Debug.Log($"[이미지 변경] {imageName}");
+            }
+            else
+            {
+                Debug.LogWarning($"[이미지 로드 실패] {imageName}");
+            }
+        }
+
+        //아이템 획득
+
+        //아이템 유실
+
+        //플래그 설정
+
+        //플래그 체크
+    }
+
+    /// <summary>
+    /// 삽화 이미지 로더 메소드
+    /// </summary>
+    /// <param name="imageName">확장자를 제외한 삽화 이미지 파일명</param>
+    /// <returns>삽화 이미지 렌더링 실행</returns>
+    Sprite LoadSceneSprite(string imageName)
+    {
+        string imagePath = $"{imageFolderPath}/{imageName}";
+        Debug.Log(imagePath);
+
+        Texture2D texture = Resources.Load<Texture2D>(imagePath);
+        if (texture == null) return null;
+
+        return Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+    }
+
+    //-------------------------------------------------------------------------------
+    // ** 테스트 출력 부분 **
     void StartDialogue(string nodeKey)
     {
         if (sectionData.TryGetValue(nodeKey, out object node))
@@ -213,20 +321,17 @@ public class SectionEventManager : MonoBehaviour
     }
     void DisplayMenuNode(MenuNode node)
     {
-        //공통 텍스트 출력
-        dialogueText.text = node.text != null ? string.Join("\n", node.text) : "";
+        //텍스트 비우기
+        dialogueText.text = "";
 
         //기존 버튼 제거
         foreach (Transform child in choiceButtonContainer)
         {
             Destroy(child.gameObject);
         }
-
-        HandleNodeActions(node.action); //이미지 로드
-
-        //각 선택지에 대해 버튼 생성
-        foreach (MenuOption option in node.value)
+        foreach (MenuOption option in node.menuOption)
         {
+            //각 선택지에 대해 버튼 생성
             GameObject buttonObj = Instantiate(choiceButtonPrefab, choiceButtonContainer);
             buttonObj.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, startY + index * yOffset);
 
@@ -246,113 +351,26 @@ public class SectionEventManager : MonoBehaviour
                     Destroy(child.gameObject);
                 }
 
-                //선택지 텍스트 출력
-                if (option.text != null && option.text.Count > 0)
-                {
-                    StopAllCoroutines();
-                    StartCoroutine(TypeTextCoroutine(string.Join("\n", option.text), () =>
-                    {
-                        if (!string.IsNullOrEmpty(node.next))
-                        {
-                            GameObject nextButton = Instantiate(choiceButtonPrefab, choiceButtonContainer);
-                            Button nextBtn = nextButton.GetComponent<Button>();
-                            Text nextBtnText = nextBtn.GetComponentInChildren<Text>();
-                            nextBtnText.text = "다음으로";
-                            nextBtn.onClick.RemoveAllListeners();
-                            nextBtn.onClick.AddListener(() => StartDialogue(node.next));
-
-                            RectTransform rect = nextButton.GetComponent<RectTransform>();
-                            rect.anchorMin = new Vector2(0.5f, 0.5f);
-                            rect.anchorMax = new Vector2(0.5f, 0.5f);
-                            rect.pivot = new Vector2(0.5f, 0.5f);
-                            rect.anchoredPosition = new Vector2(0f, customY);
-                        }
-                        else
-                        {
-                            Debug.Log("MenuNode의 next 값이 없습니다. 종료 또는 대기 처리 필요.");
-                        }
-                    }));
-                }
-                else
-                {
-                    dialogueText.text = "";
-                }
-
                 //액션 처리
                 if (option.action != null)
                 {
-                    foreach (var act in option.action)
-                    {
-                        foreach (var key in act.Keys)
-                        {
-                            Debug.Log($"[Action 실행] {key} → {act[key]}");
-                        }
-                    }
+                    Debug.Log($"[Action 실행]");
+                    HandleNodeActions(option.action);
+                }
+
+                //선택지 텍스트 출력
+                if (!string.IsNullOrEmpty(option.next))
+                {
+                    StopAllCoroutines();
+                    StartDialogue(option.next);
+                }
+                else
+                {
+                    Debug.Log("MenuNode의 next 값이 없습니다. 종료 또는 대기 처리 필요.");
                 }
             });
             index++;
         }
     }
-
-    //스크립트 타이핑 효과 코루틴
-    IEnumerator TypeTextCoroutine(string fullText,
-    System.Action onComplete = null)
-    {
-        dialogueText.text = ""; //타이핑 첫 시작시 내용 초기화
-        int typingLength = fullText.GetTypingLength(); //문장 길이 측정
-        
-        for (int j = 0; j <= typingLength; j++) //타이핑 효과
-        {
-            dialogueText.text = fullText.Typing(j);
-            if (!string.IsNullOrEmpty(dialogueText.text))
-            {
-                if (dialogueText.text[dialogueText.text.Length - 1] == '\n')
-                {
-                    yield return new WaitForSeconds(delayPerSentence); //문장 끝일때 딜레이 추가
-                }
-            }
-            yield return new WaitForSeconds(delayPerChar); //타이핑 딜레이
-        }
-        onComplete?.Invoke();
-    }
-
-    //action태그 처리 메소드 (현재 Image의 처리만 존재)
-    void HandleNodeActions(List<Dictionary<string, object>> actions)
-    {
-        if (actions == null) return;
-
-        foreach (var act in actions)
-        {
-            foreach (var key in act.Keys)
-            {
-                //삽화 이미지 로드 처리
-                if (key == "Image" && act[key] is string imageName)
-                {
-                    Sprite newSprite = LoadSceneSprite(imageName);
-                    if (newSprite != null)
-                    {
-                        sceneImage.sprite = newSprite;
-                        Debug.Log($"[이미지 변경] {imageName}");
-                    }
-                    else
-                    {
-                        Debug.LogWarning($"[이미지 로드 실패] {imageName}");
-                    }
-                }
-            }
-        }
-    }
-
-    //삽화 이미지 로더 메소드
-    Sprite LoadSceneSprite(string imageName)
-    {
-        string imagePath = $"{imageFolderPath}/{imageName}";
-        Debug.Log(imagePath);
-
-        Texture2D texture = Resources.Load<Texture2D>(imagePath);
-        if (texture == null) return null;
-
-        return Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
-    }
-
+    //-------------------------------------------------------------------------------
 }
