@@ -10,7 +10,7 @@ using System;
 using System.Security.Cryptography.X509Certificates;
 
 //-------------------------------------------------------------------------------
-// ** Json 데이터 클래스 구조 **
+// ** Section Event Json 데이터 클래스 구조 **
 //-------------------------------------------------------------------------------
 
 [System.Serializable]
@@ -81,6 +81,7 @@ public class SectionEventManager : MonoBehaviour
     private string jsonFolderPath = "StoryGameData/SectionData/SectionEvent/TutorialSection"; //Json폴더가 담긴 파일의 경로
     private string imageFolderPath = "StoryGameData/SectionData/SectionImage/TSectionImage"; //게임 삽화가 담긴 파일의 경로
     private Dictionary<string, object> sectionData = new Dictionary<string, object>(); //파싱된 Json데이터
+    private ItemDataManager itemDataManager;
 
     public GameObject choiceButtonPrefab; //버튼 프리팹
     public Transform choiceButtonContainer; //버튼 부모 오브젝트
@@ -100,24 +101,24 @@ public class SectionEventManager : MonoBehaviour
 
     //디버깅용 변수
     TextNode testjson = null;
+    public ItemDataNode testItem = null;
 
-    void Start()
+    private void Awake()
     {
         //참조 캐싱
         dialogueText = GameObject.Find("ScriptText").GetComponent<Text>();
         sceneImage = GameObject.Find("SceneImage").GetComponent<Image>();
+        itemDataManager = GetComponent<ItemDataManager>();
 
         LoadJson(jsonFileName); //Json파일 로드
+    }
 
+    private void Start()
+    {
         //Json테스트 출력
         testjson = GetTextNode("Text1");
         Debug.Log(testjson.value[0]);
         StartDialogue("Text1");
-    }
-
-    void Update()
-    {
-
     }
 
     /// <summary>
@@ -127,7 +128,6 @@ public class SectionEventManager : MonoBehaviour
     public void LoadJson(string jsonFileName)
     {
         string filePath = $"{jsonFolderPath}/{jsonFileName}";
-        Debug.Log(filePath);
 
         TextAsset jsonFile = Resources.Load<TextAsset>(filePath); //Json 파일 로드
         if (jsonFile == null)
@@ -153,7 +153,16 @@ public class SectionEventManager : MonoBehaviour
             }
             else if (key.StartsWith("Text") || key.StartsWith("Result"))
             {
-                TextNode text = nodeObj.ToObject<TextNode>();
+                // action 빼고 복제본 만들기
+                JObject nodeClone = (JObject)nodeObj.DeepClone();
+                nodeClone.Remove("action");
+
+                TextNode text = nodeClone.ToObject<TextNode>();
+
+                //action 수동 파싱
+                if (nodeObj.TryGetValue("action", out var actionToken))
+                    text.action = ParseActionNode((JObject)actionToken);
+                
                 sectionData[key] = text; //키가 존재하지 않으면 동적 추가
             }
             else
@@ -190,7 +199,69 @@ public class SectionEventManager : MonoBehaviour
         return null;
     }
 
-    //스크립트 타이핑 효과 코루틴
+    /// <summary>
+    /// Action태그의 사용 편의를 위한 수동 parser 틀
+    /// 아이템 처리와 flag처리를 간편하게 쓰기 위해 사용됨
+    /// </summary>
+    /// <param name="actionObj">처리가 필요한 action노드</param>
+    /// <returns>parsing 완료된 action노드</returns>
+    private ActionNode ParseActionNode(JObject actionObj)
+    {
+        ActionNode action = new ActionNode();
+
+        // image 처리
+        if (actionObj.TryGetValue("image", out var imgToken))
+            action.image = imgToken.ToString();
+
+        // get 아이템 처리
+        if (actionObj.TryGetValue("get", out var getToken))
+            action.get = ParseItemData(getToken);
+
+        // lost 아이템 처리
+        if (actionObj.TryGetValue("lost", out var lostToken))
+            action.lost = ParseItemData(lostToken);
+
+        // flagSet 처리
+        if (actionObj.TryGetValue("flagSet", out var flagSetToken))
+            action.flagSet = flagSetToken.ToObject<FlagData>();
+
+        // flagCheck 처리
+        if (actionObj.TryGetValue("flagCheck", out var flagCheckToken))
+            action.flagCheck = flagCheckToken.ToObject<List<FlagData>>();
+
+        return action;
+    }
+
+    /// <summary>
+    /// 아이템 처리 부분의 parser (ParseActionNode함수에 사용)
+    /// </summary>
+    /// <param name="token">아이템 처리 action 정보</param>
+    private ItemData ParseItemData(JToken token)
+    {
+        if (token == null)
+            return null;
+
+        //배열일 경우 객체로 바꿔 return
+        if (token is JArray arr)
+        {
+            return new ItemData
+            {
+                ItemCode = arr[0].ToString(),
+                ItemAmount = arr[1].ToObject<int>()
+            };
+        }
+        else
+        {
+            //객체일 경우 그대로 return
+            return token.ToObject<ItemData>();
+        }
+    }
+
+    /// <summary>
+    /// 스크립트 타이핑 효과 코루틴
+    /// </summary>
+    /// <param name="fullText">타이핑 효과를 넣고 싶은 텍스트 전문</param>
+    /// <param name="onComplete">타이핑 완료시 실행할 이벤트</param>
     IEnumerator TypeTextCoroutine(string fullText,
     System.Action onComplete = null)
     {
@@ -221,21 +292,29 @@ public class SectionEventManager : MonoBehaviour
         if (actions == null) return;
 
         //삽화 변경
-        if (actions.image != "" && actions.image != "" && actions.image is string imageName)
+        if (actions.image != null && actions.image != "" && actions.image is string imageName)
         {
             Sprite newSprite = LoadSceneSprite(imageName);
             if (newSprite != null)
             {
                 sceneImage.sprite = newSprite;
-                Debug.Log($"[이미지 변경] {imageName}");
+                Debug.Log($"이미지 변경 {imageName}");
             }
             else
             {
-                Debug.LogWarning($"[이미지 로드 실패] {imageName}");
+                Debug.LogWarning($"[SectionEventManager] 이미지 로드 실패 {imageName}");
             }
         }
 
         //아이템 획득
+        if (actions.get != null && actions.get.ItemCode!= "" && actions.get.ItemAmount != 0 && 
+            actions.get.ItemCode is string ItemCode && actions.get.ItemAmount is int ItemAmount)
+        {
+            testItem = itemDataManager.GetItemByCode(ItemCode);
+
+            //테스트 출력
+            Debug.Log($"\'{testItem.name}\'아이템을 {ItemAmount}개 획득했습니다.");
+        }
 
         //아이템 유실
 
@@ -276,12 +355,12 @@ public class SectionEventManager : MonoBehaviour
             }
             else
             {
-                Debug.LogError($"알 수 없는 노드 타입: {node.GetType()}");
+                Debug.LogError($"[SectionEventManager] 알 수 없는 노드 타입: {node.GetType()}");
             }
         }
         else
         {
-            Debug.LogError($"Node '{nodeKey}' not found in dialogue data");
+            Debug.LogError($"[SectionEventManager] {nodeKey}노드를 찾을 수 없습니다.");
         }
     }
 

@@ -651,8 +651,9 @@ GameObject:
   m_Component:
   - component: {fileID: 994506505}
   - component: {fileID: 994506507}
+  - component: {fileID: 994506508}
   m_Layer: 0
-  m_Name: DialogueManager
+  m_Name: StoryEventManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -692,6 +693,24 @@ MonoBehaviour:
   startY: -40
   delayPerChar: 0.03
   delayPerSentence: 0.25
+  testItem:
+    code: 
+    name: 
+    description: 
+    category: []
+--- !u!114 &994506508
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 994506504}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 542d7b93c1a203f4a9928ce3fefa921f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemList: []
 --- !u!1 &1566281277
 GameObject:
   m_ObjectHideFlags: 0
