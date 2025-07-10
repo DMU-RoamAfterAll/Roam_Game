@@ -9,8 +9,12 @@ using UnityEngine.Android;
 #endif
 
 public class StepManager : MonoBehaviour {
+    public static StepManager Instance { get; private set; }
+
     public TMP_Text totalStepsText;
     public TMP_Text sessionStepsText;
+
+    public int stepValue;
 
     #if UNITY_IOS && !UNITY_EDITOR
     
@@ -34,11 +38,23 @@ public class StepManager : MonoBehaviour {
 
     #endif
 
+    void Awake() {
+        if (Instance != null && Instance != this)  {
+            Destroy(this.gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(this.gameObject);
+    }
+
     void Start() {
         totalStepsText = GameObject.Find("TotalStepData").GetComponent<TMP_Text>();
         sessionStepsText = GameObject.Find("SessionStepData").GetComponent<TMP_Text>();
 
         Application.targetFrameRate = 60;
+
+        stepValue = 5000;
         
         #if UNITY_IOS && !UNITY_EDITOR
 
@@ -83,7 +99,7 @@ public class StepManager : MonoBehaviour {
         }
         #else
         totalStepsText.text = "is Only in iPhone";
-        sessionStepsText.text = "";
+        sessionStepsText.text = "Step : " + stepValue.ToString();
         #endif
     }
 

@@ -137,5 +137,7 @@ public class AreaLocateControl : MonoBehaviour {
         }
 
         this.gameObject.AddComponent<LinkSectionSpawner>();
+
+        GameDataManager.Instance.Player.GetComponent<PlayerControl>().DetectSection();
     }
 }
