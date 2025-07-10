@@ -179,6 +179,7 @@ public class RandomSectionSpawner : MonoBehaviour {
             section.isVisited = false;
             section.isCleared = false;
             section.isPlayerOn = false;
+            section.isCanMove = false;
             section.sectionPosition = pos;
 
             sections.Add(section);
@@ -209,6 +210,7 @@ public class RandomSectionSpawner : MonoBehaviour {
             section.isVisited = false;
             section.isCleared = false;
             section.isPlayerOn = false;
+            section.isCanMove = false;
             section.sectionPosition = position;
 
             sections.Add(section);

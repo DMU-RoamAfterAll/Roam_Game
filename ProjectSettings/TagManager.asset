@@ -10,6 +10,7 @@ TagManager:
   - LinkSection
   - MainSection
   - Origin
+  - Sight
   layers:
   - Default
   - TransparentFX
