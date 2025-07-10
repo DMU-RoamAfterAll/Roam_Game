@@ -8,6 +8,8 @@ using System.Collections;
 using KoreanTyper;
 using System;
 using System.Security.Cryptography.X509Certificates;
+using NUnit.Framework.Internal;
+using System.Data.Common;
 
 //-------------------------------------------------------------------------------
 // ** Section Event Json 데이터 클래스 구조 **
@@ -26,9 +28,9 @@ public class CommonNode
 public class ActionNode
 {
     public string image; //삽화를 변경하기 위한 삽화 명을 작성하는 노드, 본문을 출력하기 전 삽화 변경이 이루어짐
-    public ItemData get; //아이템 획득 기능을 위한 노드, <"아이템 코드", 갯수>형식으로 작성
-    public ItemData lost; //아이템 유실 기능을 위한 노드, <"아이템 코드", 갯수>형식으로 작성
-    public FlagData flagSet; //플래그 설정을 위한 플래그 명을 작성하는 노드, <"플래그명", boolean>형식으로 작성
+    public List<ItemData> get; //아이템 획득 기능을 위한 노드, <"아이템 코드", 갯수>형식으로 작성
+    public List<ItemData> lost; //아이템 유실 기능을 위한 노드, <"아이템 코드", 갯수>형식으로 작성
+    public List<FlagData> flagSet; //플래그 설정을 위한 플래그 명을 작성하는 노드, <"플래그명", boolean>형식으로 작성
     public List<FlagData> flagCheck; //본문을 내보내기 위해 플래그를 확인하는 노드, <"플래그명", boolean>형식으로 작성
                                       //(리스트 형식으로 복수 체크 가능)
 }
@@ -223,7 +225,7 @@ public class SectionEventManager : MonoBehaviour
 
         // flagSet 처리
         if (actionObj.TryGetValue("flagSet", out var flagSetToken))
-            action.flagSet = flagSetToken.ToObject<FlagData>();
+            action.flagSet = flagSetToken.ToObject<List<FlagData>>();
 
         // flagCheck 처리
         if (actionObj.TryGetValue("flagCheck", out var flagCheckToken))
@@ -236,25 +238,58 @@ public class SectionEventManager : MonoBehaviour
     /// 아이템 처리 부분의 parser (ParseActionNode함수에 사용)
     /// </summary>
     /// <param name="token">아이템 처리 action 정보</param>
-    private ItemData ParseItemData(JToken token)
+    private List<ItemData> ParseItemData(JToken token)
     {
-        if (token == null)
-            return null;
+        var list = new List<ItemData>();
 
-        //배열일 경우 객체로 바꿔 return
-        if (token is JArray arr)
+        if (token == null)
+            return list;
+
+        if (token.Type == JTokenType.Array)
         {
-            return new ItemData
+            var arr = (JArray)token;
+
+            //이중 배열인지 단일 배열인지 구분
+            /*
+                ex) 이중 배열
+                "get": [
+                ["item_apple", 3],
+                ["item_banana", 2]
+                ]
+                ex) 단일 배열
+                "lost": ["item_coin", 5]
+            */
+            if (arr.Count > 0 && arr[0].Type == JTokenType.Array)
             {
-                ItemCode = arr[0].ToString(),
-                ItemAmount = arr[1].ToObject<int>()
-            };
+                //이중 배열
+                foreach (var inner in arr)
+                {
+                    var innerArr = (JArray)inner;
+                    var item = new ItemData
+                    {
+                        ItemCode = innerArr[0].ToString(),
+                        ItemAmount = innerArr[1].ToObject<int>()
+                    };
+                    list.Add(item);
+                }
+            }
+            else
+            {
+                // 단일 배열
+                var item = new ItemData
+                {
+                    ItemCode = arr[0].ToString(),
+                    ItemAmount = arr[1].ToObject<int>()
+                };
+                list.Add(item);
+            }
         }
         else
         {
-            //객체일 경우 그대로 return
-            return token.ToObject<ItemData>();
+            Debug.LogError($"[ParseItemData] 알 수 없는 토큰 타입: {token.Type}");
         }
+
+        return list;
     }
 
     /// <summary>
@@ -289,7 +324,10 @@ public class SectionEventManager : MonoBehaviour
     /// <param name="actions">대상 액션 노드</param>
     void HandleNodeActions(ActionNode actions)
     {
-        if (actions == null) return;
+        if (actions == null)
+        {
+            return;
+        }
 
         //삽화 변경
         if (actions.image != null && actions.image != "" && actions.image is string imageName)
@@ -306,17 +344,37 @@ public class SectionEventManager : MonoBehaviour
             }
         }
 
-        //아이템 획득
-        if (actions.get != null && actions.get.ItemCode!= "" && actions.get.ItemAmount != 0 && 
-            actions.get.ItemCode is string ItemCode && actions.get.ItemAmount is int ItemAmount)
+        //아이템 처리
+        if (actions.get != null && actions.get.Count > 0 && actions.get is List<ItemData> getData)
         {
-            testItem = itemDataManager.GetItemByCode(ItemCode);
+            foreach (ItemData actionItem in getData)
+            {
+                if (actionItem != null && actionItem.ItemCode != "" && actionItem.ItemAmount != 0 &&
+                actionItem.ItemCode is string ItemCode && actionItem.ItemAmount is int ItemAmount)
+                {
+                    testItem = itemDataManager.GetItemByCode(ItemCode);
 
-            //테스트 출력
-            Debug.Log($"\'{testItem.name}\'아이템을 {ItemAmount}개 획득했습니다.");
+                    //테스트 출력
+                    Debug.Log($"\'{testItem.name}\'아이템을 {ItemAmount}개 획득했습니다.");
+                }
+            }
         }
 
         //아이템 유실
+        if (actions.lost != null && actions.lost.Count > 0 && actions.lost is List<ItemData> lostData)
+        {
+            foreach (ItemData actionItem in lostData)
+            {
+                if (actionItem != null && actionItem.ItemCode != "" && actionItem.ItemAmount != 0 &&
+                actionItem.ItemCode is string ItemCode && actionItem.ItemAmount is int ItemAmount)
+                {
+                    testItem = itemDataManager.GetItemByCode(ItemCode);
+
+                    //테스트 출력
+                    Debug.Log($"\'{testItem.name}\'아이템을 {ItemAmount}개 잃었습니다.");
+                }
+            }
+        }
 
         //플래그 설정
 
@@ -331,7 +389,6 @@ public class SectionEventManager : MonoBehaviour
     Sprite LoadSceneSprite(string imageName)
     {
         string imagePath = $"{imageFolderPath}/{imageName}";
-        Debug.Log(imagePath);
 
         Texture2D texture = Resources.Load<Texture2D>(imagePath);
         if (texture == null) return null;
