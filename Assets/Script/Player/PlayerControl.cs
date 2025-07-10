@@ -1,65 +1,45 @@
 using UnityEngine;
 
 public class PlayerControl : MonoBehaviour {
-    public GameObject hitObject;
-    public SectionData hitSectionData;
-
-    public GameObject preHitObject;
+    public float maxDistance;
 
     void Start() {
-        hitObject = GameDataManager.Instance.originSection;
+        maxDistance = GameDataManager.Data.initialMaxDistance;
     }
 
     void Update() {
+
+    }
+
+    void MovePlayerToSection() {
         if(Input.GetMouseButtonDown(0)) {
             Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            RaycastHit2D hit = Physics2D.Raycast(mousePos, Vector2.zero);
+            RaycastHit2D[] hits = Physics2D.RaycastAll(mousePos, Vector2.zero);
 
-            if(hit.collider != null) {
+            foreach(var hit in hits) {
                 if(hit.collider.CompareTag(Tag.Section) || hit.collider.CompareTag(Tag.MainSection) || hit.collider.CompareTag(Tag.Origin)) {
-                    preHitObject = hitObject;
-
-                    hitObject = hit.collider.gameObject;
-                    hitSectionData = hitObject.GetComponent<SectionData>();
-
-                    MoveToObject(hitObject);
-
-                    hitSectionData.isPlayerOn = true;
-
-                    hitSectionData.ActiveSightSection();
-                    hitSectionData.ActiveLinkSection();
-
-                    if(preHitObject != GameDataManager.Instance.originSection) {
-                        preHitObject.GetComponent<SectionData>().isPlayerOn = false;
-                        preHitObject.GetComponent<SectionData>().ActiveLinkSection();
-                    }
+                    this.transform.position = hit.collider.transform.position;
                 }
-                else if(hit.collider.CompareTag(Tag.LinkSection)) {
-                    preHitObject = hitObject;
+            }
 
-                    hitObject = hit.collider.GetComponent<LinkPosition>().linkedObject;
-                    hitSectionData = hitObject.GetComponent<SectionData>();
 
-                    MoveToObject(hitObject);
+        }
+    }
 
-                    hitSectionData.isPlayerOn = true;
+    public void DetectSection() {
+        Collider2D[] hits = Physics2D.OverlapCircleAll(this.transform.position, maxDistance + 0.5f);
 
-                    hitSectionData.ActiveSightSection();
-                    hitSectionData.ActiveLinkSection();
-
-                    if(preHitObject != GameDataManager.Instance.originSection) {
-                        preHitObject.GetComponent<SectionData>().isPlayerOn = false;
-                        preHitObject.GetComponent<SectionData>().ActiveLinkSection();
-                    }
-                }
+        foreach(var hit in hits) {
+            if(hit.CompareTag(Tag.Section) || hit.CompareTag(Tag.MainSection) || hit.CompareTag(Tag.Origin)) {
+                Debug.Log("CanMove");
+                hit.gameObject.GetComponent<SectionData>().isCanMove = true;
             }
         }
     }
 
-    void MoveToObject(GameObject hitCollider) {
-        this.gameObject.transform.position = hitCollider.transform.position;
-        this.gameObject.transform.SetParent(hitCollider.transform);
-
-        GameDataManager.Instance.playerLocate = hitCollider.tag;
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(this.transform.position, maxDistance + 0.5f);
     }
 }
