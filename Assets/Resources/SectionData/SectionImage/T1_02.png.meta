@@ -161,11 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-<<<<<<< HEAD:Assets/Resources/SectionData/SectionImage/T1_02.png.meta
       T1_02_0: 4227107188955421724
-=======
-      F3_0: -7188120966563113533
->>>>>>> bdde1d4 (LinkSection 알고리즘 수정완료):Assets/Resources/StoryGameData/SectionData/SectionImage/FSectionImage/F3.png.meta
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
