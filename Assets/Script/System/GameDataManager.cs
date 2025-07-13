@@ -16,7 +16,6 @@ public class GameDataManager : MonoBehaviour {
     public List<GameObject> areaObjects;
     public List<GameObject> sections;
     public List<GameObject> mainSections;
-    public List<GameObject> linkSections;
 
 
     void Awake() {
@@ -27,13 +26,6 @@ public class GameDataManager : MonoBehaviour {
 
         Instance = this;
         DontDestroyOnLoad(this.gameObject);
-
-
-        #region 임시 테스트용
-        
-        linkTrigger = false;
-
-        #endregion
     }
 
     void Start() {
@@ -61,33 +53,4 @@ public class GameDataManager : MonoBehaviour {
 
         Application.targetFrameRate = 60;
     }
-
-    #region 임시 테스트용 코드들
-    
-    bool linkTrigger;
-
-    void Update() {
-        if(Input.GetKeyDown("l")) {
-            ControlLinkSection();
-        }
-    }
-
-    void ControlLinkSection() {
-        if(linkSections != null) {
-            if(!linkTrigger) {
-                foreach(var link in linkSections) {
-                    link.SetActive(true);
-                    linkTrigger = true;
-                }
-            }
-            else {
-                foreach(var link in linkSections) {
-                    link.SetActive(false);
-                    linkTrigger = false;
-                }
-            }
-        }
-    }
-
-    #endregion
 }

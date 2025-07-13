@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 4eff8a92677c2ea459e7eb60055356ef
+guid: fc2cea3210fb3f745a0b618b24810a7e
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4227107188955421724
-    second: T1_02_0
+      213: -5989112627484458457
+    second: T3-2_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,7 +126,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: T1_02_0
+      name: T3-2_0
       rect:
         serializedVersion: 2
         x: 0
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c1c10399793b9aa30800000000000000
-      internalID: 4227107188955421724
+      spriteID: 7228bf60cc562eca0800000000000000
+      internalID: -5989112627484458457
       vertices: []
       indices: 
       edges: []
@@ -161,11 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-<<<<<<< HEAD:Assets/Resources/SectionData/SectionImage/T1_02.png.meta
-      T1_02_0: 4227107188955421724
-=======
-      F3_0: -7188120966563113533
->>>>>>> bdde1d4 (LinkSection 알고리즘 수정완료):Assets/Resources/StoryGameData/SectionData/SectionImage/FSectionImage/F3.png.meta
+      T3-2_0: -5989112627484458457
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
