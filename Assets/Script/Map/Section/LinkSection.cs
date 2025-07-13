@@ -1,30 +1,35 @@
 using UnityEngine;
 
 public class LinkSection : MonoBehaviour {
-    public GameObject linkObj;
-    public GameObject linkObjPrefab;
-    public float minDist;
+    public GameObject linkedSection;
+    public GameObject virtualSection;
+    public GameObject linkSectionPrefab;
+
+    public SectionData sectionData;
+
+    public float minDistance;
 
     void Start() {
-        linkObjPrefab = GameDataManager.Data.linkSectionPrefab;
-        minDist = GameDataManager.Data.initialMinDistance;
+        sectionData = linkedSection.GetComponent<SectionData>();
 
-        SpawnLinkObject();
+        minDistance = GameDataManager.Data.initialMinDistance;
+        linkSectionPrefab = GameDataManager.Data.linkSectionPrefab;
+
+        sectionData.linkSections.Add(this);
     }
 
-    public void SpawnLinkObject() {
-        if (linkObj == null || linkObjPrefab == null) {
-            Debug.LogWarning("Link target or prefab is missing.");
-            return;
+    public void AdjustPosition() {
+        if(sectionData.isPlayerOn) {
+            if (!this.GetComponent<SectionData>().isCanMove) {
+                Vector3 direction = (linkedSection.transform.position - transform.position).normalized;
+                Vector3 spawnPosition = linkedSection.transform.position - direction * minDistance;
+
+                virtualSection = Instantiate(linkSectionPrefab, spawnPosition, Quaternion.identity);
+                virtualSection.GetComponent<VirtualSectionData>().truthSection = this.gameObject;
+            }
         }
-
-        Vector2 direction = (linkObj.transform.position - transform.position).normalized;
-        Vector2 spawnPos = (Vector2)transform.position + direction * minDist;
-
-        GameObject go = Instantiate(linkObjPrefab, spawnPos, Quaternion.identity);
-        go.transform.SetParent(this.transform);
-        this.gameObject.GetComponent<SectionData>().linkSections.Add(go);
-        go.GetComponent<LinkPosition>().linkedObject = linkObj;
-        GameDataManager.Instance.linkSections.Add(go);
+        else {
+            Destroy(virtualSection);
+        }
     }
 }
