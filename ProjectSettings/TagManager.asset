@@ -7,10 +7,10 @@ TagManager:
   - Section
   - Area
   - Tutorial
-  - LinkSection
   - MainSection
   - Origin
   - Sight
+  - VirtualSection
   layers:
   - Default
   - TransparentFX
