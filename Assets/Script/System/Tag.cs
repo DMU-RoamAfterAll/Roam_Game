@@ -4,7 +4,7 @@ public enum TagName {
     Area,
     Tutorial,
     Section,
-    LinkSection,
+    VirtualSection,
     MainSection,
     Player,
     Origin,
@@ -15,7 +15,7 @@ public static class Tag {
     public static string Area => TagName.Area.ToString();
     public static string Tutorial => TagName.Tutorial.ToString();
     public static string Section => TagName.Section.ToString();
-    public static string LinkSection => TagName.LinkSection.ToString();
+    public static string VirtualSection => TagName.VirtualSection.ToString();
     public static string MainSection => TagName.MainSection.ToString();
     public static string Player => TagName.Player.ToString();
     public static string Origin => TagName.Origin.ToString();

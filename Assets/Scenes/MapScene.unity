@@ -1231,7 +1231,6 @@ MonoBehaviour:
   areaObjects: []
   sections: []
   mainSections: []
-  linkSections: []
 --- !u!114 &1468115036
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1349,9 +1348,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 020f942414ba54ba98d55437180f8664, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitObject: {fileID: 0}
-  hitSectionData: {fileID: 0}
-  preHitObject: {fileID: 0}
+  preSection: {fileID: 0}
+  currentSection: {fileID: 0}
+  sectionData: {fileID: 0}
+  maxDistance: 0
 --- !u!1001 &1570746093
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1404,12 +1404,7 @@ PrefabInstance:
       propertyPath: m_Name
       value: Sight
       objectReference: {fileID: 0}
-    - target: {fileID: 7224330335501986242, guid: 00c618ff1caf94ae8b21db27701128b4, type: 3}
-      propertyPath: m_TagString
-      value: Sight
-      objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 0}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -1615,7 +1610,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 25, y: 25, z: 1}
+  m_LocalScale: {x: 24, y: 24, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1490040434}

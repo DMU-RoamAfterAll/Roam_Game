@@ -18,10 +18,10 @@ public class LinkSectionSpawner : MonoBehaviour {
 
         foreach (var pair in closestPairs) {
             LinkSection mainLinkSection = pair.mainObj.gameObject.AddComponent<LinkSection>();
-            LinkSection subLinkSection = pair.subObj.gameObject.AddComponent<LinkSection>();
+            mainLinkSection.linkedSection = pair.subObj.gameObject;
 
-            mainLinkSection.linkObj = pair.subObj.gameObject;
-            subLinkSection.linkObj = pair.mainObj.gameObject;
+            LinkSection subLinkSection = pair.subObj.gameObject.AddComponent<LinkSection>();
+            subLinkSection.linkedSection = pair.mainObj.gameObject;
         }
     }
 
