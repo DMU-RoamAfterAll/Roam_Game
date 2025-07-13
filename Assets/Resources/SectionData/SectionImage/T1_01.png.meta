@@ -161,11 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-<<<<<<< HEAD:Assets/Resources/SectionData/SectionImage/T1_01.png.meta
       T1_01_0: -560704345888903160
-=======
-      "H2 \u1112\u116E\u1107\u11691_0": 3653385397504804375
->>>>>>> bdde1d4 (LinkSection 알고리즘 수정완료):Assets/Resources/StoryGameData/SectionData/SectionImage/HSectionImage/H2 후보1.png.meta
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
