@@ -1,20 +1,26 @@
 using UnityEngine;
+
 #if UNITY_EDITOR
-using UnityEditor;
+    using UnityEditor;
 #endif
+
 using System.IO;
 using Newtonsoft.Json;
 
 public class CreateAreaAssets : MonoBehaviour {
+    [Header("GameData")]
     public string folderPath;
 
     void Start() {
-#if UNITY_EDITOR
+        #if UNITY_EDITOR
+
         CreateAreaDataAssets();
-#endif
+
+        #endif
     }
 
 #if UNITY_EDITOR
+    ///설정해둔 AreaDataAssets에 맍게 구역생성을 시작
     public void CreateAreaDataAssets() {
         folderPath = GameDataManager.Data.areaAssetDataFolderPath;
         Debug.Log("folderPath : " + folderPath);
@@ -62,4 +68,5 @@ public class CreateAreaAssets : MonoBehaviour {
         Debug.Log("All AreaAsset created succesfully!");
     }
 #endif
+
 }

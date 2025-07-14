@@ -3,21 +3,23 @@ using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using System.IO;
 
+///GameData에 있는 수치를 직접적으로 조정 및 대입
 public class GameDataManager : MonoBehaviour {
-    public static GameDataManager Instance { get; private set; }
+    public static GameDataManager Instance { get; private set; } //씬에서 모두 접근 가능하도록 Instance화
     public GameObject Player;
-    public GameObject originSection;
-    public string playerLocate;
+    public GameObject originSection; //Player가 처음 위치하는 Section
+    public string playerLocate; //Player가 어느 Section에 위치하고 있는지
 
-    public GameData gameData;
+    public GameData gameData; //만들어둔 asset 사용
 
-    public static GameData Data => Instance.gameData;
+    public static GameData Data => Instance.gameData; //asset에 접근 시 사용하는 변수이름
 
+    ///게임 내 Area, Section, MainSection 오브젝트 List화
     public List<GameObject> areaObjects;
     public List<GameObject> sections;
     public List<GameObject> mainSections;
 
-
+    ///Instance
     void Awake() {
         if (Instance != null && Instance != this)  {
             Destroy(this.gameObject);
@@ -25,10 +27,7 @@ public class GameDataManager : MonoBehaviour {
         }
 
         Instance = this;
-        DontDestroyOnLoad(this.gameObject);
-    }
 
-    void Start() {
         if (gameData == null) {
             Debug.LogError("GameData is None");
             return;
@@ -40,6 +39,7 @@ public class GameDataManager : MonoBehaviour {
 
         gameData.playerName = "Potato";
         gameData.seed = 54321;
+        gameData.isMapSetUp = false;
         gameData.initialMinDistance = 10f;
         gameData.initialMaxDistance = 12f;
         gameData.maxRadius = 30f;
