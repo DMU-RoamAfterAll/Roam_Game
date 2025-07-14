@@ -24,6 +24,7 @@ public class CameraFollow : MonoBehaviour {
         }
     }
 
+    ///플레이어에게 카메라 고정
     void MoveCamera() {
         #if UNITY_EDITOR || UNITY_STANDALONE_OSX
 
@@ -47,6 +48,7 @@ public class CameraFollow : MonoBehaviour {
         #endif
     }
 
+    ///플레이어가 원할 때 시점 고정
     void LockOn() {
         if (target == null) {
             target = GameDataManager.Instance.Player.transform;
@@ -63,6 +65,7 @@ public class CameraFollow : MonoBehaviour {
         isLockOn = !isLockOn;
     }
 
+    ///카메라 이동구역 설정
     void LimitMoveArea() {
 
     }

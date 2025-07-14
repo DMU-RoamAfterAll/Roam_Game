@@ -2,9 +2,11 @@ using UnityEngine;
 using System.Collections.Generic;
 
 public class LinkSectionSpawner : MonoBehaviour {
+    [Header("GameData")]
     public List<GameObject> areaObjects;
-    public List<(Transform mainObj, Transform subObj)> closestPairs;
 
+    [Header("Section Data")]
+    public List<(Transform mainObj, Transform subObj)> closestPairs;
     public float minDist;
 
     void Start() {
@@ -25,6 +27,7 @@ public class LinkSectionSpawner : MonoBehaviour {
         }
     }
 
+    ///각 구역들끼리의 최대거리를 벗어나는 Section을 찾음
     void FindLinkSection(params object[] objs) {
         GameObject mainArea = objs[0] as GameObject;
         if (mainArea == null) return;
@@ -55,7 +58,7 @@ public class LinkSectionSpawner : MonoBehaviour {
                 }
             }
 
-            if (closestMain != null && closestSub != null && minDist > GameDataManager.Data.initialMinDistance) {
+            if (closestMain != null && closestSub != null && minDist > GameDataManager.Data.initialMaxDistance) {
                 closestPairs.Add((closestMain, closestSub));
             }
         }
