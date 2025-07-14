@@ -1,3 +1,4 @@
+//전체적인 "수정필요"
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
@@ -110,7 +111,7 @@ public class RandomSectionSpawner : MonoBehaviour {
 
         GetBound();
 
-        AreaLocateControl.totalAreaCount++;
+        AreaLocateControl.createdAreaCount++;
 
         #endregion
     }
