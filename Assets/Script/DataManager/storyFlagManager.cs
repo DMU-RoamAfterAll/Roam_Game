@@ -16,7 +16,7 @@ public class storyFlagNode
 
 public class StoryFlagManager : MonoBehaviour
 {
-private string flagFolderPath = "StoryGameData/CommonData/storyFlag"; //게임 스토리 분기 정보가 담긴 파일
+    private string flagFolderPath = "StoryGameData/CommonData/storyFlag"; //게임 스토리 분기 정보가 담긴 파일
     public List<storyFlagNode> flagList;
     private Dictionary<string, storyFlagNode> flagDict;
 
