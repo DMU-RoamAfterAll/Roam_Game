@@ -11,6 +11,8 @@ TagManager:
   - Origin
   - Sight
   - VirtualSection
+  - StepUI
+  - River
   layers:
   - Default
   - TransparentFX
