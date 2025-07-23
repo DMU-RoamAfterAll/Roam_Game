@@ -1,8 +1,8 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 //-------------------------------------------------------------------------------
-// ** Item Json 데이터 클래스 구조 **
+// ** storyFlag Json 데이터 클래스 구조 **
 //-------------------------------------------------------------------------------
 [System.Serializable]
 //flag 데이터 노드
@@ -14,9 +14,9 @@ public class storyFlagNode
 }
 //-------------------------------------------------------------------------------
 
-public class storyFlagManager : MonoBehaviour
+public class StoryFlagManager : MonoBehaviour
 {
-    private string itemFolderPath = "StoryGameData/CommonData/storyFlag"; //게임 스토리 분기 정보가 담긴 파일
+    private string flagFolderPath = "StoryGameData/CommonData/storyFlag"; //게임 스토리 분기 정보가 담긴 파일
     public List<storyFlagNode> flagList;
     private Dictionary<string, storyFlagNode> flagDict;
 
@@ -26,14 +26,14 @@ public class storyFlagManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Itme 데이터 파일 로드
+    /// storyFlag 데이터 파일 로드
     /// </summary>
     public void LoadflagJson()
     {
-        TextAsset jsonFile = Resources.Load<TextAsset>(itemFolderPath); //Json 파일 로드
+        TextAsset jsonFile = Resources.Load<TextAsset>(flagFolderPath); //Json 파일 로드
         if (jsonFile == null)
         {
-            Debug.LogError($"[ItemDataManager] 파일을 찾을 수 없음: item.json");
+            Debug.LogError($"[storyFlagManager] 파일을 찾을 수 없음: storyFlag.json");
             return;
         }
 
@@ -42,7 +42,7 @@ public class storyFlagManager : MonoBehaviour
 
         if (flagList == null || flagList.Count == 0)
         {
-            Debug.LogError("[ItemDataManager] itemList가 비어있거나 파싱에 실패했습니다.");
+            Debug.LogError("[storyFlagManager] flagList가 비어있거나 파싱에 실패했습니다.");
             return;
         }
 
@@ -53,19 +53,20 @@ public class storyFlagManager : MonoBehaviour
             flagDict[item.code] = item;
         }
 
-        Debug.Log("Reading File : item.json"); //파일 로드 확인 로그
+        Debug.Log("Reading File : storyFlag.json"); //파일 로드 확인 로그
     }
-    
+
     /// <summary>
-    /// 아이템 코드를 사용하여 아이템 정보를 가져오는 함수
+    /// 플래그 코드를 사용하여 플래그 정보를 가져오는 함수
     /// </summary>
-    /// <param name="code">아이템 코드</param>
-    /// <returns>아이템 정보</returns>
-    public storyFlagNode GetflagByCode(string code)
+    /// <param name="code">플래그 코드</param>
+    /// <returns>플래그 정보</returns>
+    public storyFlagNode GetFlagByCode(string code)
     {
         if (flagDict.TryGetValue(code, out var data))
             return data;
-        Debug.LogWarning($"[ItemDataManager] 아이템 코드 {code}를 찾을 수 없습니다.");
+            
+        Debug.LogWarning($"[storyFlagManager] 플래그 코드 {code}를 찾을 수 없습니다.");
         return null;
     }
 }
