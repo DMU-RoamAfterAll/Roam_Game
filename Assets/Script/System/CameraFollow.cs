@@ -8,6 +8,8 @@ public class CameraFollow : MonoBehaviour {
     public bool isLockOn;
     public Vector3 offset;
 
+    private Vector2 lastTouchPosition;
+
     void Start() {
         smoothSpeed = 0.25f;
         moveSpeed = 20f;
@@ -40,6 +42,19 @@ public class CameraFollow : MonoBehaviour {
 
         #elif UNITY_IOS || UNITY_ANDROID
 
+        if(Input.touchCount > 0) {
+            Touch touch = Input.GetTouch(0);
+            if(touch.phase == TouchPhase.Began) lastTouchPosition = touch.position;
+            else if(touch.phase == TouchPhase.Moved) {
+                Vector2 delta = touch.position - lastTouchPosition;
+                Vector3 pos = this.transform.position;
+
+                pos.x -= delta.x * moveSpeed * Time.deltaTime * 0.005f;
+                pos.y -= delta.y * moveSpeed * Time.deltaTime * 0.005f;
+                this.transform.position = pos;
+                lastTouchPosition = touch.position;
+            }
+        }
 
         #else
 

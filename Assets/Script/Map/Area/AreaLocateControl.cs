@@ -8,11 +8,10 @@ public class AreaLocateControl : MonoBehaviour {
     public GameObject Player; //플레이어
     public float minDistance; //section과의 최소 거린
     public int riverHeight; //중간 river 구역의 폭
-    public float areaNumber; //area의 개수
+    public int areaNumber; //area의 개수
     
     [Header("Data")]
-    public static int createdAreaCount; //총 구역 개수
-    public bool flag; //구역 위치 조정을 완료하였는지 "수정필요"
+    public int createdAreaCount; //총 구역 개수
     public RandomSectionSpawner[] areas; //구역을 참조
 
     [Header("Base Point")]
@@ -20,9 +19,10 @@ public class AreaLocateControl : MonoBehaviour {
     public float[] height;
     public Vector2[] basePoint;
 
+    public event System.Action OnAreaMoveFinished;
+
     void Awake() {
         createdAreaCount = 0;
-        flag = false;
     }
 
     ///처음 게임 생성 시 필요한 데이터들을 GameData에 맞게 설정된 수치를 가져 옴
@@ -32,82 +32,77 @@ public class AreaLocateControl : MonoBehaviour {
         areaNumber = GameDataManager.Data.areaNumber;
 
         Player = GameDataManager.Instance.Player;
-    }
 
-
-    ///구역 생성이 완료되면 그에 맞게 구역의 위치를 조정
-    void Update() {
-        if(createdAreaCount == areaNumber && !flag) {
-            FindAreaPoint();
-            flag = true;
-        }
+        OnAreaMoveFinished += CreateRiverSection;
     }
 
     ///구역의 규격을 알아내는 함수
-    void FindAreaPoint() {
-        createdAreaCount--;
+    public void FindAreaPoint() {
+        if(createdAreaCount == areaNumber) {
+            createdAreaCount--;
 
-        areas = GameDataManager.Instance.areaObjects
-            .Where(spawner => spawner.CompareTag(Tag.Area))
-            .Select(go => go.GetComponent<RandomSectionSpawner>())
-            .ToArray();
+            areas = GameDataManager.Instance.areaObjects
+                .Where(spawner => spawner.CompareTag(Tag.Area))
+                .Select(go => go.GetComponent<RandomSectionSpawner>())
+                .ToArray();
 
-        float x = 0;
-        float y = 0;
+            float x = 0;
+            float y = 0;
 
-        basePoint = new Vector2[createdAreaCount];
-        width = new float[createdAreaCount];
-        height = new float[createdAreaCount];
+            basePoint = new Vector2[createdAreaCount];
+            width = new float[createdAreaCount];
+            height = new float[createdAreaCount];
 
-        for(int i = 0; i < createdAreaCount; i++) {
-            width[i] = areas[i].maxX - areas[i].minX;
-            height[i] = areas[i].maxY - areas[i].minY;
+            for(int i = 0; i < createdAreaCount; i++) {
+                width[i] = areas[i].maxX - areas[i].minX;
+                height[i] = areas[i].maxY - areas[i].minY;
 
-            switch(i) {
-                case 0 :
-                    x = minDistance + (width[i] / 2);
-                    x *= -1f;
+                switch(i) {
+                    case 0 :
+                        x = minDistance + (width[i] / 2);
+                        x *= -1f;
 
-                    y = (height[i] / 2);
+                        y = (height[i] / 2);
 
-                    break;
+                        break;
 
-                case 1 :
-                    x = minDistance + (width[i] / 2);
+                    case 1 :
+                        x = minDistance + (width[i] / 2);
 
-                    y = (height[i] / 2);
+                        y = (height[i] / 2);
 
-                    break;
+                        break;
 
-                case 2 :
-                    x = minDistance + (width[i] / 2);
-                    x *= -1f;
+                    case 2 :
+                        x = minDistance + (width[i] / 2);
+                        x *= -1f;
 
-                    y = riverHeight + (height[0] > height[1] ? height[0] : height[1]) + minDistance + (height[i] / 2);
+                        y = riverHeight + (height[0] > height[1] ? height[0] : height[1]) + minDistance + (height[i] / 2);
 
-                    break;
+                        break;
 
-                case 3 :
-                    x = minDistance + (width[i] / 2);
+                    case 3 :
+                        x = minDistance + (width[i] / 2);
 
-                    y = riverHeight + (height[0] > height[1] ? height[0] : height[1]) + minDistance + (height[i] / 2);
+                        y = riverHeight + (height[0] > height[1] ? height[0] : height[1]) + minDistance + (height[i] / 2);
 
-                    break;
+                        break;
 
-                case 4 :
-                    x = 0;
-                    
-                    y = minDistance + (height[i] / 2) +
-                        (height[0] > height[1] ? height[0] : height[1]) + riverHeight + minDistance +
-                        (height[2] > height[3] ? height[2] : height[3]);
+                    case 4 :
+                        x = 0;
+                        
+                        y = minDistance + (height[i] / 2) +
+                            (height[0] > height[1] ? height[0] : height[1]) + riverHeight + minDistance +
+                            (height[2] > height[3] ? height[2] : height[3]);
 
-                    break;
+                        break;
+                }
+
+                basePoint[i] = new Vector2(x, y);
             }
 
-            basePoint[i] = new Vector2(x, y);
+            StartCoroutine(MoveArea());
         }
-
-        StartCoroutine(MoveArea());
     }
 
 
@@ -141,7 +136,7 @@ public class AreaLocateControl : MonoBehaviour {
                 }
             }
 
-            yield return null; // 다음 프레임까지 대기
+            yield return null; // 다음 프레임까지 대기  
         }
 
         // 끝 위치 고정
@@ -149,9 +144,20 @@ public class AreaLocateControl : MonoBehaviour {
             areas[i].transform.position = ends[i];
         }
 
+        OnAreaMoveFinished?.Invoke();
+
         this.gameObject.AddComponent<LinkSectionSpawner>();
 
         GameDataManager.Data.isMapSetUp = true;
         Player.GetComponent<PlayerControl>().DetectSection();
+    }
+
+    void CreateRiverSection() {
+        float maxUpperHeight = Mathf.Max(height[0], height[1]);
+
+        float riverCenterY = maxUpperHeight + (riverHeight / 2f) + (minDistance / 2f);
+
+        GameObject go = Instantiate(GameDataManager.Data.riverSectionPrefab, new Vector2(0, riverCenterY), Quaternion.identity);
+        go.transform.SetParent(this.transform);
     }
 }

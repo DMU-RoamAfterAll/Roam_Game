@@ -45,6 +45,7 @@ public class RandomSectionSpawner : MonoBehaviour {
     public Vector2[] mainSections;
 
     [Header("Data")]
+    public AreaLocateControl areaLocate;
     public string eventFolderPath;
     public string mainEventFolderPath;
     public string[] eventFiles;
@@ -111,7 +112,10 @@ public class RandomSectionSpawner : MonoBehaviour {
 
         GetBound();
 
-        AreaLocateControl.createdAreaCount++;
+        areaLocate = this.transform.parent.GetComponent<AreaLocateControl>();
+
+        areaLocate.createdAreaCount++;
+        areaLocate.FindAreaPoint();
 
         #endregion
     }

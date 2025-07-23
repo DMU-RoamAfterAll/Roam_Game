@@ -22,29 +22,49 @@ public class PlayerControl : MonoBehaviour {
 
     ///클릭한 Section이 이미 방문아혔거나 감지범위 내일때 플레이어의 위치 이동 혹은 VirualSection을 통해서 이동
     void MovePlayerToSection() {
-        if(Input.GetMouseButtonDown(0)) {
-            Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            RaycastHit2D[] hits = Physics2D.RaycastAll(mousePos, Vector2.zero); //마우스가 클릭한 위치에 따라 오브젝트 반환 (Collider2D 필요)
+        // 1) 입력 처리 (마우스 클릭 또는 터치)
+        bool inputDown =
+            Input.GetMouseButtonDown(0)
+            || (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began);
+        if (!inputDown) return;
 
-            foreach(var hit in hits) { //클릭한 위치에 있는 오브젝트 전부 반환
-                if(hit.collider.CompareTag(Tag.Section) || hit.collider.CompareTag(Tag.MainSection) || hit.collider.CompareTag(Tag.Origin)) { //Section에 해당하는 태그들 확인
-                    if(hit.collider.GetComponent<SectionData>().isCanMove || hit.collider.GetComponent<SectionData>().isVisited) { //클릭한 Section이 범위 안에 있는지 확인
-                        Debug.Log("Move To Section");
+        // 2) 화면 좌표 → 월드 좌표 변환
+        Vector2 screenPos = Input.GetMouseButtonDown(0)
+            ? (Vector2)Input.mousePosition
+            : Input.GetTouch(0).position;
+        Vector2 worldPos = Camera.main.ScreenToWorldPoint(screenPos);
 
-                        preSection = this.transform.parent.gameObject;
-                        currentSection = hit.collider.gameObject;
-                        sectionData = currentSection.GetComponent<SectionData>(); //이전 오브젝트, 현재 오브젝트 저장 및 SectionData 컴포넌트 참조
+        // 3) 클릭/터치 위치에 있는 섹션 판별
+        foreach (var hit in Physics2D.RaycastAll(worldPos, Vector2.zero)) {
+            // 일반 섹션 클릭 시
+            if (hit.collider.CompareTag(Tag.Section)
+            || hit.collider.CompareTag(Tag.MainSection)
+            || hit.collider.CompareTag(Tag.Origin)) {
 
-                        Move(currentSection, sectionData);
-                    }
-                }
-                if(hit.collider.CompareTag(Tag.VirtualSection)) {
-                    preSection = this.transform.parent.gameObject;
-                    currentSection = hit.collider.gameObject.GetComponent<VirtualSectionData>().truthSection;
-                    sectionData = currentSection.GetComponent<SectionData>(); //최대거리를 넘는 Section인 경우 가상의 Section이 대신 상태변환을 대신해줌
+                var sd = hit.collider.GetComponent<SectionData>();
+                // ← 여기서 비용 체크
+                if (!GameDataManager.Instance.stepManagerUI.TryConsumeSteps(sd.stepCost)) return;
 
-                    Move(currentSection, sectionData);
-                }
+                // 비용이 충분하면 실제 이동 처리
+                preSection = transform.parent.gameObject;
+                currentSection = hit.collider.gameObject;
+                sectionData = sd;
+                Move(currentSection, sectionData);
+                return;
+            }
+
+            // 가상 섹션(범위 초과) 클릭 시
+            if (hit.collider.CompareTag(Tag.VirtualSection)) {
+                var vsd = hit.collider.GetComponent<VirtualSectionData>();
+                var realSd = vsd.truthSection.GetComponent<SectionData>();
+                // ← 동일하게 비용 체크
+                if (!GameDataManager.Instance.stepManagerUI.TryConsumeSteps(realSd.stepCost)) return;
+
+                preSection = transform.parent.gameObject;
+                currentSection = vsd.truthSection;
+                sectionData = realSd;
+                Move(currentSection, sectionData);
+                return;
             }
         }
     }
