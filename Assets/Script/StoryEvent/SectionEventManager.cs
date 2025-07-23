@@ -1,15 +1,10 @@
 using UnityEngine;
-using System.IO;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using System.Collections;
 using KoreanTyper;
 using System;
-using System.Security.Cryptography.X509Certificates;
-using NUnit.Framework.Internal;
-using System.Data.Common;
 
 //-------------------------------------------------------------------------------
 // ** Section Event Json 데이터 클래스 구조 **
@@ -47,7 +42,7 @@ public class ItemData
 //플래그 제어를 위한 데이터 모델
 public class FlagData
 {
-    public string flagName; //플래그
+    public string flagCode; //플래그 코드명
     public bool flagState; //플래그 상태
 }
 
@@ -80,10 +75,13 @@ public class MenuOption : CommonNode
 public class SectionEventManager : MonoBehaviour
 {
     public string jsonFileName = ""; //불러올 Json파일 이름, 외부에서 받아옴
-    private string jsonFolderPath = "StoryGameData/SectionData/SectionEvent/TutorialSection"; //Json폴더가 담긴 파일의 경로
-    private string imageFolderPath = "StoryGameData/SectionData/SectionImage/TSectionImage"; //게임 삽화가 담긴 파일의 경로
+    private string jsonFolderPath =
+    "StoryGameData/SectionData/SectionEvent/TutorialSection"; //Json폴더가 담긴 파일의 경로
+    private string imageFolderPath =
+    "StoryGameData/SectionData/SectionImage/TSectionImage"; //게임 삽화가 담긴 파일의 경로
     private Dictionary<string, object> sectionData = new Dictionary<string, object>(); //파싱된 Json데이터
     private ItemDataManager itemDataManager;
+    private StoryFlagManager storyFlagManager;
 
     public GameObject choiceButtonPrefab; //버튼 프리팹
     public Transform choiceButtonContainer; //버튼 부모 오브젝트
@@ -104,6 +102,7 @@ public class SectionEventManager : MonoBehaviour
     //디버깅용 변수
     TextNode testjson = null;
     public ItemDataNode testItem = null;
+    public storyFlagNode testFlag = null;
 
     private void Awake()
     {
@@ -111,6 +110,7 @@ public class SectionEventManager : MonoBehaviour
         dialogueText = GameObject.Find("ScriptText").GetComponent<Text>();
         sceneImage = GameObject.Find("SceneImage").GetComponent<Image>();
         itemDataManager = GetComponent<ItemDataManager>();
+        storyFlagManager = GetComponent<StoryFlagManager>();
 
         LoadJson(jsonFileName); //Json파일 로드
     }
@@ -225,11 +225,11 @@ public class SectionEventManager : MonoBehaviour
 
         // flagSet 처리
         if (actionObj.TryGetValue("flagSet", out var flagSetToken))
-            action.flagSet = flagSetToken.ToObject<List<FlagData>>();
+            action.flagSet = ParseStoryFlag(flagSetToken);
 
         // flagCheck 처리
         if (actionObj.TryGetValue("flagCheck", out var flagCheckToken))
-            action.flagCheck = flagCheckToken.ToObject<List<FlagData>>();
+            action.flagCheck = ParseStoryFlag(flagCheckToken);
 
         return action;
     }
@@ -293,12 +293,69 @@ public class SectionEventManager : MonoBehaviour
     }
 
     /// <summary>
+    /// 플래그 처리 부분의 parser (ParseActionNode함수에 사용)
+    /// </summary>
+    /// <param name="token">플래그 처리 action 정보</param>
+    private List<FlagData> ParseStoryFlag(JToken token)
+    {
+        var list = new List<FlagData>();
+
+        if (token == null)
+            return list;
+
+        if (token.Type == JTokenType.Array)
+        {
+            var arr = (JArray)token;
+
+            //이중 배열인지 단일 배열인지 구분
+            /*
+                ex) 이중 배열
+                "flagSet": [
+                ["flag_test1", true],
+                ["flag_test2", false]
+                ]
+                ex) 단일 배열
+                "flagCheck": ["flag_test1", false]
+            */
+            if (arr.Count > 0 && arr[0].Type == JTokenType.Array)
+            {
+                //이중 배열
+                foreach (var inner in arr)
+                {
+                    var innerArr = (JArray)inner;
+                    var item = new FlagData
+                    {
+                        flagCode = innerArr[0].ToString(),
+                        flagState = innerArr[1].ToObject<bool>()
+                    };
+                    list.Add(item);
+                }
+            }
+            else
+            {
+                // 단일 배열
+                var item = new FlagData
+                {
+                    flagCode = arr[0].ToString(),
+                    flagState = arr[1].ToObject<bool>()
+                };
+                list.Add(item);
+            }
+        }
+        else
+        {
+            Debug.LogError($"[ParseItemData] 알 수 없는 토큰 타입: {token.Type}");
+        }
+
+        return list;
+    }
+
+    /// <summary>
     /// 스크립트 타이핑 효과 코루틴
     /// </summary>
     /// <param name="fullText">타이핑 효과를 넣고 싶은 텍스트 전문</param>
     /// <param name="onComplete">타이핑 완료시 실행할 이벤트</param>
-    IEnumerator TypeTextCoroutine(string fullText,
-    System.Action onComplete = null)
+    IEnumerator TypeTextCoroutine(string fullText, System.Action onComplete = null)
     {
         dialogueText.text = ""; //타이핑 첫 시작시 내용 초기화
         int typingLength = fullText.GetTypingLength(); //문장 길이 측정
@@ -377,6 +434,20 @@ public class SectionEventManager : MonoBehaviour
         }
 
         //플래그 설정
+        if (actions.flagSet != null && actions.flagSet.Count > 0 && actions.flagSet is List<FlagData> flagData)
+        {
+            foreach (FlagData actionFlag in flagData)
+            {
+                if (actionFlag != null && actionFlag.flagCode != "" &&
+                actionFlag.flagCode is string flagCode && actionFlag.flagState is bool flagState)
+                {
+                    testFlag = storyFlagManager.GetFlagByCode(flagCode);
+
+                    //테스트 출력
+                    Debug.Log($"\'{testFlag.name}\'플래그 상태를 {flagState}로 변경했습니다.");
+                }
+            }
+        }
 
         //플래그 체크
     }
