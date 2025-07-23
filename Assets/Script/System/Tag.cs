@@ -8,7 +8,8 @@ public enum TagName {
     MainSection,
     Player,
     Origin,
-    Sight
+    Sight,
+    StepUI
 }
 
 public static class Tag {
@@ -20,4 +21,5 @@ public static class Tag {
     public static string Player => TagName.Player.ToString();
     public static string Origin => TagName.Origin.ToString();
     public static string Sight => TagName.Sight.ToString();
+    public static string StepUI => TagName.StepUI.ToString();
 }
