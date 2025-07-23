@@ -19,6 +19,8 @@ public class GameDataManager : MonoBehaviour {
     public List<GameObject> sections;
     public List<GameObject> mainSections;
 
+    public StepManager stepManagerUI;
+
     ///Instance
     void Awake() {
         if (Instance != null && Instance != this)  {
@@ -35,6 +37,7 @@ public class GameDataManager : MonoBehaviour {
 
         Player = GameObject.FindGameObjectWithTag(Tag.Player);
         originSection = GameObject.FindGameObjectWithTag(Tag.Origin);
+        stepManagerUI = GameObject.FindGameObjectWithTag(Tag.StepUI).GetComponent<StepManager>();
         playerLocate = "origin";
 
         gameData.playerName = "Potato";
