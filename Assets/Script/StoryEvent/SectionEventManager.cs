@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using System.Collections;
 using KoreanTyper;
-using System;
 
 //-------------------------------------------------------------------------------
 // ** Section Event Json 데이터 클래스 구조 **
@@ -434,9 +433,9 @@ public class SectionEventManager : MonoBehaviour
         }
 
         //플래그 설정
-        if (actions.flagSet != null && actions.flagSet.Count > 0 && actions.flagSet is List<FlagData> flagData)
+        if (actions.flagSet != null && actions.flagSet.Count > 0 && actions.flagSet is List<FlagData> fSetData)
         {
-            foreach (FlagData actionFlag in flagData)
+            foreach (FlagData actionFlag in fSetData)
             {
                 if (actionFlag != null && actionFlag.flagCode != "" &&
                 actionFlag.flagCode is string flagCode && actionFlag.flagState is bool flagState)
@@ -450,6 +449,27 @@ public class SectionEventManager : MonoBehaviour
         }
 
         //플래그 체크
+        if (actions.flagCheck != null && actions.flagCheck.Count > 0 && actions.flagCheck is List<FlagData> fCheckData)
+        {
+            foreach (FlagData actionFlag in fCheckData)
+            {
+                if (actionFlag != null && actionFlag.flagCode != "" &&
+                actionFlag.flagCode is string flagCode && actionFlag.flagState is bool flagState)
+                {
+                    testFlag = storyFlagManager.GetFlagByCode(flagCode);
+
+                    //테스트 출력
+                    if (flagState == true)
+                    {
+                        Debug.Log($"\'{testFlag.name}\'플래그가 true값입니다.");
+                    }
+                    else
+                    {
+                        Debug.Log($"\'{testFlag.name}\'플래그가 false값입니다.");
+                    }
+                }
+            }
+        }
     }
 
     /// <summary>
