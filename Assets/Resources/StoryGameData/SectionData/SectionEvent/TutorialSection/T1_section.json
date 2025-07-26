@@ -17,7 +17,8 @@
 		],
 		"next": "Text1_2",
 		"action" : {
-			"flagSet" : ["flag_test", true]
+			"flagSet" : ["flag_test", true],
+			"flagCheck" : ["flag_test", true]
 		}
 	},
 	"Text1_2":{
