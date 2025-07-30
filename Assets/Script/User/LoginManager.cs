@@ -26,7 +26,7 @@ public class LoginResponse
 
 public class LoginManager : MonoBehaviour
 {
-    private string baseUrl = "http://125.176.246.14:8081/api/users";
+    private string baseUrl;
 
     private string accessToken;
     private string refreshToken;
@@ -37,6 +37,9 @@ public class LoginManager : MonoBehaviour
     public TMP_InputField pwInputField;
     public Button loginBtn;
 
+    void Start() {
+        baseUrl = $"{GameDataManager.Instance.baseUrl}:8081/api/users";
+    }
     // 로그인 버튼 onClick 이벤트 함수
     public void LoginBtn() 
     {

@@ -15,16 +15,18 @@ using System.Collections;
 public class CreateAreaAssets : MonoBehaviour {
     public string folderPath;
 
-    private readonly string[] jsonUrls = new [] {
-        "http://125.176.246.14/CNWV/Resources/AreaAssetData/Area_01.json",
-        "http://125.176.246.14/CNWV/Resources/AreaAssetData/Area_02.json",
-        "http://125.176.246.14/CNWV/Resources/AreaAssetData/Area_03.json",
-        "http://125.176.246.14/CNWV/Resources/AreaAssetData/Area_04.json",
-        "http://125.176.246.14/CNWV/Resources/AreaAssetData/Area_05.json",
-        "http://125.176.246.14/CNWV/Resources/AreaAssetData/Tutorial.json"
-    };
+    private string[] jsonUrls;
 
     async void Start() {
+        jsonUrls = new [] {
+            $"{GameDataManager.Instance.baseUrl}/CNWV/Resources/AreaAssetData/Area_01.json",
+            $"{GameDataManager.Instance.baseUrl}/CNWV/Resources/AreaAssetData/Area_02.json",
+            $"{GameDataManager.Instance.baseUrl}/CNWV/Resources/AreaAssetData/Area_03.json",
+            $"{GameDataManager.Instance.baseUrl}/CNWV/Resources/AreaAssetData/Area_04.json",
+            $"{GameDataManager.Instance.baseUrl}/CNWV/Resources/AreaAssetData/Area_05.json",
+            $"{GameDataManager.Instance.baseUrl}/CNWV/Resources/AreaAssetData/Tutorial.json"
+        };
+
         #if UNITY_EDITOR
             folderPath = GameDataManager.Data.areaAssetDataFolderPath;
         #else
