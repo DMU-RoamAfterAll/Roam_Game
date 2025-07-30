@@ -23,6 +23,8 @@ public class GameDataManager : MonoBehaviour {
 
     public StepManager stepManagerUI;
 
+    public string baseUrl = "http://125.176.246.14";
+
     ///Instance
     void Awake() {
         if (Instance != null && Instance != this)  {
@@ -53,7 +55,7 @@ public class GameDataManager : MonoBehaviour {
 
         gameData.areaNumber = Regex.Matches(
             new HttpClient()
-                .GetStringAsync("http://125.176.246.14/CNWV/Resources/AreaAssetData/")
+                .GetStringAsync($"{baseUrl}/CNWV/Resources/AreaAssetData/")
                 .Result,
             @"href\s*=\s*""[^""]+\.json""",
             RegexOptions.IgnoreCase
