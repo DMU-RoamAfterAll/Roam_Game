@@ -1,65 +1,139 @@
 using UnityEngine;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
+using System;
 using System.IO;
 using Newtonsoft.Json;
+using System.Net.Http;
+using System.Threading.Tasks;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#else
+using UnityEngine.Networking;
+using System.Collections;
+#endif
 
 public class CreateAreaAssets : MonoBehaviour {
     public string folderPath;
 
-    void Start() {
-#if UNITY_EDITOR
-        CreateAreaDataAssets();
-#endif
-    }
+    private string[] jsonUrls;
 
-#if UNITY_EDITOR
-    public void CreateAreaDataAssets() {
-        folderPath = GameDataManager.Data.areaAssetDataFolderPath;
-        Debug.Log("folderPath : " + folderPath);
+    async void Start() {
+        jsonUrls = new [] {
+            $"{GameDataManager.Instance.baseUrl}/CNWV/Resources/AreaAssetData/Area_01.json",
+            $"{GameDataManager.Instance.baseUrl}/CNWV/Resources/AreaAssetData/Area_02.json",
+            $"{GameDataManager.Instance.baseUrl}/CNWV/Resources/AreaAssetData/Area_03.json",
+            $"{GameDataManager.Instance.baseUrl}/CNWV/Resources/AreaAssetData/Area_04.json",
+            $"{GameDataManager.Instance.baseUrl}/CNWV/Resources/AreaAssetData/Area_05.json",
+            $"{GameDataManager.Instance.baseUrl}/CNWV/Resources/AreaAssetData/Tutorial.json"
+        };
+
+        #if UNITY_EDITOR
+            folderPath = GameDataManager.Data.areaAssetDataFolderPath;
+        #else
+            folderPath = Path.Combine(Application.persistentDataPath, "AreaAssetData");
+        #endif
 
         if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
 
-        string[] jsonFiles = Directory.GetFiles(folderPath, "*.json");
+        #if UNITY_EDITOR
+            await CreateAreaDataAssets();
+        #else
+            StartCoroutine(CreateAreaAssetsRunTime());
+        #endif
+    }
 
-        foreach (string jsonFilePath in jsonFiles) {
-            string jsonContent = File.ReadAllText(jsonFilePath);
-            string areaName = Path.GetFileNameWithoutExtension(jsonFilePath);
-            string assetPath = $"{folderPath}/{areaName}Data.asset";
+#if UNITY_EDITOR
+    public async Task CreateAreaDataAssets() {
+        using (var client = new HttpClient()) {
+            foreach (var url in jsonUrls) {
+                try {
+                    string jsonContent = await client.GetStringAsync(url);
 
-            AreaAsset jsonData = ScriptableObject.CreateInstance<AreaAsset>();
-            jsonData.name = areaName + "Data";
-            JsonConvert.PopulateObject(jsonContent, jsonData);
+                    string areaName = Path.GetFileNameWithoutExtension(new Uri(url).LocalPath);
+                    string assetPath = $"{folderPath}/{areaName}Data.asset";
 
-            jsonData.areaName = areaName;
+                    AreaAsset jsonData = ScriptableObject.CreateInstance<AreaAsset>();
+                    jsonData.name = areaName + "Data";
+                    JsonConvert.PopulateObject(jsonContent, jsonData);
+                    jsonData.areaName = areaName;
 
-            AreaAsset existingData = AssetDatabase.LoadAssetAtPath<AreaAsset>(assetPath);
+                    AreaAsset existing = AssetDatabase.LoadAssetAtPath<AreaAsset>(assetPath);
+                    if (existing == null) {
+                        AssetDatabase.CreateAsset(jsonData, assetPath);
+                        Debug.Log($"Created new AreaAsset : {areaName}");
+                    }
+                    else {
+                        EditorUtility.CopySerialized(jsonData, existing);
+                        Debug.Log($"Updated existing AreaAsset : {areaName}");
+                    }
 
-            if (existingData == null) {
-                AssetDatabase.CreateAsset(jsonData, assetPath);
-                Debug.Log($"Created new AreaAsset: {areaName}");
+                    GameObject areaObject = new GameObject(areaName);
+                    areaObject.transform.SetParent(this.transform);
+
+                    if (areaName == "Tutorial") areaObject.tag = Tag.Tutorial;
+                    else areaObject.tag = Tag.Area;
+
+
+                    GameDataManager.Instance.areaObjects.Add(areaObject);
+                    var mgr = areaObject.AddComponent<AreaAssetManager>();
+                    mgr.areaAsset = jsonData;
+                }
+                catch (Exception ex) {
+                    Debug.LogError($"Failed to load or parse JSON from {url} : {ex}");
+                }
             }
-            else {
-                EditorUtility.CopySerialized(jsonData, existingData);
-                Debug.Log($"Updated existing AreaAsset: {areaName}");
-            }
-
-            GameObject areaObject = new GameObject(areaName);
-            areaObject.transform.SetParent(this.transform);
-            GameDataManager.Instance.areaObjects.Add(areaObject);
-
-            if (areaName == "Tutorial") areaObject.tag = Tag.Tutorial;
-            else areaObject.tag = Tag.Area;
-
-            AreaAssetManager areaManager = areaObject.AddComponent<AreaAssetManager>();
-            areaManager.areaAsset = jsonData;
-
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
         }
 
-        Debug.Log("All AreaAsset created succesfully!");
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        Debug.Log("All remote AreaAssets created successfully!");
     }
+#endif
+
+#if !UNITY_EDITOR
+
+    private IEnumerator CreateAreaAssetsRunTime() {
+        Debug.Log("[CreateAreaAssets] Coroutine started, total URLs = " + jsonUrls.Length);
+
+        foreach (var url in jsonUrls) {
+            Debug.Log($"[CreateAreaAssets] Attempting download: {url}");
+            using (var www = UnityWebRequest.Get(url)) {
+                yield return www.SendWebRequest();
+
+                Debug.Log($"[CreateAreaAssets] Download result: {www.result}, error: {www.error}");
+
+                if (www.result != UnityWebRequest.Result.Success) {
+                    Debug.LogWarning($"[CreateAreaAssets] Download failed: {url}");
+                    continue;
+                }
+
+                string jsonText = www.downloadHandler.text;
+                Debug.Log($"[CreateAreaAssets] Received JSON ({url}), length = {jsonText.Length}\n{jsonText.Substring(0, Mathf.Min(200, jsonText.Length))}");
+
+                // Parse into ScriptableObject
+                var jsonData = ScriptableObject.CreateInstance<AreaAsset>();
+                JsonConvert.PopulateObject(jsonText, jsonData);
+                jsonData.areaName = Path.GetFileNameWithoutExtension(new Uri(url).LocalPath);
+
+                // Check parsed fields
+                Debug.Log($"[CreateAreaAssets] Parsed data: areaName = {jsonData.areaName}");
+
+                // Create runtime GameObject
+                var go = new GameObject(jsonData.areaName);
+                go.transform.SetParent(this.transform);
+                go.tag = (jsonData.areaName == "Tutorial") ? Tag.Tutorial : Tag.Area;
+
+                var mgr = go.AddComponent<AreaAssetManager>();
+                mgr.areaAsset = jsonData;
+
+                GameDataManager.Instance.areaObjects.Add(go);
+
+                Debug.Log($"[CreateAreaAssets] Created AreaObject: {go.name}, total count = {GameDataManager.Instance.areaObjects.Count}");
+            }
+        }
+
+        Debug.Log("[CreateAreaAssets] Coroutine finished");
+    }
+
 #endif
 }
