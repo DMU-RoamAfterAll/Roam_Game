@@ -10,17 +10,34 @@ using UnityEngine.Android;
 public class WeatherManager : MonoBehaviour {
     public TMP_Text weatherText;
 
-    public string apiKey = "8cf84a776067a09b71171f342ef00efa";
+    private string baseUrl;
     public string city = "Seoul";
+
+    private float _lastRequestTime = -Mathf.Infinity;
+    private const float REQUEST_COOLDOWN = 60f;
+
 
     void Start() {
         weatherText = this.GetComponent<TMP_Text>();
+        baseUrl = $"http://125.176.246.14:8000";
+
+        RefreshWeather();
 
         #if UNITY_ANDROID
         
         if(!Permission.HasUserAuthorizedPermission(Permission.FineLocation)) Permission.RequestUserPermission(Permission.FineLocation);
         
         #endif
+    }
+
+    public void RefreshWeather() {
+        if(Time.time < _lastRequestTime + REQUEST_COOLDOWN) {
+            weatherText.text = "Loading...";
+            return;
+        }
+
+        _lastRequestTime = Time.time;
+        StartCoroutine(LocationSend());
     }
 
     IEnumerator LocationSend() {
@@ -63,38 +80,45 @@ public class WeatherManager : MonoBehaviour {
     }
 
     IEnumerator GetByCity(string city) {
-        string url = $"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={apiKey}&units=metric&lang=en";
+        string url = $"{baseUrl}/api/weatherAPI/?city={UnityWebRequest.EscapeURL(city)}";
         yield return StartCoroutine(GetWeather(url));
     }
 
     IEnumerator GetByCoords(float lat, float lon) {
-        string url = $"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={apiKey}&units=metric&lang=en";
+        string url = $"{baseUrl}/api/weatherAPI/?lat={lat}&lon={lon}";
         yield return StartCoroutine(GetWeather(url));
     }
 
     IEnumerator GetWeather(string url) {
-        using (UnityWebRequest www = UnityWebRequest.Get(url)) {
-            yield return www.SendWebRequest();
+        using var www = UnityWebRequest.Get(url);
+        www.SetRequestHeader("Accept", "application/json");
+        yield return www.SendWebRequest();
 
-            if(www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError) weatherText.text = $"Error : {www.error}";
-            else {
-                WeatherResponse weatherData = JsonUtility.FromJson<WeatherResponse>(www.downloadHandler.text);
-                string description = weatherData.weather[0].description;
+        if (www.result == UnityWebRequest.Result.ConnectionError ||
+            www.result == UnityWebRequest.Result.ProtocolError) 
+        {
+            weatherText.text = $"Error: {www.error}";
+        }
+        else {
+            // (1) JSON 전체를 로그로 확인해 보면 확실합니다.
+            Debug.Log($"Weather JSON: {www.downloadHandler.text}");
 
-                weatherText.text = $"weather : {description}";
-            }
+            // (2) 새 스펙으로 파싱
+            var resp = JsonUtility.FromJson<WeatherResponse>(www.downloadHandler.text);
+
+            // (3) 화면에 도시·날씨·온도 모두 표시
+            weatherText.text =
+                $"CITY : {resp.city}\n" +
+                $"WEATHER : {resp.description}\n" +
+                $"TEMP : {resp.temp:0.0}";
         }
     }
 
-    public void RefreshWeather() {
-        StartCoroutine(LocationSend());
-    }
-
     [System.Serializable]
-    public class WeatherResponse {
-        public Weather[] weather;
-        public Main main;
-        public string name;
+    private class WeatherResponse {
+        public string description;
+        public float temp;
+        public string city;
     }
 
     [System.Serializable]
