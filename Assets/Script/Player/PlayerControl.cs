@@ -13,11 +13,11 @@ public class PlayerControl : MonoBehaviour {
 
     void Start() {
         currentSection = this.transform.parent.gameObject;
-        maxDistance = GameDataManager.Data.initialMaxDistance;
+        maxDistance = MapSceneDataManager.mapData.initialMaxDistance;
     }
 
     void Update() {
-        if(GameDataManager.Data.isMapSetUp) MovePlayerToSection(); //맵 생성이 안료되었을 때 이동 가능
+        if(MapSceneDataManager.mapData.isMapSetUp) MovePlayerToSection(); //맵 생성이 안료되었을 때 이동 가능
     }
 
     ///클릭한 Section이 이미 방문아혔거나 감지범위 내일때 플레이어의 위치 이동 혹은 VirualSection을 통해서 이동
@@ -43,7 +43,7 @@ public class PlayerControl : MonoBehaviour {
 
                 var sd = hit.collider.GetComponent<SectionData>();
                 // ← 여기서 비용 체크
-                if (!GameDataManager.Instance.stepManagerUI.TryConsumeSteps(sd.stepCost)) return;
+                if (!MapSceneDataManager.Instance.stepManagerUI.TryConsumeSteps(sd.stepCost)) return;
 
                 // 비용이 충분하면 실제 이동 처리
                 preSection = transform.parent.gameObject;
@@ -58,7 +58,7 @@ public class PlayerControl : MonoBehaviour {
                 var vsd = hit.collider.GetComponent<VirtualSectionData>();
                 var realSd = vsd.truthSection.GetComponent<SectionData>();
                 // ← 동일하게 비용 체크
-                if (!GameDataManager.Instance.stepManagerUI.TryConsumeSteps(realSd.stepCost)) return;
+                if (!MapSceneDataManager.Instance.stepManagerUI.TryConsumeSteps(realSd.stepCost)) return;
 
                 preSection = transform.parent.gameObject;
                 currentSection = vsd.truthSection;
@@ -92,8 +92,8 @@ public class PlayerControl : MonoBehaviour {
             }
         }
     
-        SectionData[] allSections = GameDataManager.Instance.sections //모든 Section가져오기
-            .Concat(GameDataManager.Instance.mainSections)
+        SectionData[] allSections = MapSceneDataManager.Instance.sections //모든 Section가져오기
+            .Concat(MapSceneDataManager.Instance.mainSections)
             .Select(go => go.GetComponent<SectionData>())
             .Where(sd => sd != null)
             .ToArray();

@@ -10,7 +10,7 @@ public class LinkSectionSpawner : MonoBehaviour {
     public float minDist;
 
     void Start() {
-        areaObjects = GameDataManager.Instance.areaObjects;
+        areaObjects = MapSceneDataManager.Instance.areaObjects;
         closestPairs = new();
 
         FindLinkSection(areaObjects[5], areaObjects[0], areaObjects[1]);
@@ -58,7 +58,7 @@ public class LinkSectionSpawner : MonoBehaviour {
                 }
             }
 
-            if (closestMain != null && closestSub != null && minDist > GameDataManager.Data.initialMaxDistance) {
+            if (closestMain != null && closestSub != null && minDist > MapSceneDataManager.mapData.initialMaxDistance) {
                 closestPairs.Add((closestMain, closestSub));
             }
         }

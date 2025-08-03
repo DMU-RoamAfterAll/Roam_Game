@@ -66,7 +66,7 @@ public class CameraFollow : MonoBehaviour {
     ///플레이어가 원할 때 시점 고정
     void LockOn() {
         if (target == null) {
-            target = GameDataManager.Instance.Player.transform;
+            target = MapSceneDataManager.Instance.Player.transform;
         }
 
         Vector3 desiredPosition = target.position + offset;
