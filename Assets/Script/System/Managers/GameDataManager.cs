@@ -29,7 +29,7 @@ public class GameDataManager : MonoBehaviour {
 
         gameData.baseUrl = "http://125.176.246.14";
         gameData.playerName = "Potato";
-        gameData.seed = 54321;
+        gameData.seed = 12345;
 
         Application.targetFrameRate = 60;
     }

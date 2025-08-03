@@ -106,7 +106,9 @@ public class RandomSectionSpawner : MonoBehaviour {
         // 7) Create main sections first
         for (int i = 0; i < mainSectionCount; i++) {
             MainEventJsonData data = JsonUtility.FromJson<MainEventJsonData>(mainJsons[i].text);
-            Vector2 pos = new Vector2(data.x, data.y);
+            Vector2 pos;
+            if(data.x == 0 && data.y == 0) { pos = RandomMainSection(); }
+            else { pos = new Vector2(data.x, data.y); }
 
             GameObject go = Instantiate(mainSectionPrefab, pos, Quaternion.identity);
             go.transform.SetParent(this.transform);
@@ -129,7 +131,7 @@ public class RandomSectionSpawner : MonoBehaviour {
         }
 
         // 8) Generate random points for normal sections
-        List<Vector2> points = GenerateGuaranteedPoints(
+        List<Vector2> sectionPoints = GenerateGuaranteedPoints(
             sectionCount,
             initialMinDistance,
             initialMaxDistance,
@@ -139,7 +141,7 @@ public class RandomSectionSpawner : MonoBehaviour {
         // 9) Create normal sections
         for (int i = 0; i < sectionCount; i++) {
             EventJsonData data = JsonUtility.FromJson<EventJsonData>(eventJsons[i].text);
-            Vector2 pos = points[i];
+            Vector2 pos = sectionPoints[i];
 
             GameObject go = Instantiate(sectionPrefab, new Vector3(pos.x, pos.y, 0f), Quaternion.identity);
             go.transform.SetParent(this.transform);
@@ -202,6 +204,11 @@ public class RandomSectionSpawner : MonoBehaviour {
         }
 
         return generatedPoints;
+    }
+
+    Vector2 RandomMainSection() {
+        System.Random rng = new System.Random(UniqueSeed());
+        return new Vector2(Random.Range(maxRadius * -1, maxRadius), Random.Range(maxRadius * -1, maxRadius));
     }
 
     void AdjustMainSection() {
