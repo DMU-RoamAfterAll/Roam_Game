@@ -969,7 +969,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &994506505
 Transform:
   m_ObjectHideFlags: 0
@@ -998,10 +998,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   jsonFileName: T1_section
-  choiceButtonPrefab: {fileID: 6591956400443085167, guid: 4254abb7753344cba941e13305f80157, type: 3}
-  choiceButtonContainer: {fileID: 1661200134}
-  customY: -220
-  startY: -40
+  viewport: {fileID: 0}
+  buttonPrefab: {fileID: 8142386380739390831, guid: becd6d666a370e24e85f6180cd36222d, type: 3}
+  buttonPanel: {fileID: 0}
+  sceneImage: {fileID: 0}
+  dialogueText: {fileID: 0}
   delayPerChar: 0.01
   delayPerSentence: 0.25
   testItem:
@@ -2029,8 +2030,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: text
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 9714604a60d390a4f8cc35c87b87790b, type: 2}
-  m_sharedMaterial: {fileID: -3244293587049979586, guid: 9714604a60d390a4f8cc35c87b87790b, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 5480a68f70d3d8140b5b5fc2ad94af23, type: 2}
+  m_sharedMaterial: {fileID: -7600655278663350453, guid: 5480a68f70d3d8140b5b5fc2ad94af23, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
