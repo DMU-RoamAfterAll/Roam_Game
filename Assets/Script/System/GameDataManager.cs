@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Http;
+using System.Text.RegularExpressions;
 
 ///GameData에 있는 수치를 직접적으로 조정 및 대입
 public class GameDataManager : MonoBehaviour {
@@ -20,6 +22,8 @@ public class GameDataManager : MonoBehaviour {
     public List<GameObject> mainSections;
 
     public StepManager stepManagerUI;
+
+    public string baseUrl = "http://125.176.246.14";
 
     ///Instance
     void Awake() {
@@ -49,7 +53,14 @@ public class GameDataManager : MonoBehaviour {
 
         gameData.areaAssetDataFolderPath = "Assets/Resources/AreaAssetData";
 
-        gameData.areaNumber = (Directory.GetFiles(gameData.areaAssetDataFolderPath, "*.json")).Length;
+        gameData.areaNumber = Regex.Matches(
+            new HttpClient()
+                .GetStringAsync($"{baseUrl}/CNWV/Resources/AreaAssetData/")
+                .Result,
+            @"href\s*=\s*""[^""]+\.json""",
+            RegexOptions.IgnoreCase
+        ).Count;
+
         gameData.riverHeight = 5;
 
         gameData.sightObjects = GameObject.Find("SightObjects");
