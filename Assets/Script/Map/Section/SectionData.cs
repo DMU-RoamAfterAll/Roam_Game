@@ -25,8 +25,8 @@ public class SectionData : MonoBehaviour {
     #endregion
 
     void Start() {
-        sightObjects = GameDataManager.Data.sightObjects;
-        sightSectionPrefab = GameDataManager.Data.sightSectionPrefab;
+        sightObjects = MapSceneDataManager.mapData.sightObjects;
+        sightSectionPrefab = MapSceneDataManager.mapData.sightSectionPrefab;
         stepCost = 100; //필요한 걸음 수 -> 변화 필요
 
         #region Section 시각화

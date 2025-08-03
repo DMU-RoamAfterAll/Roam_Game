@@ -27,11 +27,11 @@ public class AreaLocateControl : MonoBehaviour {
 
     ///처음 게임 생성 시 필요한 데이터들을 GameData에 맞게 설정된 수치를 가져 옴
     void Start() {
-        minDistance = GameDataManager.Data.initialMinDistance;
-        riverHeight = GameDataManager.Data.riverHeight;
-        areaNumber = GameDataManager.Data.areaNumber;
+        minDistance = MapSceneDataManager.mapData.initialMinDistance;
+        riverHeight = MapSceneDataManager.mapData.riverHeight;
+        areaNumber = MapSceneDataManager.mapData.areaNumber;
 
-        Player = GameDataManager.Instance.Player;
+        Player = MapSceneDataManager.Instance.Player;
 
         OnAreaMoveFinished += CreateRiverSection;
     }
@@ -41,7 +41,7 @@ public class AreaLocateControl : MonoBehaviour {
         if(createdAreaCount == areaNumber) {
             createdAreaCount--;
 
-            areas = GameDataManager.Instance.areaObjects
+            areas = MapSceneDataManager.Instance.areaObjects
                 .Where(spawner => spawner.CompareTag(Tag.Area))
                 .Select(go => go.GetComponent<RandomSectionSpawner>())
                 .ToArray();
@@ -148,7 +148,7 @@ public class AreaLocateControl : MonoBehaviour {
 
         this.gameObject.AddComponent<LinkSectionSpawner>();
 
-        GameDataManager.Data.isMapSetUp = true;
+        MapSceneDataManager.mapData.isMapSetUp = true;
         Player.GetComponent<PlayerControl>().DetectSection();
     }
 
@@ -157,7 +157,7 @@ public class AreaLocateControl : MonoBehaviour {
 
         float riverCenterY = maxUpperHeight + (riverHeight / 2f) + (minDistance / 2f);
 
-        GameObject go = Instantiate(GameDataManager.Data.riverSectionPrefab, new Vector2(0, riverCenterY), Quaternion.identity);
+        GameObject go = Instantiate(MapSceneDataManager.mapData.riverSectionPrefab, new Vector2(0, riverCenterY), Quaternion.identity);
         go.transform.SetParent(this.transform);
     }
 }

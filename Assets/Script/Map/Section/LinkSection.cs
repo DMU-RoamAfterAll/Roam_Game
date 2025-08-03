@@ -12,8 +12,8 @@ public class LinkSection : MonoBehaviour {
     public SectionData sectionData;
 
     void Start() {
-        minDistance = GameDataManager.Data.initialMinDistance;
-        linkSectionPrefab = GameDataManager.Data.linkSectionPrefab;
+        minDistance = MapSceneDataManager.mapData.initialMinDistance;
+        linkSectionPrefab = MapSceneDataManager.mapData.linkSectionPrefab;
 
         sectionData = linkedSection.GetComponent<SectionData>();
         sectionData.linkSections.Add(this);

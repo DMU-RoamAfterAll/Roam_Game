@@ -71,18 +71,18 @@ public class RandomSectionSpawner : MonoBehaviour {
         areaAsset = Resources.Load<AreaAsset>($"AreaAssetData/{this.gameObject.name}Data");
 
         // 2) Get configuration from GameDataManager
-        initialMinDistance = GameDataManager.Data.initialMinDistance;
-        initialMaxDistance = GameDataManager.Data.initialMaxDistance;
         seed               = GameDataManager.Data.seed;
-        maxRadius          = GameDataManager.Data.maxRadius;
+        initialMinDistance = MapSceneDataManager.mapData.initialMinDistance;
+        initialMaxDistance = MapSceneDataManager.mapData.initialMaxDistance;
+        maxRadius          = MapSceneDataManager.mapData.maxRadius;
 
         // 3) Folder paths stored in the asset (editor-only values, unused at runtime if using Resources)
         eventFolderPath      = areaAsset.sectionDataFolderPath;
         mainEventFolderPath  = areaAsset.mainSectionDataFolderPath;
 
         // 4) Prefabs from GameDataManager
-        sectionPrefab    = GameDataManager.Data.sectionPrefab;
-        mainSectionPrefab = GameDataManager.Data.mainSectionPrefab;
+        sectionPrefab    = MapSceneDataManager.mapData.sectionPrefab;
+        mainSectionPrefab = MapSceneDataManager.mapData.mainSectionPrefab;
 
         // 5) Initialize bounds
         maxX = float.MinValue;
@@ -111,7 +111,7 @@ public class RandomSectionSpawner : MonoBehaviour {
             GameObject go = Instantiate(mainSectionPrefab, pos, Quaternion.identity);
             go.transform.SetParent(this.transform);
             go.name = $"MainSection_{i}";
-            GameDataManager.Instance.mainSections.Add(go);
+            MapSceneDataManager.Instance.mainSections.Add(go);
 
             SectionData section = go.GetComponent<SectionData>();
             section.id              = $"{gameObject.name}/{data.id}";
@@ -144,7 +144,7 @@ public class RandomSectionSpawner : MonoBehaviour {
             GameObject go = Instantiate(sectionPrefab, new Vector3(pos.x, pos.y, 0f), Quaternion.identity);
             go.transform.SetParent(this.transform);
             go.name = $"Section_{i}";
-            GameDataManager.Instance.sections.Add(go);
+            MapSceneDataManager.Instance.sections.Add(go);
 
             SectionData section = go.GetComponent<SectionData>();
             section.id              = $"{gameObject.name}/{data.id}";

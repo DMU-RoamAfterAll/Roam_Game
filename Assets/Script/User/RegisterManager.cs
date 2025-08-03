@@ -45,7 +45,7 @@ public class RegisterManager : MonoBehaviour
     public TMP_InputField birthInputField;
 
     void Start() {
-        baseUrl = $"{GameDataManager.Instance.baseUrl}:8081/api/users";
+        baseUrl = $"{GameDataManager.Data.baseUrl}:8081/api/users";
     }
 
     // 회원가입 버튼 onclick 함수

@@ -15,20 +15,20 @@ using System.Collections;
 public class CreateAreaAssets : MonoBehaviour {
     public string folderPath;
 
-    private string[] jsonUrls;
+    public string[] jsonUrls;
 
     async void Start() {
         jsonUrls = new [] {
-            $"{GameDataManager.Instance.baseUrl}/CNWV/Resources/AreaAssetData/Area_01.json",
-            $"{GameDataManager.Instance.baseUrl}/CNWV/Resources/AreaAssetData/Area_02.json",
-            $"{GameDataManager.Instance.baseUrl}/CNWV/Resources/AreaAssetData/Area_03.json",
-            $"{GameDataManager.Instance.baseUrl}/CNWV/Resources/AreaAssetData/Area_04.json",
-            $"{GameDataManager.Instance.baseUrl}/CNWV/Resources/AreaAssetData/Area_05.json",
-            $"{GameDataManager.Instance.baseUrl}/CNWV/Resources/AreaAssetData/Tutorial.json"
+            $"{GameDataManager.Data.baseUrl}/CNWV/Resources/AreaAssetData/Area_01.json",
+            $"{GameDataManager.Data.baseUrl}/CNWV/Resources/AreaAssetData/Area_02.json",
+            $"{GameDataManager.Data.baseUrl}/CNWV/Resources/AreaAssetData/Area_03.json",
+            $"{GameDataManager.Data.baseUrl}/CNWV/Resources/AreaAssetData/Area_04.json",
+            $"{GameDataManager.Data.baseUrl}/CNWV/Resources/AreaAssetData/Area_05.json",
+            $"{GameDataManager.Data.baseUrl}/CNWV/Resources/AreaAssetData/Tutorial.json"
         };
 
         #if UNITY_EDITOR
-            folderPath = GameDataManager.Data.areaAssetDataFolderPath;
+            folderPath = MapSceneDataManager.mapData.areaAssetDataFolderPath;
         #else
             folderPath = Path.Combine(Application.persistentDataPath, "AreaAssetData");
         #endif
@@ -74,7 +74,7 @@ public class CreateAreaAssets : MonoBehaviour {
                     else areaObject.tag = Tag.Area;
 
 
-                    GameDataManager.Instance.areaObjects.Add(areaObject);
+                    MapSceneDataManager.Instance.areaObjects.Add(areaObject);
                     var mgr = areaObject.AddComponent<AreaAssetManager>();
                     mgr.areaAsset = jsonData;
                 }

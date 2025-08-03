@@ -38,7 +38,7 @@ public class LoginManager : MonoBehaviour
     public Button loginBtn;
 
     void Start() {
-        baseUrl = $"{GameDataManager.Instance.baseUrl}:8081/api/users";
+        baseUrl = $"{GameDataManager.Data.baseUrl}:8081/api/users";
     }
     // 로그인 버튼 onClick 이벤트 함수
     public void LoginBtn() 
