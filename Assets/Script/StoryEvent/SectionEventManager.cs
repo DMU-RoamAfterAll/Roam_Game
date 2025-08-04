@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using System.Collections;
 using KoreanTyper;
-using System;
+using TMPro;
 
 //-------------------------------------------------------------------------------
 // ** Section Event Json 데이터 클래스 구조 **
@@ -83,19 +83,21 @@ public class SectionEventManager : MonoBehaviour
     private ItemDataManager itemDataManager;
     private StoryFlagManager storyFlagManager;
 
-    public GameObject choiceButtonPrefab; //버튼 프리팹
-    public Transform choiceButtonContainer; //버튼 부모 오브젝트
-    private Image sceneImage; //UI에 띄울 이미지 컴포넌트
+    //컨텐츠 오브젝트
+    public Transform viewport; //스토리 컨텐츠 부분
+    public GameObject buttonPrefab; //버튼 프리팹 (인스펙터 접속)
+    public Transform buttonPanel; //버튼 부모 오브젝트
+    public Image sceneImage; //UI에 띄울 이미지 컴포넌트
 
-    //다음으로 버튼튼 y값 수정
-    public float customY = -200f;
-    //선택지 버튼 변수
-    float yOffset = -40f; //버튼 간 세로 간격
-    public float startY = -10f; //시작 위치 기준값
-    int index = 1;
+    // //다음으로 버튼튼 y값 수정
+    // public float customY = -200f;
+    // //선택지 버튼 변수
+    // float yOffset = -40f; //버튼 간 세로 간격
+    // public float startY = -10f; //시작 위치 기준값
+    // int index = 1;
 
     //타이핑 변수
-    private Text dialogueText; //출력될 텍스트 컴포넌트
+    public TextMeshProUGUI dialogueText; //출력될 텍스트 컴포넌트
     public float delayPerChar = 0.01f; //문장 타이핑 딜레이
     public float delayPerSentence = 0.25f; //문장간 딜레이
 
@@ -107,8 +109,10 @@ public class SectionEventManager : MonoBehaviour
     private void Awake()
     {
         //참조 캐싱
-        dialogueText = GameObject.Find("ScriptText").GetComponent<Text>();
-        sceneImage = GameObject.Find("SceneImage").GetComponent<Image>();
+        viewport = GameObject.Find("Viewport").GetComponent<Transform>();
+        sceneImage = viewport.Find("Content/UI_Image/Image").GetComponent<Image>();
+        dialogueText = viewport.Find("Content/value").GetComponent<TextMeshProUGUI>();
+        buttonPanel = viewport.Find("Content/Panel_Button").GetComponent<Transform>();
         itemDataManager = GetComponent<ItemDataManager>();
         storyFlagManager = GetComponent<StoryFlagManager>();
 
@@ -434,9 +438,9 @@ public class SectionEventManager : MonoBehaviour
         }
 
         //플래그 설정
-        if (actions.flagSet != null && actions.flagSet.Count > 0 && actions.flagSet is List<FlagData> flagData)
+        if (actions.flagSet != null && actions.flagSet.Count > 0 && actions.flagSet is List<FlagData> fSetData)
         {
-            foreach (FlagData actionFlag in flagData)
+            foreach (FlagData actionFlag in fSetData)
             {
                 if (actionFlag != null && actionFlag.flagCode != "" &&
                 actionFlag.flagCode is string flagCode && actionFlag.flagState is bool flagState)
@@ -450,6 +454,27 @@ public class SectionEventManager : MonoBehaviour
         }
 
         //플래그 체크
+        if (actions.flagCheck != null && actions.flagCheck.Count > 0 && actions.flagCheck is List<FlagData> fCheckData)
+        {
+            foreach (FlagData actionFlag in fCheckData)
+            {
+                if (actionFlag != null && actionFlag.flagCode != "" &&
+                actionFlag.flagCode is string flagCode && actionFlag.flagState is bool flagState)
+                {
+                    testFlag = storyFlagManager.GetFlagByCode(flagCode);
+
+                    //테스트 출력
+                    if (flagState == true)
+                    {
+                        Debug.Log($"\'{testFlag.name}\'플래그가 true값입니다.");
+                    }
+                    else
+                    {
+                        Debug.Log($"\'{testFlag.name}\'플래그가 false값입니다.");
+                    }
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -496,9 +521,9 @@ public class SectionEventManager : MonoBehaviour
     {
         StopAllCoroutines();
 
-        foreach (Transform child in choiceButtonContainer)
+        foreach (Transform child in buttonPanel)
         {
-            Destroy(child.gameObject);
+            Destroy(child.gameObject); //버튼 리셋
         }
 
         HandleNodeActions(node.action); //이미지 로드
@@ -507,18 +532,12 @@ public class SectionEventManager : MonoBehaviour
         {
             StartCoroutine(TypeTextCoroutine(string.Join("\n", node.value), () =>
             {
-                GameObject buttonObj = Instantiate(choiceButtonPrefab, choiceButtonContainer);
+                GameObject buttonObj = Instantiate(buttonPrefab, buttonPanel);
                 Button button = buttonObj.GetComponent<Button>();
-                Text buttonText = buttonObj.GetComponentInChildren<Text>();
+                TextMeshProUGUI buttonText = buttonObj.GetComponentInChildren<TextMeshProUGUI>();
                 buttonText.text = "다음으로";
                 button.onClick.RemoveAllListeners();
                 button.onClick.AddListener(() => StartDialogue(node.next));
-
-                RectTransform rect = buttonObj.GetComponent<RectTransform>();
-                rect.anchorMin = new Vector2(0.5f, 0.5f);
-                rect.anchorMax = new Vector2(0.5f, 0.5f);
-                rect.pivot = new Vector2(0.5f, 0.5f);
-                rect.anchoredPosition = new Vector2(0f, customY);
             }));
         }
         else
@@ -532,18 +551,17 @@ public class SectionEventManager : MonoBehaviour
         dialogueText.text = "";
 
         //기존 버튼 제거
-        foreach (Transform child in choiceButtonContainer)
+        foreach (Transform child in buttonPanel)
         {
             Destroy(child.gameObject);
         }
         foreach (MenuOption option in node.menuOption)
         {
             //각 선택지에 대해 버튼 생성
-            GameObject buttonObj = Instantiate(choiceButtonPrefab, choiceButtonContainer);
-            buttonObj.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, startY + index * yOffset);
+            GameObject buttonObj = Instantiate(buttonPrefab, buttonPanel);
 
             Button button = buttonObj.GetComponent<Button>();
-            Text buttonText = buttonObj.GetComponentInChildren<Text>();
+            TextMeshProUGUI buttonText = buttonObj.GetComponentInChildren<TextMeshProUGUI>();
 
             buttonText.text = option.label;
 
@@ -553,7 +571,7 @@ public class SectionEventManager : MonoBehaviour
                 Debug.Log($"선택됨: {option.id}");
 
                 //선택지 클릭 후 기존 버튼 제거
-                foreach (Transform child in choiceButtonContainer)
+                foreach (Transform child in buttonPanel)
                 {
                     Destroy(child.gameObject);
                 }
@@ -576,7 +594,6 @@ public class SectionEventManager : MonoBehaviour
                     Debug.Log("MenuNode의 next 값이 없습니다. 종료 또는 대기 처리 필요.");
                 }
             });
-            index++;
         }
     }
     //-------------------------------------------------------------------------------

@@ -36,4 +36,12 @@ UserSettings/
 Thumbs.db
 
 # Packages
+<<<<<<< HEAD
 Packages/packages-lock.json
+=======
+Packages/packages-lock.json
+
+# Assets
+Assets/_Heathen Engineering/
+Assets/_Heathen Engineering.metaAssets/Fonts/NanumHumanFont.asset
+>>>>>>> origin/test

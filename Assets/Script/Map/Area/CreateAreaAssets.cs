@@ -74,7 +74,11 @@ public class CreateAreaAssets : MonoBehaviour {
                     else areaObject.tag = Tag.Area;
 
 
+<<<<<<< HEAD
                     MapSceneDataManager.Instance.areaObjects.Add(areaObject);
+=======
+                    GameDataManager.Instance.areaObjects.Add(areaObject);
+>>>>>>> origin/test
                     var mgr = areaObject.AddComponent<AreaAssetManager>();
                     mgr.areaAsset = jsonData;
                 }
