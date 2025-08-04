@@ -1195,7 +1195,6 @@ MonoBehaviour:
   currentSection: {fileID: 0}
   sectionData: {fileID: 0}
   maxDistance: 0
-<<<<<<< HEAD
 --- !u!1 &1540654559
 GameObject:
   m_ObjectHideFlags: 0
@@ -1248,8 +1247,6 @@ MonoBehaviour:
   sections: []
   mainSections: []
   stepManagerUI: {fileID: 0}
-=======
->>>>>>> origin/test
 --- !u!1001 &1570746093
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1775,19 +1772,10 @@ SceneRoots:
   m_Roots:
   - {fileID: 186515664}
   - {fileID: 1221575636}
-<<<<<<< HEAD
-=======
-  - {fileID: 1468115034}
-  - {fileID: 1885761763}
->>>>>>> origin/test
   - {fileID: 77985195}
   - {fileID: 575129796}
   - {fileID: 1923946837}
   - {fileID: 1067312538}
-<<<<<<< HEAD
   - {fileID: 1885761763}
   - {fileID: 1036220795}
   - {fileID: 1540654560}
-=======
-  - {fileID: 1036220795}
->>>>>>> origin/test
