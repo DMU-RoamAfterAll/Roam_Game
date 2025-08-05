@@ -13,6 +13,7 @@ TagManager:
   - VirtualSection
   - StepUI
   - River
+  - IrisSection
   layers:
   - Default
   - TransparentFX

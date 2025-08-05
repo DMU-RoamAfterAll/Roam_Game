@@ -44,6 +44,7 @@ public class RandomSectionSpawner : MonoBehaviour {
     public Vector2[] mainSections;
 
     [Header("Data")]
+    public GameObject Player;
     public AreaLocateControl areaLocate;
     public string eventFolderPath;
     public string mainEventFolderPath;
@@ -67,6 +68,8 @@ public class RandomSectionSpawner : MonoBehaviour {
     }
 
     IEnumerator InitializeSections() {
+        Player = MapSceneDataManager.Instance.Player;
+
         // 1) Load the AreaAsset (pre-created or downloaded at runtime)
         areaAsset = Resources.Load<AreaAsset>($"AreaAssetData/{this.gameObject.name}Data");
 
@@ -177,8 +180,9 @@ public class RandomSectionSpawner : MonoBehaviour {
         #endregion
     }
 
-    List<Vector2> GenerateGuaranteedPoints(int count, float minDist, float maxDist, float maxRadius) {
-        List<Vector2> generatedPoints = new List<Vector2> { Vector2.zero };
+    List<Vector2> GenerateGuaranteedPoints(int count, float minDist, float maxDist, float maxRadius, Vector2? current = null) {
+        Vector2 currentPoint = current ?? Vector2.zero;
+        List<Vector2> generatedPoints = new List<Vector2> { currentPoint };
         System.Random rng = new System.Random(UniqueSeed());
         List<Vector2> allPoints = new List<Vector2>(generatedPoints);
 
@@ -268,6 +272,21 @@ public class RandomSectionSpawner : MonoBehaviour {
             if (gameObject.name != "Tutorial")
                 sec.sectionPosition -= center;
             sec.transform.position = sec.sectionPosition;
+        }
+    }
+
+    [ContextMenu("Spawn Event Section")]
+    private void CreateEventSection() {
+        List<Vector2> eventSectionPoints = GenerateGuaranteedPoints(
+            2,
+            initialMinDistance,
+            initialMaxDistance,
+            initialMaxDistance,
+            Player.transform.position
+        );
+        
+        foreach(var point in eventSectionPoints) {
+            Debug.Log("EventSection Vector : " + point);
         }
     }
 }
