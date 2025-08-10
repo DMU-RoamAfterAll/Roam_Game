@@ -82,6 +82,7 @@ public class SectionEventManager : MonoBehaviour
     private Dictionary<string, object> sectionData = new Dictionary<string, object>(); //파싱된 Json데이터
     private ItemDataManager itemDataManager;
     private StoryFlagManager storyFlagManager;
+    private UserDataManager userDataManager;
 
     //컨텐츠 오브젝트
     public Transform viewport; //스토리 컨텐츠 부분
@@ -115,6 +116,7 @@ public class SectionEventManager : MonoBehaviour
         buttonPanel = viewport.Find("Content/Panel_Button").GetComponent<Transform>();
         itemDataManager = GetComponent<ItemDataManager>();
         storyFlagManager = GetComponent<StoryFlagManager>();
+        userDataManager = GetComponent<UserDataManager>();
 
         LoadJson(jsonFileName); //Json파일 로드
     }
@@ -416,7 +418,8 @@ public class SectionEventManager : MonoBehaviour
                     testItem = itemDataManager.GetItemByCode(ItemCode);
 
                     //테스트 출력
-                    Debug.Log($"\'{testItem.name}\'아이템을 {ItemAmount}개 획득했습니다.");
+                    Debug.Log($"\'{testItem.code}\'아이템을 {ItemAmount}개 획득했습니다.");
+                    StartCoroutine(userDataManager.InsertItem(testItem.code,ItemAmount)); //api 메소드
                 }
             }
         }
