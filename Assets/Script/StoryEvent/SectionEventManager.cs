@@ -436,6 +436,7 @@ public class SectionEventManager : MonoBehaviour
 
                     //테스트 출력
                     Debug.Log($"\'{testItem.name}\'아이템을 {ItemAmount}개 잃었습니다.");
+                    StartCoroutine(userDataManager.LostItem(testItem.code,ItemAmount)); //api 메소드
                 }
             }
         }
