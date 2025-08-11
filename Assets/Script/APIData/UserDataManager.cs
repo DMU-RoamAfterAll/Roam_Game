@@ -7,32 +7,64 @@ public class UserDataManager : MonoBehaviour
 {
     protected string apiUrl = "http://125.176.246.14:8081"; //api 주소
     public string username = "admin"; //테스트용 유저 이름
+    public string accessToken = ""; //로그인 토큰
 
     /// <summary>
-    /// api를 통해 서버에 아이템을 삽입하는 함수
+    /// api를 통해 서버에 아이템을 추가하는 함수
     /// </summary>
-    /// <param name="itemName">아이템 이름</param>
+    /// <param name="itemCode">아이템 코드</param>
     /// <param name="itemAmount">아이템 갯수</param>
     /// <returns></returns>
-    public IEnumerator InsertItem(string itemCode, int itemAmount)
+    public IEnumerator GetItem(string itemCode, int itemAmount)
     {
-        string insertUrl = apiUrl + "/api/inventory/items"
-        + $"?username={username}&itemCode={itemCode}&amount={itemAmount}"; //전용 api
-        Debug.Log("url: "+insertUrl);
+        string url =
+        $"{apiUrl}/api/inventory/items" +
+        $"?username={UnityWebRequest.EscapeURL(username)}" +
+        $"&itemCode={UnityWebRequest.EscapeURL(itemCode)}" +
+        $"&amount={itemAmount}";
 
-        UnityWebRequest www = UnityWebRequest.PostWwwForm(insertUrl, "");
-        www.SetRequestHeader("Authorization", $"Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc1NDgxNjM0NSwiZXhwIjoxNzU0ODE3MjQ1fQ.ScFUtai6Ctcq-16z_EjUCVoMTKL9ZZGdRTYMPSW8EkhLUa9ZWMPIoutqBXpdNqnPHLrFsfUE4hMYiEUECo9DYw");
-        www.timeout = 10;
-        yield return www.SendWebRequest(); //네트워크 전송
-
-        //데이터 전송 확인
-        if (www.result == UnityWebRequest.Result.Success)
+        using (var www = UnityWebRequest.PostWwwForm(url, "")) //body부분을 비우고 post
         {
-            Debug.Log("Insert Success: " + www.downloadHandler.text);
+            www.SetRequestHeader("Authorization", $"Bearer {accessToken}");
+            www.downloadHandler = new DownloadHandlerBuffer();
+            www.timeout = 10;
+
+            yield return www.SendWebRequest();
+
+            Debug.Log($"[{GetType().Name}] code={www.responseCode}, result={www.result}");
+            if (www.result == UnityWebRequest.Result.Success)
+                Debug.Log($"[{GetType().Name}] OK. body='{www.downloadHandler.text}'");
+            else
+                Debug.LogError($"[{GetType().Name}] Failed: {www.responseCode} / {www.error}");
         }
-        else
+    }
+
+    /// <summary>
+    /// api를 통해 서버에 아이템을 삭제하는 함수
+    /// </summary>
+    /// <param name="itemCode">아이템 코드</param>
+    /// <param name="itemAmount">아이템 갯수</param>
+    /// <returns></returns>
+    public IEnumerator LostItem(string itemCode, int itemAmount = 1)
+    {
+        string url =
+            $"{apiUrl}/api/inventory/items" +
+            $"?username={UnityWebRequest.EscapeURL(username)}" +
+            $"&itemCode={UnityWebRequest.EscapeURL(itemCode)}";
+
+        using (var www = UnityWebRequest.Delete(url))
         {
-            Debug.LogError("Insert Failed: " + www.error);
+            www.SetRequestHeader("Authorization", $"Bearer {accessToken}");
+            www.downloadHandler = new DownloadHandlerBuffer();
+            www.timeout = 10;
+
+            yield return www.SendWebRequest();
+
+            Debug.Log($"[{GetType().Name}] code={www.responseCode}, result={www.result}");
+            if (www.result == UnityWebRequest.Result.Success)
+                Debug.Log($"[{GetType().Name}] OK. body='{www.downloadHandler.text}'");
+            else
+                Debug.LogError($"[{GetType().Name}] Failed: {www.responseCode} / {www.error}");
         }
     }
 }

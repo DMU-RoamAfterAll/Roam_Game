@@ -140,7 +140,7 @@ public class SectionEventManager : MonoBehaviour
         TextAsset jsonFile = Resources.Load<TextAsset>(filePath); //Json 파일 로드
         if (jsonFile == null)
         {
-            Debug.LogError($"[SectionEventManager] 파일을 찾을 수 없음: {jsonFileName}.json");
+            Debug.LogError($"[{GetType().Name}] 파일을 찾을 수 없음: {jsonFileName}.json");
             return;
         }
         //Json파일에서 텍스트 데이터를 가져와 Json객체 구조로 변경
@@ -175,7 +175,7 @@ public class SectionEventManager : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning($"[SectionEventManager] 인식할 수 없는 노드: {key}");
+                Debug.LogWarning($"[{GetType().Name}] 인식할 수 없는 노드: {key}");
             }
         }
         Debug.Log("Reading File : " + jsonFileName + ".json"); //파일 로드 확인 로그
@@ -292,7 +292,7 @@ public class SectionEventManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError($"[ParseItemData] 알 수 없는 토큰 타입: {token.Type}");
+            Debug.LogError($"[{GetType().Name}] 알 수 없는 토큰 타입: {token.Type}");
         }
 
         return list;
@@ -350,7 +350,7 @@ public class SectionEventManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError($"[ParseItemData] 알 수 없는 토큰 타입: {token.Type}");
+            Debug.LogError($"[{GetType().Name}] 알 수 없는 토큰 타입: {token.Type}");
         }
 
         return list;
@@ -403,7 +403,7 @@ public class SectionEventManager : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning($"[SectionEventManager] 이미지 로드 실패 {imageName}");
+                Debug.LogWarning($"[{GetType().Name}] 이미지 로드 실패 {imageName}");
             }
         }
 
@@ -419,7 +419,7 @@ public class SectionEventManager : MonoBehaviour
 
                     //테스트 출력
                     Debug.Log($"\'{testItem.code}\'아이템을 {ItemAmount}개 획득했습니다.");
-                    StartCoroutine(userDataManager.InsertItem(testItem.code,ItemAmount)); //api 메소드
+                    StartCoroutine(userDataManager.GetItem(testItem.code,ItemAmount)); //api 메소드
                 }
             }
         }
@@ -511,12 +511,12 @@ public class SectionEventManager : MonoBehaviour
             }
             else
             {
-                Debug.LogError($"[SectionEventManager] 알 수 없는 노드 타입: {node.GetType()}");
+                Debug.LogError($"[{GetType().Name}] 알 수 없는 노드 타입: {node.GetType()}");
             }
         }
         else
         {
-            Debug.LogError($"[SectionEventManager] {nodeKey}노드를 찾을 수 없습니다.");
+            Debug.LogError($"[{GetType().Name}] {nodeKey}노드를 찾을 수 없습니다.");
         }
     }
 
@@ -594,7 +594,7 @@ public class SectionEventManager : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("MenuNode의 next 값이 없습니다. 종료 또는 대기 처리 필요.");
+                    Debug.Log($"[{GetType().Name}] MenuNode의 next 값이 없습니다. 종료 또는 대기 처리 필요.");
                 }
             });
         }
