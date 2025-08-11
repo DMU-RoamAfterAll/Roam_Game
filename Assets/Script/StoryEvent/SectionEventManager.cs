@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using System.Collections;
 using KoreanTyper;
 using TMPro;
+using System;
 
 //-------------------------------------------------------------------------------
 // ** Section Event Json 데이터 클래스 구조 **
@@ -23,8 +24,10 @@ public class CommonNode
 public class ActionNode
 {
     public string image; //삽화를 변경하기 위한 삽화 명을 작성하는 노드, 본문을 출력하기 전 삽화 변경이 이루어짐
-    public List<ItemData> get; //아이템 획득 기능을 위한 노드, <"아이템 코드", 갯수>형식으로 작성
-    public List<ItemData> lost; //아이템 유실 기능을 위한 노드, <"아이템 코드", 갯수>형식으로 작성
+    public List<ItemData> getI; //아이템 획득 기능을 위한 노드, <"아이템 코드", 갯수>형식으로 작성
+    public List<ItemData> lostI; //아이템 유실 기능을 위한 노드, <"아이템 코드", 갯수>형식으로 작성
+    public List<WeaponData> getW; //무기 획득 기능을 위한 노드, `<"무기 코드", 갯수>` 형식으로 작성
+    public List<WeaponData> lostW; //무기 유실 기능을 위한 노드, `<"무기 코드", 갯수>` 형식으로 작성
     public List<FlagData> flagSet; //플래그 설정을 위한 플래그 명을 작성하는 노드, <"플래그명", boolean>형식으로 작성
     public List<FlagData> flagCheck; //본문을 내보내기 위해 플래그를 확인하는 노드, <"플래그명", boolean>형식으로 작성
                                       //(리스트 형식으로 복수 체크 가능)
@@ -36,6 +39,14 @@ public class ItemData
 {
     public string ItemCode; //아이템 코드명
     public int ItemAmount; //아이템 갯수
+}
+
+[System.Serializable]
+//무기 제어를 위한 데이터 모델
+public class WeaponData
+{
+    public string WeaponCode; //무기 코드명
+    public int WeaponAmount; //무기 갯수
 }
 
 [System.Serializable]
@@ -81,6 +92,7 @@ public class SectionEventManager : MonoBehaviour
     "StoryGameData/SectionData/SectionImage/TSectionImage"; //게임 삽화가 담긴 파일의 경로
     private Dictionary<string, object> sectionData = new Dictionary<string, object>(); //파싱된 Json데이터
     private ItemDataManager itemDataManager;
+    private WeaponDataManager weaponDataManager;
     private StoryFlagManager storyFlagManager;
     private UserDataManager userDataManager;
 
@@ -115,6 +127,7 @@ public class SectionEventManager : MonoBehaviour
         dialogueText = viewport.Find("Content/value").GetComponent<TextMeshProUGUI>();
         buttonPanel = viewport.Find("Content/Panel_Button").GetComponent<Transform>();
         itemDataManager = GetComponent<ItemDataManager>();
+        weaponDataManager = GetComponent<WeaponDataManager>();
         storyFlagManager = GetComponent<StoryFlagManager>();
         userDataManager = GetComponent<UserDataManager>();
 
@@ -221,13 +234,21 @@ public class SectionEventManager : MonoBehaviour
         if (actionObj.TryGetValue("image", out var imgToken))
             action.image = imgToken.ToString();
 
-        // get 아이템 처리
-        if (actionObj.TryGetValue("get", out var getToken))
-            action.get = ParseItemData(getToken);
+        // getI 처리
+        if (actionObj.TryGetValue("getI", out var getIToken))
+            action.getI = ParseItemData(getIToken);
 
-        // lost 아이템 처리
-        if (actionObj.TryGetValue("lost", out var lostToken))
-            action.lost = ParseItemData(lostToken);
+        // lostI 처리
+        if (actionObj.TryGetValue("lostI", out var lostIToken))
+            action.lostI = ParseItemData(lostIToken);
+
+        // getW 처리
+        if (actionObj.TryGetValue("getW", out var getWToken))
+            action.getW = ParseWeaponData(getWToken);
+
+        // lostW 처리
+        if (actionObj.TryGetValue("lostW", out var lostWToken))
+            action.lostW = ParseWeaponData(lostWToken);
 
         // flagSet 처리
         if (actionObj.TryGetValue("flagSet", out var flagSetToken))
@@ -244,55 +265,78 @@ public class SectionEventManager : MonoBehaviour
     /// 아이템 처리 부분의 parser (ParseActionNode함수에 사용)
     /// </summary>
     /// <param name="token">아이템 처리 action 정보</param>
-    private List<ItemData> ParseItemData(JToken token)
+        private List<ItemData> ParseItemData(JToken token)
     {
-        var list = new List<ItemData>();
-
-        if (token == null)
-            return list;
-
-        if (token.Type == JTokenType.Array)
+        return ParsePairs(token, (code, amount) => new ItemData
         {
-            var arr = (JArray)token;
+            ItemCode = code,
+            ItemAmount = amount
+        });
+    }
 
-            //이중 배열인지 단일 배열인지 구분
-            /*
-                ex) 이중 배열
-                "get": [
-                ["item_apple", 3],
-                ["item_banana", 2]
-                ]
-                ex) 단일 배열
-                "lost": ["item_coin", 5]
-            */
-            if (arr.Count > 0 && arr[0].Type == JTokenType.Array)
+    /// <summary>
+    /// 무기 처리 부분의 parser (ParseActionNode함수에 사용)
+    /// </summary>
+    /// <param name="token">아이템 처리 action 정보</param>
+    private List<WeaponData> ParseWeaponData(JToken token)
+    {
+        return ParsePairs(token, (code, amount) => new WeaponData
+        {
+            WeaponCode = code,
+            WeaponAmount = amount
+        });
+    }
+
+    /// <summary>
+    /// <"code", amount> 구조의 이중&단일배열 파싱
+    /// </summary>
+    /// <typeparam name="T">ItemData 혹은 WeaponData</typeparam>
+    /// <param name="token">단일배열, 혹은 이중배열</param>
+    /// <param name="factory">팩토리(생성) 콜백, string와 int값을 받아 T를 생성</param>
+    /// <returns>생성을 마친 아이템 혹은 무기 list</returns>
+    private static List<T> ParsePairs<T>(JToken token, Func<string, int, T> factory)
+    {
+        var list = new List<T>();
+        if (token == null) return list;
+
+        if (token.Type != JTokenType.Array)
+        {
+            Debug.LogError($"[{nameof(ParsePairs)}] 알 수 없는 토큰 타입: {token.Type}");
+            return list;
+        }
+
+        var arr = (JArray)token;
+        if (arr.Count == 0) return list;
+
+        //이중 배열: [ ["code", amount], ... ]
+        if (arr[0].Type == JTokenType.Array)
+        {
+            foreach (var inner in arr)
             {
-                //이중 배열
-                foreach (var inner in arr)
+                var innerArr = (JArray)inner;
+                if (innerArr.Count < 1)
                 {
-                    var innerArr = (JArray)inner;
-                    var item = new ItemData
-                    {
-                        ItemCode = innerArr[0].ToString(),
-                        ItemAmount = innerArr[1].ToObject<int>()
-                    };
-                    list.Add(item);
+                    Debug.LogWarning($"[{nameof(ParsePairs)}] 잘못된 내부 배열 (길이 0)");
+                    continue;
                 }
-            }
-            else
-            {
-                // 단일 배열
-                var item = new ItemData
-                {
-                    ItemCode = arr[0].ToString(),
-                    ItemAmount = arr[1].ToObject<int>()
-                };
-                list.Add(item);
+
+                string code = innerArr[0]?.ToString();
+                int amount = innerArr.Count > 1 ? innerArr[1].ToObject<int>() : 1; //수량 생략 시 1
+                list.Add(factory(code, amount));
             }
         }
         else
         {
-            Debug.LogError($"[{GetType().Name}] 알 수 없는 토큰 타입: {token.Type}");
+            //단일 배열: ["code", amount]
+            if (arr.Count < 1)
+            {
+                Debug.LogWarning($"[{nameof(ParsePairs)}] 잘못된 단일 배열 (길이 0)");
+                return list;
+            }
+
+            string code = arr[0]?.ToString();
+            int amount = arr.Count > 1 ? arr[1].ToObject<int>() : 1; //수량 생략 시 1
+            list.Add(factory(code, amount));
         }
 
         return list;
@@ -408,7 +452,7 @@ public class SectionEventManager : MonoBehaviour
         }
 
         //아이템 처리
-        if (actions.get != null && actions.get.Count > 0 && actions.get is List<ItemData> getData)
+        if (actions.getI != null && actions.getI.Count > 0 && actions.getI is List<ItemData> getData)
         {
             foreach (ItemData actionItem in getData)
             {
@@ -425,7 +469,7 @@ public class SectionEventManager : MonoBehaviour
         }
 
         //아이템 유실
-        if (actions.lost != null && actions.lost.Count > 0 && actions.lost is List<ItemData> lostData)
+        if (actions.lostI != null && actions.lostI.Count > 0 && actions.lostI is List<ItemData> lostData)
         {
             foreach (ItemData actionItem in lostData)
             {

@@ -57,11 +57,14 @@ public class UserDataManager : MonoBehaviour
         string url =
             $"{apiUrl}/api/inventory/items" +
             $"?username={UnityWebRequest.EscapeURL(username)}" +
-            $"&itemCode={UnityWebRequest.EscapeURL(itemCode)}";
+            $"&itemCode={UnityWebRequest.EscapeURL(itemCode)}" +
+            $"&amount={itemAmount}";
 
         using (var req = UnityWebRequest.Delete(url))
             yield return SendApi(req);
     }
+
+    //public IEnumerator LostItem(string itemCode, int itemAmount)
 
     /// <summary>
     /// api를 통해 서버의 플래그를 설정하는 함수
@@ -76,7 +79,19 @@ public class UserDataManager : MonoBehaviour
             $"?username={UnityWebRequest.EscapeURL(username)}" +
             $"&choiceCode={UnityWebRequest.EscapeURL(flagCode)}" +
             $"&condition={flagState}";
-        using (var req = UnityWebRequest.PostWwwForm(url, ""))
+        using (var req = new UnityWebRequest(url, ""))
             yield return SendApi(req);
+    }
+
+    public IEnumerator FlagCheck(string flagCode) //수정 중
+    {
+        string url =
+            $"{apiUrl}/api/choices" +
+            $"?username={UnityWebRequest.EscapeURL(username)}" +
+            $"&choiceCode={UnityWebRequest.EscapeURL(flagCode)}";
+        using (var req = UnityWebRequest.Get(url))
+        {
+            yield return SendApi(req);
+        }
     }
 }
