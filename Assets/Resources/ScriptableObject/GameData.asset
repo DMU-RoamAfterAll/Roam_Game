@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f8ab687619e64ffabb672b5a51c51d0, type: 3}
+  m_Name: GameData
+  m_EditorClassIdentifier: 
+  playerName: Potato
+  seed: 12345
+  isMapSetUp: 0
+  areaNumber: 0
+  riverHeight: 0
+  maxRadius: 0
+  areaAssetDataFolderPath: 
+  initialMinDistance: 0
+  initialMaxDistance: 0
+  sectionPrefab: {fileID: 2616647439733425939, guid: d414b0f23182c47ae8b806b2defb3357, type: 3}
+  mainSectionPrefab: {fileID: 2616647439733425939, guid: 004fcb2efe2ad42b4856c98a5c4f9683, type: 3}
+  linkSectionPrefab: {fileID: 944879611818450130, guid: 923c19022142c46cd9fdc3e3db298efd, type: 3}
+  sightSectionPrefab: {fileID: 7224330335501986242, guid: 00c618ff1caf94ae8b21db27701128b4, type: 3}
+  riverSectionPrefab: {fileID: 944879611818450130, guid: 154164cf6c96546b8b9e2e22d299902c, type: 3}
+  sightObjects: {fileID: 0}
