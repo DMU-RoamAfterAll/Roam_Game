@@ -10,7 +10,8 @@ public enum TagName {
     Origin,
     Sight,
     StepUI,
-    IrisSection
+    IrisSection,
+    WeatherUI
 }
 
 public static class Tag {
@@ -24,4 +25,5 @@ public static class Tag {
     public static string Sight => TagName.Sight.ToString();
     public static string StepUI => TagName.StepUI.ToString();
     public static string IrisSection => TagName.IrisSection.ToString();
+    public static string WeatherUI => TagName.WeatherUI.ToString();
 }

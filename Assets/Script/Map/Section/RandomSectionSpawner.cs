@@ -95,12 +95,12 @@ public class RandomSectionSpawner : MonoBehaviour {
 
         // 6) Load all JSON TextAssets from Resources/EventData and MainEventData
         TextAsset[] eventJsons = Resources.LoadAll<TextAsset>(
-            $"EventData/{areaAsset.areaName}Events"
+            $"StoryGameData/SectionData/SectionEvent/EventSection/{areaAsset.areaName}"
         );
         sectionCount = eventJsons.Length;
 
         TextAsset[] mainJsons = Resources.LoadAll<TextAsset>(
-            $"MainEventData/Main{areaAsset.areaName}Events"
+            $"StoryGameData/SectionData/SectionEvent/MainSection/Main{areaAsset.areaName}"
         );
         mainSectionCount = mainJsons.Length;
 
@@ -115,7 +115,7 @@ public class RandomSectionSpawner : MonoBehaviour {
 
             GameObject go = Instantiate(mainSectionPrefab, pos, Quaternion.identity);
             go.transform.SetParent(this.transform);
-            go.name = $"MainSection_{i}";
+            go.name = $"{areaAsset.areaName}MainSection_{i}";
             MapSceneDataManager.Instance.mainSections.Add(go);
 
             SectionData section = go.GetComponent<SectionData>();
@@ -148,7 +148,7 @@ public class RandomSectionSpawner : MonoBehaviour {
 
             GameObject go = Instantiate(sectionPrefab, new Vector3(pos.x, pos.y, 0f), Quaternion.identity);
             go.transform.SetParent(this.transform);
-            go.name = $"Section_{i}";
+            go.name = $"{areaAsset.areaName}Section_{i}";
             MapSceneDataManager.Instance.sections.Add(go);
 
             SectionData section = go.GetComponent<SectionData>();
