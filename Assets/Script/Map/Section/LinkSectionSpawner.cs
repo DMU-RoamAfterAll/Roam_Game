@@ -58,7 +58,11 @@ public class LinkSectionSpawner : MonoBehaviour {
                 }
             }
 
+<<<<<<< HEAD
             if (closestMain != null && closestSub != null && minDist > MapSceneDataManager.mapData.initialMaxDistance) {
+=======
+            if (closestMain != null && closestSub != null && minDist > GameDataManager.Data.initialMinDistance) {
+>>>>>>> origin/test
                 closestPairs.Add((closestMain, closestSub));
             }
         }

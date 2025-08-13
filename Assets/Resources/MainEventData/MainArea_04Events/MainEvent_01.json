@@ -4,6 +4,11 @@
     "eventType" : "Main",
     "dialogues" : "",
 
+<<<<<<< HEAD
     "x" : 0,
     "y"  : 0 
+=======
+    "x" : 14,
+    "y"  : 22 
+>>>>>>> origin/test
 }
