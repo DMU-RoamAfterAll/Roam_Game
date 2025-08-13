@@ -14,26 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerName: Potato
   seed: 12345
-<<<<<<< HEAD
   isMapSetUp: 0
-=======
->>>>>>> origin/test
   areaNumber: 0
   riverHeight: 0
   maxRadius: 0
   areaAssetDataFolderPath: 
   initialMinDistance: 0
   initialMaxDistance: 0
-<<<<<<< HEAD
-=======
-  edgePrefab: {fileID: 5266680173097583215, guid: 97e8ee79c31334138960d632d3e6d10e, type: 3}
->>>>>>> origin/test
   sectionPrefab: {fileID: 2616647439733425939, guid: d414b0f23182c47ae8b806b2defb3357, type: 3}
   mainSectionPrefab: {fileID: 2616647439733425939, guid: 004fcb2efe2ad42b4856c98a5c4f9683, type: 3}
   linkSectionPrefab: {fileID: 944879611818450130, guid: 923c19022142c46cd9fdc3e3db298efd, type: 3}
   sightSectionPrefab: {fileID: 7224330335501986242, guid: 00c618ff1caf94ae8b21db27701128b4, type: 3}
-<<<<<<< HEAD
   riverSectionPrefab: {fileID: 944879611818450130, guid: 154164cf6c96546b8b9e2e22d299902c, type: 3}
   sightObjects: {fileID: 0}
-=======
->>>>>>> origin/test
