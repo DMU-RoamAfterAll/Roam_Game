@@ -33,7 +33,7 @@ public class StoryFlagManager : MonoBehaviour
         TextAsset jsonFile = Resources.Load<TextAsset>(flagFolderPath); //Json 파일 로드
         if (jsonFile == null)
         {
-            Debug.LogError($"[{GetType().Name}] 파일을 찾을 수 없음: storyFlag.json");
+            Debug.LogError($"[storyFlagManager] 파일을 찾을 수 없음: storyFlag.json");
             return;
         }
 
@@ -42,7 +42,7 @@ public class StoryFlagManager : MonoBehaviour
 
         if (flagList == null || flagList.Count == 0)
         {
-            Debug.LogError($"[{GetType().Name}] flagList가 비어있거나 파싱에 실패했습니다.");
+            Debug.LogError("[storyFlagManager] flagList가 비어있거나 파싱에 실패했습니다.");
             return;
         }
 
@@ -66,7 +66,7 @@ public class StoryFlagManager : MonoBehaviour
         if (flagDict.TryGetValue(code, out var data))
             return data;
             
-        Debug.LogWarning($"[{GetType().Name}] 플래그 코드 {code}를 찾을 수 없습니다.");
+        Debug.LogWarning($"[storyFlagManager] 플래그 코드 {code}를 찾을 수 없습니다.");
         return null;
     }
 }

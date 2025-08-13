@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using System.IO;
+using System;
 
 ///GameData에 있는 수치를 직접적으로 조정 및 대입
 public class GameDataManager : MonoBehaviour {
@@ -29,7 +30,7 @@ public class GameDataManager : MonoBehaviour {
 
         gameData.baseUrl = "http://125.176.246.14";
         gameData.playerName = "Potato";
-        gameData.seed = 12345;
+        gameData.seed = Guid.NewGuid().GetHashCode();
 
         Application.targetFrameRate = 60;
     }

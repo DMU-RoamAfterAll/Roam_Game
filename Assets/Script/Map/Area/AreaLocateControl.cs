@@ -34,6 +34,7 @@ public class AreaLocateControl : MonoBehaviour {
         Player = MapSceneDataManager.Instance.Player;
 
         OnAreaMoveFinished += CreateRiverSection;
+        OnAreaMoveFinished += CreateIrisSection;
     }
 
     ///구역의 규격을 알아내는 함수
@@ -158,6 +159,13 @@ public class AreaLocateControl : MonoBehaviour {
         float riverCenterY = maxUpperHeight + (riverHeight / 2f) + (minDistance / 2f);
 
         GameObject go = Instantiate(MapSceneDataManager.mapData.riverSectionPrefab, new Vector2(0, riverCenterY), Quaternion.identity);
+        go.transform.SetParent(this.transform);
+    }
+
+    void CreateIrisSection() {
+        float irisHeight = basePoint[4].y + (height[4] / 2) + minDistance;
+
+        GameObject go = Instantiate(MapSceneDataManager.mapData.IrisSectionPrefab, new Vector2(0, irisHeight), Quaternion.identity);
         go.transform.SetParent(this.transform);
     }
 }

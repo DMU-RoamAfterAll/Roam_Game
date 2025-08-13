@@ -5,7 +5,6 @@ using UnityEngine.UI;
 using System.Collections;
 using KoreanTyper;
 using TMPro;
-using System;
 
 //-------------------------------------------------------------------------------
 // ** Section Event Json 데이터 클래스 구조 **
@@ -24,10 +23,8 @@ public class CommonNode
 public class ActionNode
 {
     public string image; //삽화를 변경하기 위한 삽화 명을 작성하는 노드, 본문을 출력하기 전 삽화 변경이 이루어짐
-    public List<ItemData> getI; //아이템 획득 기능을 위한 노드, <"아이템 코드", 갯수>형식으로 작성
-    public List<ItemData> lostI; //아이템 유실 기능을 위한 노드, <"아이템 코드", 갯수>형식으로 작성
-    public List<WeaponData> getW; //무기 획득 기능을 위한 노드, `<"무기 코드", 갯수>` 형식으로 작성
-    public List<WeaponData> lostW; //무기 유실 기능을 위한 노드, `<"무기 코드", 갯수>` 형식으로 작성
+    public List<ItemData> get; //아이템 획득 기능을 위한 노드, <"아이템 코드", 갯수>형식으로 작성
+    public List<ItemData> lost; //아이템 유실 기능을 위한 노드, <"아이템 코드", 갯수>형식으로 작성
     public List<FlagData> flagSet; //플래그 설정을 위한 플래그 명을 작성하는 노드, <"플래그명", boolean>형식으로 작성
     public List<FlagData> flagCheck; //본문을 내보내기 위해 플래그를 확인하는 노드, <"플래그명", boolean>형식으로 작성
                                       //(리스트 형식으로 복수 체크 가능)
@@ -39,14 +36,6 @@ public class ItemData
 {
     public string ItemCode; //아이템 코드명
     public int ItemAmount; //아이템 갯수
-}
-
-[System.Serializable]
-//무기 제어를 위한 데이터 모델
-public class WeaponData
-{
-    public string WeaponCode; //무기 코드명
-    public int WeaponAmount; //무기 갯수
 }
 
 [System.Serializable]
@@ -92,9 +81,7 @@ public class SectionEventManager : MonoBehaviour
     "StoryGameData/SectionData/SectionImage/TSectionImage"; //게임 삽화가 담긴 파일의 경로
     private Dictionary<string, object> sectionData = new Dictionary<string, object>(); //파싱된 Json데이터
     private ItemDataManager itemDataManager;
-    private WeaponDataManager weaponDataManager;
     private StoryFlagManager storyFlagManager;
-    private UserDataManager userDataManager;
 
     //컨텐츠 오브젝트
     public Transform viewport; //스토리 컨텐츠 부분
@@ -127,9 +114,7 @@ public class SectionEventManager : MonoBehaviour
         dialogueText = viewport.Find("Content/value").GetComponent<TextMeshProUGUI>();
         buttonPanel = viewport.Find("Content/Panel_Button").GetComponent<Transform>();
         itemDataManager = GetComponent<ItemDataManager>();
-        weaponDataManager = GetComponent<WeaponDataManager>();
         storyFlagManager = GetComponent<StoryFlagManager>();
-        userDataManager = GetComponent<UserDataManager>();
 
         LoadJson(jsonFileName); //Json파일 로드
     }
@@ -153,7 +138,7 @@ public class SectionEventManager : MonoBehaviour
         TextAsset jsonFile = Resources.Load<TextAsset>(filePath); //Json 파일 로드
         if (jsonFile == null)
         {
-            Debug.LogError($"[{GetType().Name}] 파일을 찾을 수 없음: {jsonFileName}.json");
+            Debug.LogError($"[SectionEventManager] 파일을 찾을 수 없음: {jsonFileName}.json");
             return;
         }
         //Json파일에서 텍스트 데이터를 가져와 Json객체 구조로 변경
@@ -188,7 +173,7 @@ public class SectionEventManager : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning($"[{GetType().Name}] 인식할 수 없는 노드: {key}");
+                Debug.LogWarning($"[SectionEventManager] 인식할 수 없는 노드: {key}");
             }
         }
         Debug.Log("Reading File : " + jsonFileName + ".json"); //파일 로드 확인 로그
@@ -234,21 +219,13 @@ public class SectionEventManager : MonoBehaviour
         if (actionObj.TryGetValue("image", out var imgToken))
             action.image = imgToken.ToString();
 
-        // getI 처리
-        if (actionObj.TryGetValue("getI", out var getIToken))
-            action.getI = ParseItemData(getIToken);
+        // get 아이템 처리
+        if (actionObj.TryGetValue("get", out var getToken))
+            action.get = ParseItemData(getToken);
 
-        // lostI 처리
-        if (actionObj.TryGetValue("lostI", out var lostIToken))
-            action.lostI = ParseItemData(lostIToken);
-
-        // getW 처리
-        if (actionObj.TryGetValue("getW", out var getWToken))
-            action.getW = ParseWeaponData(getWToken);
-
-        // lostW 처리
-        if (actionObj.TryGetValue("lostW", out var lostWToken))
-            action.lostW = ParseWeaponData(lostWToken);
+        // lost 아이템 처리
+        if (actionObj.TryGetValue("lost", out var lostToken))
+            action.lost = ParseItemData(lostToken);
 
         // flagSet 처리
         if (actionObj.TryGetValue("flagSet", out var flagSetToken))
@@ -262,179 +239,61 @@ public class SectionEventManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 단일/이중 배열 공통 파서
-    /// </summary>
-    /// <typeparam name="TOut">출력 타입(ItemData, WeaponData, FlagData)</typeparam>
-    /// <typeparam name="TValue">값 타입(int, bool)</typeparam>
-    /// <param name="token">파싱 대상 Json 토큰</param>
-    /// <param name="factory">출력 인스턴스를 생성하는 함수</param>
-    /// <param name="convert">값 요소를 변환하는 함수</param>
-    /// <param name="defaultValue">값 요소가 없거나 변환 실패시 기본 값</param>
-    /// <returns>TOut 리스트</returns>
-    private static List<TOut> ParsePairs<TOut, TValue>
-    (
-        JToken token,
-        Func<string, TValue, TOut> factory,
-        Func<JToken, TValue> convert,
-        TValue defaultValue = default
-    )
-    {
-        var list = new List<TOut>();
-        if (token == null)
-            return list;
-
-        if (token.Type != JTokenType.Array)
-        {
-            Debug.LogError($"[ParsePairs<{typeof(TOut).Name},{typeof(TValue).Name}>] 알 수 없는 토큰 타입: {token.Type}");
-            return list;
-        }
-
-        var arr = (JArray)token;
-        if (arr.Count == 0)
-            return list;
-
-        // 이중 배열: [ ["code", value], ... ]
-        if (arr[0].Type == JTokenType.Array)
-        {
-            foreach (var inner in arr)
-            {
-                var innerArr = inner as JArray;
-                if (innerArr == null || innerArr.Count == 0)
-                {
-                    Debug.LogWarning("[ParsePairs] 잘못된 내부 배열 (길이 0)");
-                    continue;
-                }
-
-                string code = innerArr[0]?.ToString();
-                TValue value;
-
-                if (innerArr.Count > 1 && innerArr[1] != null && innerArr[1].Type != JTokenType.Null)
-                {
-                    try { value = convert(innerArr[1]); }
-                    catch (Exception e)
-                    {
-                        Debug.LogWarning($"[ParsePairs] 값 변환 실패 code='{code}', token='{innerArr[1]}': {e.Message} → default 사용");
-                        value = defaultValue;
-                    }
-                }
-                else
-                {
-                    value = defaultValue;
-                }
-
-                list.Add(factory(code, value));
-            }
-        }
-        else
-        {
-            // 단일 배열: ["code", value]
-            if (arr.Count == 0)
-            {
-                Debug.LogWarning("[ParsePairs] 잘못된 단일 배열 (길이 0)");
-                return list;
-            }
-
-            string code = arr[0]?.ToString();
-            TValue value;
-
-            if (arr.Count > 1 && arr[1] != null && arr[1].Type != JTokenType.Null)
-            {
-                try { value = convert(arr[1]); }
-                catch (Exception e)
-                {
-                    Debug.LogWarning($"[ParsePairs] 값 변환 실패(단일) code='{code}', token='{arr[1]}': {e.Message} → default 사용");
-                    value = defaultValue;
-                }
-            }
-            else
-            {
-                value = defaultValue;
-            }
-
-            list.Add(factory(code, value));
-        }
-
-        return list;
-    }
-
-    private static int ConvertToInt(JToken t)
-    {
-        switch (t.Type)
-        {
-            case JTokenType.Integer: return t.ToObject<int>();
-            case JTokenType.Float:   return Convert.ToInt32(t.ToObject<double>());
-            case JTokenType.Boolean: return t.ToObject<bool>() ? 1 : 0;
-            case JTokenType.String:
-            {
-                var s = t.ToString().Trim();
-                if (int.TryParse(s, out var i)) return i;
-                if (double.TryParse(s, out var d)) return Convert.ToInt32(d);
-                if (bool.TryParse(s, out var b)) return b ? 1 : 0;
-                throw new FormatException($"정수로 변환 불가: '{s}'");
-            }
-            default:
-                throw new InvalidCastException($"정수 변환 불가 타입: {t.Type}");
-        }
-    }
-
-    private static bool ConvertToBool(JToken t)
-    {
-        switch (t.Type)
-        {
-            case JTokenType.Boolean: return t.ToObject<bool>();
-            case JTokenType.Integer: return t.ToObject<long>() != 0;
-            case JTokenType.Float:   return Math.Abs(t.ToObject<double>()) > double.Epsilon;
-            case JTokenType.String:
-            {
-                var s = t.ToString().Trim().ToLowerInvariant();
-                if (s == "true" || s == "t" || s == "yes" || s == "y") return true;
-                if (s == "false" || s == "f" || s == "no" || s == "n") return false;
-                if (s == "1") return true;
-                if (s == "0") return false;
-                if (bool.TryParse(s, out var b)) return b;
-                throw new FormatException($"불리언으로 변환 불가: '{s}'");
-            }
-            default:
-                throw new InvalidCastException($"불리언 변환 불가 타입: {t.Type}");
-        }
-    }
-
-    private static List<TOut> ParsePairsInt<TOut>(
-        JToken token,
-        Func<string, int, TOut> factory,
-        int defaultAmount = 1
-    ) => ParsePairs(token, factory, ConvertToInt, defaultAmount);
-
-    private static List<TOut> ParsePairsBool<TOut>(
-        JToken token,
-        Func<string, bool, TOut> factory,
-        bool defaultState = false
-    ) => ParsePairs(token, factory, ConvertToBool, defaultState);
-
-    /// <summary>
     /// 아이템 처리 부분의 parser (ParseActionNode함수에 사용)
     /// </summary>
     /// <param name="token">아이템 처리 action 정보</param>
     private List<ItemData> ParseItemData(JToken token)
     {
-        return ParsePairsInt(token, (code, amount) => new ItemData
-        {
-            ItemCode = code,
-            ItemAmount = amount
-        }, defaultAmount: 1);
-    }
+        var list = new List<ItemData>();
 
-    /// <summary>
-    /// 무기 처리 부분의 parser (ParseActionNode함수에 사용)
-    /// </summary>
-    /// <param name="token">아이템 처리 action 정보</param>
-    private List<WeaponData> ParseWeaponData(JToken token)
-    {
-        return ParsePairsInt(token, (code, amount) => new WeaponData
+        if (token == null)
+            return list;
+
+        if (token.Type == JTokenType.Array)
         {
-            WeaponCode = code,
-            WeaponAmount = amount
-        }, defaultAmount: 1);
+            var arr = (JArray)token;
+
+            //이중 배열인지 단일 배열인지 구분
+            /*
+                ex) 이중 배열
+                "get": [
+                ["item_apple", 3],
+                ["item_banana", 2]
+                ]
+                ex) 단일 배열
+                "lost": ["item_coin", 5]
+            */
+            if (arr.Count > 0 && arr[0].Type == JTokenType.Array)
+            {
+                //이중 배열
+                foreach (var inner in arr)
+                {
+                    var innerArr = (JArray)inner;
+                    var item = new ItemData
+                    {
+                        ItemCode = innerArr[0].ToString(),
+                        ItemAmount = innerArr[1].ToObject<int>()
+                    };
+                    list.Add(item);
+                }
+            }
+            else
+            {
+                // 단일 배열
+                var item = new ItemData
+                {
+                    ItemCode = arr[0].ToString(),
+                    ItemAmount = arr[1].ToObject<int>()
+                };
+                list.Add(item);
+            }
+        }
+        else
+        {
+            Debug.LogError($"[ParseItemData] 알 수 없는 토큰 타입: {token.Type}");
+        }
+
+        return list;
     }
 
     /// <summary>
@@ -443,11 +302,56 @@ public class SectionEventManager : MonoBehaviour
     /// <param name="token">플래그 처리 action 정보</param>
     private List<FlagData> ParseStoryFlag(JToken token)
     {
-        return ParsePairsBool(token, (code, state) => new FlagData
+        var list = new List<FlagData>();
+
+        if (token == null)
+            return list;
+
+        if (token.Type == JTokenType.Array)
         {
-            flagCode = code,
-            flagState = state
-        }, defaultState: false);
+            var arr = (JArray)token;
+
+            //이중 배열인지 단일 배열인지 구분
+            /*
+                ex) 이중 배열
+                "flagSet": [
+                ["flag_test1", true],
+                ["flag_test2", false]
+                ]
+                ex) 단일 배열
+                "flagCheck": ["flag_test1", false]
+            */
+            if (arr.Count > 0 && arr[0].Type == JTokenType.Array)
+            {
+                //이중 배열
+                foreach (var inner in arr)
+                {
+                    var innerArr = (JArray)inner;
+                    var item = new FlagData
+                    {
+                        flagCode = innerArr[0].ToString(),
+                        flagState = innerArr[1].ToObject<bool>()
+                    };
+                    list.Add(item);
+                }
+            }
+            else
+            {
+                // 단일 배열
+                var item = new FlagData
+                {
+                    flagCode = arr[0].ToString(),
+                    flagState = arr[1].ToObject<bool>()
+                };
+                list.Add(item);
+            }
+        }
+        else
+        {
+            Debug.LogError($"[ParseItemData] 알 수 없는 토큰 타입: {token.Type}");
+        }
+
+        return list;
     }
 
     /// <summary>
@@ -497,12 +401,12 @@ public class SectionEventManager : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning($"[{GetType().Name}] 이미지 로드 실패 {imageName}");
+                Debug.LogWarning($"[SectionEventManager] 이미지 로드 실패 {imageName}");
             }
         }
 
         //아이템 처리
-        if (actions.getI != null && actions.getI.Count > 0 && actions.getI is List<ItemData> getData)
+        if (actions.get != null && actions.get.Count > 0 && actions.get is List<ItemData> getData)
         {
             foreach (ItemData actionItem in getData)
             {
@@ -512,14 +416,13 @@ public class SectionEventManager : MonoBehaviour
                     testItem = itemDataManager.GetItemByCode(ItemCode);
 
                     //테스트 출력
-                    Debug.Log($"\'{testItem.code}\'아이템을 {ItemAmount}개 획득했습니다.");
-                    StartCoroutine(userDataManager.GetItem(testItem.code,ItemAmount)); //api 메소드
+                    Debug.Log($"\'{testItem.name}\'아이템을 {ItemAmount}개 획득했습니다.");
                 }
             }
         }
 
         //아이템 유실
-        if (actions.lostI != null && actions.lostI.Count > 0 && actions.lostI is List<ItemData> lostData)
+        if (actions.lost != null && actions.lost.Count > 0 && actions.lost is List<ItemData> lostData)
         {
             foreach (ItemData actionItem in lostData)
             {
@@ -530,7 +433,6 @@ public class SectionEventManager : MonoBehaviour
 
                     //테스트 출력
                     Debug.Log($"\'{testItem.name}\'아이템을 {ItemAmount}개 잃었습니다.");
-                    StartCoroutine(userDataManager.LostItem(testItem.code,ItemAmount)); //api 메소드
                 }
             }
         }
@@ -606,12 +508,12 @@ public class SectionEventManager : MonoBehaviour
             }
             else
             {
-                Debug.LogError($"[{GetType().Name}] 알 수 없는 노드 타입: {node.GetType()}");
+                Debug.LogError($"[SectionEventManager] 알 수 없는 노드 타입: {node.GetType()}");
             }
         }
         else
         {
-            Debug.LogError($"[{GetType().Name}] {nodeKey}노드를 찾을 수 없습니다.");
+            Debug.LogError($"[SectionEventManager] {nodeKey}노드를 찾을 수 없습니다.");
         }
     }
 
@@ -689,7 +591,7 @@ public class SectionEventManager : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log($"[{GetType().Name}] MenuNode의 next 값이 없습니다. 종료 또는 대기 처리 필요.");
+                    Debug.Log("MenuNode의 next 값이 없습니다. 종료 또는 대기 처리 필요.");
                 }
             });
         }

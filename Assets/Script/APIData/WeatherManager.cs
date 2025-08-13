@@ -18,7 +18,7 @@ public class WeatherManager : MonoBehaviour {
 
 
     void Start() {
-        weatherText = this.GetComponent<TMP_Text>();
+        weatherText = GameObject.FindGameObjectWithTag(Tag.WeatherUI).GetComponent<TMP_Text>();
         baseUrl = $"http://125.176.246.14:8000";
 
         RefreshWeather();

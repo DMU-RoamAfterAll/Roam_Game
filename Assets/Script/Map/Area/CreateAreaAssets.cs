@@ -19,11 +19,11 @@ public class CreateAreaAssets : MonoBehaviour {
 
     async void Start() {
         jsonUrls = new [] {
-            $"{GameDataManager.Data.baseUrl}/CNWV/Resources/AreaAssetData/Area_01.json",
-            $"{GameDataManager.Data.baseUrl}/CNWV/Resources/AreaAssetData/Area_02.json",
-            $"{GameDataManager.Data.baseUrl}/CNWV/Resources/AreaAssetData/Area_03.json",
-            $"{GameDataManager.Data.baseUrl}/CNWV/Resources/AreaAssetData/Area_04.json",
-            $"{GameDataManager.Data.baseUrl}/CNWV/Resources/AreaAssetData/Area_05.json",
+            $"{GameDataManager.Data.baseUrl}/CNWV/Resources/AreaAssetData/ForestSection.json",
+            $"{GameDataManager.Data.baseUrl}/CNWV/Resources/AreaAssetData/HollowSection.json",
+            $"{GameDataManager.Data.baseUrl}/CNWV/Resources/AreaAssetData/Area03.json",
+            $"{GameDataManager.Data.baseUrl}/CNWV/Resources/AreaAssetData/Area04.json",
+            $"{GameDataManager.Data.baseUrl}/CNWV/Resources/AreaAssetData/Area05.json",
             $"{GameDataManager.Data.baseUrl}/CNWV/Resources/AreaAssetData/Tutorial.json"
         };
 
