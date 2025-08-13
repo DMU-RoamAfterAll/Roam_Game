@@ -3,25 +3,7 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags:
-  - Section
-  - Area
-  - Tutorial
-<<<<<<< HEAD
-  - MainSection
-  - Origin
-  - Sight
-  - VirtualSection
-  - StepUI
-  - River
-  - IrisSection
-  - WeatherUI
-=======
-  - LinkSection
-  - MainSection
-  - Origin
-  - Sight
->>>>>>> origin/test
+  tags: []
   layers:
   - Default
   - TransparentFX
