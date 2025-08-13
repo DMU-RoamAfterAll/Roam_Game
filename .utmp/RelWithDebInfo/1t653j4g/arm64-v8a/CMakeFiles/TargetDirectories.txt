@@ -1,8 +1,0 @@
-/Users/simgijun/Downloads/Unity_Folder/GameDev_6000ver/CLWV/.utmp/RelWithDebInfo/1t653j4g/arm64-v8a/CMakeFiles/edit_cache.dir
-/Users/simgijun/Downloads/Unity_Folder/GameDev_6000ver/CLWV/.utmp/RelWithDebInfo/1t653j4g/arm64-v8a/CMakeFiles/rebuild_cache.dir
-/Users/simgijun/Downloads/Unity_Folder/GameDev_6000ver/CLWV/.utmp/RelWithDebInfo/1t653j4g/arm64-v8a/GameActivity/CMakeFiles/game.dir
-/Users/simgijun/Downloads/Unity_Folder/GameDev_6000ver/CLWV/.utmp/RelWithDebInfo/1t653j4g/arm64-v8a/GameActivity/CMakeFiles/edit_cache.dir
-/Users/simgijun/Downloads/Unity_Folder/GameDev_6000ver/CLWV/.utmp/RelWithDebInfo/1t653j4g/arm64-v8a/GameActivity/CMakeFiles/rebuild_cache.dir
-/Users/simgijun/Downloads/Unity_Folder/GameDev_6000ver/CLWV/.utmp/RelWithDebInfo/1t653j4g/arm64-v8a/FramePacing/CMakeFiles/swappywrapper.dir
-/Users/simgijun/Downloads/Unity_Folder/GameDev_6000ver/CLWV/.utmp/RelWithDebInfo/1t653j4g/arm64-v8a/FramePacing/CMakeFiles/edit_cache.dir
-/Users/simgijun/Downloads/Unity_Folder/GameDev_6000ver/CLWV/.utmp/RelWithDebInfo/1t653j4g/arm64-v8a/FramePacing/CMakeFiles/rebuild_cache.dir
