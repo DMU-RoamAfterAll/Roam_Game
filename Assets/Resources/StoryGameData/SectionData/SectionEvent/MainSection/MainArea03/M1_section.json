@@ -1,0 +1,90 @@
+{
+  "id" : "101",
+  "rate" : "S",
+  "eventType" : "Main",
+  "dialogues" : "",
+
+  "x" : 0,
+  "y"  : 0,
+
+  "Text1": {
+    "value": [
+      "Test"
+    ],
+    "next": "Menu1"
+  },
+  "Menu1": {
+    "action": [],
+    "value": [
+      {
+        "id": "1",
+        "label": "문을 연다",
+        "text": [],
+        "next": "Battle1"
+      },
+      {
+        "id": "2",
+        "label": "조용히 다른 곳으로 향한다",
+        "text": [],
+        "next": "Text3"
+      }
+    ]
+  },
+  "Battle1": {
+    "action": [
+      { "Battle": null }
+    ],
+    "value": [],
+    "next": "Text2"
+  },
+  "Text2": {
+    "value": [
+      "Test"
+    ],
+    "action": [
+      { "Gain": ["식칼", 1] }
+    ],
+    "next": "Text3"
+  },
+  "Text3": {
+    "value": [
+      "Test"
+    ],
+    "next": "Menu2"
+  },
+  "Menu2": {
+    "action": [],
+    "value": [
+      {
+        "id": "1",
+        "label": "죽은 이를 위해 묵념한다",
+        "text": [
+          "Test"
+        ],
+        "next": "Text7"
+      },
+      {
+        "id": "2",
+        "label": "죽은 이를 묻어준다",
+        "text": [
+          "Test"
+        ],
+        "next": "Text7"
+      },
+      {
+        "id": "3",
+        "label": "그냥 지나친다",
+        "text": [
+          "Test"
+        ],
+        "next": "Text7"
+      }
+    ]
+  },
+  "Text7": {
+    "value": [
+      "Test"
+    ],
+    "next": null
+  }
+}

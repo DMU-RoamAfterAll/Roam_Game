@@ -13,6 +13,8 @@ TagManager:
   - VirtualSection
   - StepUI
   - River
+  - IrisSection
+  - WeatherUI
   layers:
   - Default
   - TransparentFX

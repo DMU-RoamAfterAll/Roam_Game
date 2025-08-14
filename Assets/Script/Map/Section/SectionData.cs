@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
+
 public class SectionData : MonoBehaviour {
     [Header("Game Data")]
     public GameObject sightObjects; //시야 오브젝트를 저장할 오브젝트

@@ -24,4 +24,5 @@ MonoBehaviour:
   linkSectionPrefab: {fileID: 944879611818450130, guid: 923c19022142c46cd9fdc3e3db298efd, type: 3}
   sightSectionPrefab: {fileID: 7224330335501986242, guid: 00c618ff1caf94ae8b21db27701128b4, type: 3}
   riverSectionPrefab: {fileID: 944879611818450130, guid: 154164cf6c96546b8b9e2e22d299902c, type: 3}
+  IrisSectionPrefab: {fileID: 944879611818450130, guid: 69a9e65dc00f84f149d6c9a92cbb4291, type: 3}
   sightObjects: {fileID: 0}

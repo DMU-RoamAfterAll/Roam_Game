@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Area_05Data
   m_EditorClassIdentifier: 
   areaName: Area_05
-  sectionDataFolderPath: Assets/Resources/EventData/Area_05Events
-  mainSectionDataFolderPath: Assets/Resources/MainEventData/MainArea_05Events
+  sectionDataFolderPath: Assets/Resources/StoryGameData/SectionData/SectionEvent/EventSection/Area05
+  mainSectionDataFolderPath: Assets/Resources/StoryGameData/SectionData/SectionEventMainSection/MainArea05

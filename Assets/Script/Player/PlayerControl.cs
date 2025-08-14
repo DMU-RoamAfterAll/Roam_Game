@@ -39,7 +39,8 @@ public class PlayerControl : MonoBehaviour {
             // 일반 섹션 클릭 시
             if (hit.collider.CompareTag(Tag.Section)
             || hit.collider.CompareTag(Tag.MainSection)
-            || hit.collider.CompareTag(Tag.Origin)) {
+            || hit.collider.CompareTag(Tag.Origin)
+            || hit.collider.CompareTag(Tag.IrisSection)) {
 
                 var sd = hit.collider.GetComponent<SectionData>();
                 // ← 여기서 비용 체크
