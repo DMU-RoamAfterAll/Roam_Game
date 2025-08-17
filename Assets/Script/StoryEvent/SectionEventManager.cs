@@ -591,7 +591,8 @@ public class SectionEventManager : MonoBehaviour
     }
 
     //-------------------------------------------------------------------------------
-    // ** 테스트 출력 부분 **
+    // ** 게임 내 오브젝트 출력 부분 **
+    //-------------------------------------------------------------------------------
     void StartDialogue(string nodeKey)
     {
         if (sectionData.TryGetValue(nodeKey, out object node))
