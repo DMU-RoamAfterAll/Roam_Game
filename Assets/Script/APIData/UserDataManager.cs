@@ -5,7 +5,7 @@ using System.Collections;
 public class UserDataManager : MonoBehaviour
 {
     protected string apiUrl = "http://125.176.246.14:8081"; //api 주소
-    public string username = "admin"; //테스트용 유저 이름
+    protected string username = "cnwvid"; //테스트용 유저 이름
     public string accessToken = ""; //로그인 토큰
 
     /// <summary>
@@ -32,15 +32,15 @@ public class UserDataManager : MonoBehaviour
     /// api를 통해 서버에 아이템을 추가하는 함수
     /// </summary>
     /// <param name="itemCode">아이템 코드</param>
-    /// <param name="itemAmount">아이템 갯수</param>
+    /// <param name="amount">아이템 갯수</param>
     /// <returns></returns>
-    public IEnumerator GetItem(string itemCode, int itemAmount)
+    public IEnumerator GetItem(string itemCode, int amount)
     {
         string url =
         $"{apiUrl}/api/inventory/items" +
         $"?username={UnityWebRequest.EscapeURL(username)}" +
         $"&itemCode={UnityWebRequest.EscapeURL(itemCode)}" +
-        $"&amount={itemAmount}";
+        $"&amount={amount}";
 
         using (var req = UnityWebRequest.PostWwwForm(url, "")) //body부분 비우고 전송
             yield return SendApi(req);
@@ -50,21 +50,55 @@ public class UserDataManager : MonoBehaviour
     /// api를 통해 서버에 아이템을 삭제하는 함수
     /// </summary>
     /// <param name="itemCode">아이템 코드</param>
-    /// <param name="itemAmount">아이템 갯수</param>
+    /// <param name="amount">아이템 갯수</param>
     /// <returns></returns>
-    public IEnumerator LostItem(string itemCode, int itemAmount)
+    public IEnumerator LostItem(string itemCode, int amount)
     {
         string url =
             $"{apiUrl}/api/inventory/items" +
             $"?username={UnityWebRequest.EscapeURL(username)}" +
             $"&itemCode={UnityWebRequest.EscapeURL(itemCode)}" +
-            $"&amount={itemAmount}";
+            $"&amount={amount}";
 
         using (var req = UnityWebRequest.Delete(url))
             yield return SendApi(req);
     }
 
-    //public IEnumerator LostItem(string itemCode, int itemAmount)
+    /// <summary>
+    /// api를 통해 서버에 무기를 추가하는 함수
+    /// </summary>
+    /// <param name="weaponCode">무기 코드</param>
+    /// <param name="amount">무기 갯수</param>
+    /// <returns></returns>
+    public IEnumerator GetWeapon(string weaponCode, int amount)
+    {
+        string url =
+        $"{apiUrl}/api/inventory/weapons" +
+        $"?username={UnityWebRequest.EscapeURL(username)}" +
+        $"&weaponCode={UnityWebRequest.EscapeURL(weaponCode)}" +
+        $"&amount={amount}";
+
+        using (var req = UnityWebRequest.PostWwwForm(url, "")) //body부분 비우고 전송
+            yield return SendApi(req);
+    }
+
+    /// <summary>
+    /// api를 통해 서버에 무기를 삭제하는 함수
+    /// </summary>
+    /// <param name="weaponCode">무기 코드</param>
+    /// <param name="amount">무기 갯수</param>
+    /// <returns></returns>
+    public IEnumerator LostWeapon(string weaponCode, int amount)
+    {
+        string url =
+            $"{apiUrl}/api/inventory/weapons" +
+            $"?username={UnityWebRequest.EscapeURL(username)}" +
+            $"&weaponCode={UnityWebRequest.EscapeURL(weaponCode)}" +
+            $"&amount={amount}";
+
+        using (var req = UnityWebRequest.Delete(url))
+            yield return SendApi(req);
+    }
 
     /// <summary>
     /// api를 통해 서버의 플래그를 설정하는 함수

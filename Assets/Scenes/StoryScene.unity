@@ -577,6 +577,7 @@ GameObject:
   - component: {fileID: 994506505}
   - component: {fileID: 994506507}
   - component: {fileID: 994506508}
+  - component: {fileID: 994506511}
   - component: {fileID: 994506509}
   - component: {fileID: 994506510}
   m_Layer: 0
@@ -621,15 +622,6 @@ MonoBehaviour:
   dialogueText: {fileID: 0}
   delayPerChar: 0.01
   delayPerSentence: 0.25
-  testItem:
-    code: 
-    name: 
-    description: 
-    category: []
-  testFlag:
-    code: 
-    name: 
-    description: 
 --- !u!114 &994506508
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -668,8 +660,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d68bcf7156763574086b09a76c1e014a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  username: admin
-  accessToken: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc1NDg5MjU0MCwiZXhwIjoxNzU0ODkzNDQwfQ.wWf7omf8yf1wsBiPPN1iRCDMMgU5DcdJiWBbaeozPok2E6lMwZ7khG1-KAOjR4NWSwyYvjR1ACeDJDs9-Ac7fQ
+  accessToken: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjbnd2aWQiLCJpYXQiOjE3NTU0MTUwNjcsImV4cCI6MTc1NTQxNTk2N30.Y40LT1WEllbo3UXdiRSJ4R053lTuTF6fCgIPuk_QwRJUTew2BiD3SZ5fsjAmjyWsgpqPZpUOMYHum1ZNFOTSIg
+--- !u!114 &994506511
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 994506504}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32ccaa2ffc080534ea966ba1a4646db4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  weaponList: []
 --- !u!1001 &1107440863
 PrefabInstance:
   m_ObjectHideFlags: 0

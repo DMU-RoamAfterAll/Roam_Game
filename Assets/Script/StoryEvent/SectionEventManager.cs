@@ -37,16 +37,16 @@ public class ActionNode
 //아이템 제어를 위한 데이터 모델
 public class ItemData
 {
-    public string ItemCode; //아이템 코드명
-    public int ItemAmount; //아이템 갯수
+    public string itemCode; //아이템 코드명
+    public int amount; //아이템 갯수
 }
 
 [System.Serializable]
 //무기 제어를 위한 데이터 모델
 public class WeaponData
 {
-    public string WeaponCode; //무기 코드명
-    public int WeaponAmount; //무기 갯수
+    public string weaponCode; //무기 코드명
+    public int amount; //무기 갯수
 }
 
 [System.Serializable]
@@ -116,8 +116,6 @@ public class SectionEventManager : MonoBehaviour
 
     //디버깅용 변수
     TextNode testjson = null;
-    public ItemDataNode testItem = null;
-    public storyFlagNode testFlag = null;
 
     private void Awake()
     {
@@ -419,8 +417,8 @@ public class SectionEventManager : MonoBehaviour
     {
         return ParsePairsInt(token, (code, amount) => new ItemData
         {
-            ItemCode = code,
-            ItemAmount = amount
+            itemCode = code,
+            amount = amount
         }, defaultAmount: 1);
     }
 
@@ -432,8 +430,8 @@ public class SectionEventManager : MonoBehaviour
     {
         return ParsePairsInt(token, (code, amount) => new WeaponData
         {
-            WeaponCode = code,
-            WeaponAmount = amount
+            weaponCode = code,
+            amount = amount
         }, defaultAmount: 1);
     }
 
@@ -501,36 +499,70 @@ public class SectionEventManager : MonoBehaviour
             }
         }
 
-        //아이템 처리
-        if (actions.getI != null && actions.getI.Count > 0 && actions.getI is List<ItemData> getData)
+        //아이템 획득
+        if (actions.getI != null && actions.getI.Count > 0 && actions.getI is List<ItemData> getIData)
         {
-            foreach (ItemData actionItem in getData)
+            foreach (ItemData actionItem in getIData)
             {
-                if (actionItem != null && actionItem.ItemCode != "" && actionItem.ItemAmount != 0 &&
-                actionItem.ItemCode is string ItemCode && actionItem.ItemAmount is int ItemAmount)
+                if (actionItem != null && actionItem.itemCode != "" && actionItem.amount != 0 &&
+                actionItem.itemCode is string itemCode && actionItem.amount is int amount)
                 {
-                    testItem = itemDataManager.GetItemByCode(ItemCode);
+                    ItemDataNode itemData = itemDataManager.GetItemByCode(itemCode);
 
                     //테스트 출력
-                    Debug.Log($"\'{testItem.code}\'아이템을 {ItemAmount}개 획득했습니다.");
-                    StartCoroutine(userDataManager.GetItem(testItem.code,ItemAmount)); //api 메소드
+                    Debug.Log($"\'{itemData.code}\'아이템을 {amount}개 획득했습니다.");
+                    StartCoroutine(userDataManager.GetItem(itemData.code,amount)); //api 메소드
                 }
             }
         }
 
         //아이템 유실
-        if (actions.lostI != null && actions.lostI.Count > 0 && actions.lostI is List<ItemData> lostData)
+        if (actions.lostI != null && actions.lostI.Count > 0 && actions.lostI is List<ItemData> lostIData)
         {
-            foreach (ItemData actionItem in lostData)
+            foreach (ItemData actionItem in lostIData)
             {
-                if (actionItem != null && actionItem.ItemCode != "" && actionItem.ItemAmount != 0 &&
-                actionItem.ItemCode is string ItemCode && actionItem.ItemAmount is int ItemAmount)
+                if (actionItem != null && actionItem.itemCode != "" && actionItem.amount != 0 &&
+                actionItem.itemCode is string itemCode && actionItem.amount is int amount)
                 {
-                    testItem = itemDataManager.GetItemByCode(ItemCode);
+                    ItemDataNode itemData = itemDataManager.GetItemByCode(itemCode);
 
                     //테스트 출력
-                    Debug.Log($"\'{testItem.name}\'아이템을 {ItemAmount}개 잃었습니다.");
-                    StartCoroutine(userDataManager.LostItem(testItem.code,ItemAmount)); //api 메소드
+                    Debug.Log($"\'{itemData.name}\'아이템을 {amount}개 잃었습니다.");
+                    StartCoroutine(userDataManager.LostItem(itemData.code,amount)); //api 메소드
+                }
+            }
+        }
+
+        //무기 획득
+        if (actions.getW != null && actions.getW.Count > 0 && actions.getW is List<WeaponData> getWData)
+        {
+            foreach (WeaponData actionWeapon in getWData)
+            {
+                if (actionWeapon != null && actionWeapon.weaponCode != "" && actionWeapon.amount != 0 &&
+                actionWeapon.weaponCode is string weaponCode && actionWeapon.amount is int amount)
+                {
+                    WeaponDataNode weaponData = weaponDataManager.GetWeaponByCode(weaponCode);
+
+                    //테스트 출력
+                    Debug.Log($"\'{weaponData.code}\'무기를 {amount}개 획득했습니다.");
+                    StartCoroutine(userDataManager.GetWeapon(weaponData.code,amount)); //api 메소드
+                }
+            }
+        }
+
+        //무기 유실
+        if (actions.lostW != null && actions.lostW.Count > 0 && actions.lostW is List<WeaponData> lostWData)
+        {
+            foreach (WeaponData actionWeapon in lostWData)
+            {
+                if (actionWeapon != null && actionWeapon.weaponCode != "" && actionWeapon.amount != 0 &&
+                actionWeapon.weaponCode is string weaponCode && actionWeapon.amount is int amount)
+                {
+                    WeaponDataNode weaponData = weaponDataManager.GetWeaponByCode(weaponCode);
+
+                    //테스트 출력
+                    Debug.Log($"\'{weaponData.name}\'무기를 {amount}개 잃었습니다.");
+                    StartCoroutine(userDataManager.LostWeapon(weaponData.code,amount)); //api 메소드
                 }
             }
         }
@@ -543,7 +575,7 @@ public class SectionEventManager : MonoBehaviour
                 if (actionFlag != null && actionFlag.flagCode != "" &&
                 actionFlag.flagCode is string flagCode && actionFlag.flagState is bool flagState)
                 {
-                    testFlag = storyFlagManager.GetFlagByCode(flagCode);
+                    storyFlagNode testFlag = storyFlagManager.GetFlagByCode(flagCode);
 
                     //테스트 출력
                     Debug.Log($"\'{testFlag.name}\'플래그 상태를 {flagState}로 변경했습니다.");
@@ -559,7 +591,7 @@ public class SectionEventManager : MonoBehaviour
                 if (actionFlag != null && actionFlag.flagCode != "" &&
                 actionFlag.flagCode is string flagCode && actionFlag.flagState is bool flagState)
                 {
-                    testFlag = storyFlagManager.GetFlagByCode(flagCode);
+                    storyFlagNode testFlag = storyFlagManager.GetFlagByCode(flagCode);
 
                     //테스트 출력
                     if (flagState == true)
