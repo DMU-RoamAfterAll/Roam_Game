@@ -44,6 +44,8 @@ public class PlayerControl : MonoBehaviour {
 
                 var sd = hit.collider.GetComponent<SectionData>();
                 // ← 여기서 비용 체크
+
+                Debug.Log("실제 필요한 StepCost = " + GetStepCost(sd.sectionPosition));
                 if (!MapSceneDataManager.Instance.stepManagerUI.TryConsumeSteps(sd.stepCost)) return;
 
                 // 비용이 충분하면 실제 이동 처리
@@ -124,6 +126,12 @@ public class PlayerControl : MonoBehaviour {
             // 색상 업데이트
             section.UpdateSectionColor();
         }
+    }
+
+    int GetStepCost(Vector2 sectionPosition) {
+        int step = (int)(Vector2.Distance(this.gameObject.transform.position, sectionPosition));
+
+        return step * 10;
     }
 
     ///DetectSection을 시각화

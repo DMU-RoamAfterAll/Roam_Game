@@ -15,6 +15,7 @@ TagManager:
   - River
   - IrisSection
   - WeatherUI
+  - EventSection
   layers:
   - Default
   - TransparentFX
