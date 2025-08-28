@@ -347,10 +347,11 @@ public class SectionEventManager : MonoBehaviour
                 if (actionFlag != null && actionFlag.flagCode != "" &&
                 actionFlag.flagCode is string flagCode && actionFlag.flagState is bool flagState)
                 {
-                    storyFlagNode testFlag = storyFlagManager.GetFlagByCode(flagCode);
+                    storyFlagNode FlagData = storyFlagManager.GetFlagByCode(flagCode);
 
                     //테스트 출력
-                    Debug.Log($"\'{testFlag.name}\'플래그 상태를 {flagState}로 변경했습니다.");
+                    Debug.Log($"\'{FlagData.name}\'플래그 상태를 {flagState}로 변경했습니다.");
+                    StartCoroutine(userDataManager.FlagSet(FlagData.code,flagState)); //api 메소드
                 }
             }
         }
@@ -365,15 +366,15 @@ public class SectionEventManager : MonoBehaviour
                 {
                     storyFlagNode testFlag = storyFlagManager.GetFlagByCode(flagCode);
 
-                    //테스트 출력
-                    if (flagState == true)
-                    {
-                        Debug.Log($"\'{testFlag.name}\'플래그가 true값입니다.");
-                    }
-                    else
-                    {
-                        Debug.Log($"\'{testFlag.name}\'플래그가 false값입니다.");
-                    }
+                    StartCoroutine(userDataManager.FlagCheck( //api 메소드
+                        onResult: list => {
+                            foreach (var it in list)
+                                Debug.Log($"{it.flagCode} x{it.flagState}");
+                            // 테스트 출력
+                        },
+                        onError: (code,msg) => Debug.LogError($"[{GetType().Name}] 플래그 불러오기 실패: {code}/{msg}")
+                        )
+                    );
                 }
             }
         }
