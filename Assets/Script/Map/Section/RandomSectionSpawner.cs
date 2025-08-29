@@ -119,7 +119,7 @@ public class RandomSectionSpawner : MonoBehaviour {
             MapSceneDataManager.Instance.mainSections.Add(go);
 
             SectionData section = go.GetComponent<SectionData>();
-            section.id              = $"{gameObject.name}/{data.id}";
+            section.id              = $"StoryGameData/SectionData/SectionEvent/MainSection/Main{areaAsset.areaName}/{mainJsons[i].name}.json";
             section.rate            = data.rate[0];
             section.eventType       = data.eventType;
             section.isVisited       = false;
@@ -152,7 +152,7 @@ public class RandomSectionSpawner : MonoBehaviour {
             MapSceneDataManager.Instance.sections.Add(go);
 
             SectionData section = go.GetComponent<SectionData>();
-            section.id              = $"{gameObject.name}/{data.id}";
+            section.id              = $"StoryGameData/SectionData/SectionEvent/EventSection/{areaAsset.areaName}/{eventJsons[i].name}.json";
             section.rate            = data.rate[0];
             section.eventType       = data.eventType;
             section.isVisited       = false;

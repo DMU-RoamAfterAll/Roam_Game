@@ -1,4 +1,12 @@
 {
+  "id" : "102",
+  "rate" : "T",
+  "eventType" : "Toturial",
+  "dialogues" : "",
+
+  "x" : 1,
+  "y"  : -5,
+
   "Text1": {
     "value": [
       "좁고 굽은 골목을 걷고 있었다.",

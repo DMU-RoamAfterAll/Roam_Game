@@ -24,7 +24,7 @@ public class CreateAreaAssets : MonoBehaviour {
             $"{GameDataManager.Data.baseUrl}/CNWV/Resources/AreaAssetData/Area03.json",
             $"{GameDataManager.Data.baseUrl}/CNWV/Resources/AreaAssetData/Area04.json",
             $"{GameDataManager.Data.baseUrl}/CNWV/Resources/AreaAssetData/Area05.json",
-            $"{GameDataManager.Data.baseUrl}/CNWV/Resources/AreaAssetData/Tutorial.json"
+            $"{GameDataManager.Data.baseUrl}/CNWV/Resources/AreaAssetData/TutorialSection.json"
         };
 
         #if UNITY_EDITOR
