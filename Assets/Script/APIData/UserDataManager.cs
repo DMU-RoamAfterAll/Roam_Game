@@ -164,8 +164,8 @@ public class UserDataManager : MonoBehaviour
     /// api를 통해 서버의 특정 플래그의 정보를 불러오는 함수
     /// **api 조회로 인한 성능 저하를 최소화 하기 위한 조치 필요**
     /// </summary>
-    /// <param name="onResult"></param>
-    /// <param name="onError"></param>
+    /// <param name="onResult">리퀘스트 성공시 콜백</param>
+    /// <param name="onError">리퀘스트 실패시 콜백</param>
     /// <returns></returns>
     public IEnumerator FlagCheck(Action<List<FlagData>> onResult = null, Action<long, string> onError = null)
     {

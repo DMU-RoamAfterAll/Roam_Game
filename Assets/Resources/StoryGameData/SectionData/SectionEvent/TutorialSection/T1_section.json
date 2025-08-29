@@ -6,7 +6,7 @@
 			"하늘은 희뿌연 먼지로 가득했고, 주위는 무너진 콘크리트와 뒤틀린 철골들로 뒤엉켜 있었다."
 		],
 		"action" : { "image": "T1-1",
-					 "flagCheck" : ["test", true] },
+					 "flagCheck" : ["test1", true] },
 		"next": "Text2"
 	},
 	"Text2": {

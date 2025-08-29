@@ -364,13 +364,23 @@ public class SectionEventManager : MonoBehaviour
                 if (actionFlag != null && actionFlag.flagCode != "" &&
                 actionFlag.flagCode is string flagCode && actionFlag.flagState is bool flagState)
                 {
-                    storyFlagNode testFlag = storyFlagManager.GetFlagByCode(flagCode);
+                    storyFlagNode FlagData = storyFlagManager.GetFlagByCode(flagCode);
 
                     StartCoroutine(userDataManager.FlagCheck( //api 메소드
                         onResult: list => {
                             foreach (var it in list)
-                                Debug.Log($"{it.flagCode} x{it.flagState}");
-                            // 테스트 출력
+                            {
+                                if (flagCode == it.flagCode) {
+                                    if (flagState == it.flagState)
+                                    {
+                                        Debug.Log($"{it.flagCode}는 {flagState}를 만족합니다."); //테스트 출력
+                                    }
+                                    else
+                                    {
+                                        Debug.Log($"{it.flagCode}는 {flagState}를 만족하지 않습니다."); //테스트 출력
+                                    }
+                                }
+                            }
                         },
                         onError: (code,msg) => Debug.LogError($"[{GetType().Name}] 플래그 불러오기 실패: {code}/{msg}")
                         )
