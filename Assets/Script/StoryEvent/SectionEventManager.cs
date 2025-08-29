@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using System.Collections;
 using KoreanTyper;
 using TMPro;
+using System;
 
 //-------------------------------------------------------------------------------
 // ** Section Event Json 데이터 클래스 구조 **
@@ -23,8 +24,10 @@ public class CommonNode
 public class ActionNode
 {
     public string image; //삽화를 변경하기 위한 삽화 명을 작성하는 노드, 본문을 출력하기 전 삽화 변경이 이루어짐
-    public List<ItemData> get; //아이템 획득 기능을 위한 노드, <"아이템 코드", 갯수>형식으로 작성
-    public List<ItemData> lost; //아이템 유실 기능을 위한 노드, <"아이템 코드", 갯수>형식으로 작성
+    public List<ItemData> getI; //아이템 획득 기능을 위한 노드, <"아이템 코드", 갯수>형식으로 작성
+    public List<ItemData> lostI; //아이템 유실 기능을 위한 노드, <"아이템 코드", 갯수>형식으로 작성
+    public List<WeaponData> getW; //무기 획득 기능을 위한 노드, `<"무기 코드", 갯수>` 형식으로 작성
+    public List<WeaponData> lostW; //무기 유실 기능을 위한 노드, `<"무기 코드", 갯수>` 형식으로 작성
     public List<FlagData> flagSet; //플래그 설정을 위한 플래그 명을 작성하는 노드, <"플래그명", boolean>형식으로 작성
     public List<FlagData> flagCheck; //본문을 내보내기 위해 플래그를 확인하는 노드, <"플래그명", boolean>형식으로 작성
                                       //(리스트 형식으로 복수 체크 가능)
@@ -34,8 +37,16 @@ public class ActionNode
 //아이템 제어를 위한 데이터 모델
 public class ItemData
 {
-    public string ItemCode; //아이템 코드명
-    public int ItemAmount; //아이템 갯수
+    public string itemCode; //아이템 코드명
+    public int amount; //아이템 갯수
+}
+
+[System.Serializable]
+//무기 제어를 위한 데이터 모델
+public class WeaponData
+{
+    public string weaponCode; //무기 코드명
+    public int amount; //무기 갯수
 }
 
 [System.Serializable]
@@ -80,8 +91,11 @@ public class SectionEventManager : MonoBehaviour
     private string imageFolderPath =
     "StoryGameData/SectionData/SectionImage/TSectionImage"; //게임 삽화가 담긴 파일의 경로
     private Dictionary<string, object> sectionData = new Dictionary<string, object>(); //파싱된 Json데이터
+    private SectionEventParser sectionEventParser;
     private ItemDataManager itemDataManager;
+    private WeaponDataManager weaponDataManager;
     private StoryFlagManager storyFlagManager;
+    private UserDataManager userDataManager;
 
     //컨텐츠 오브젝트
     public Transform viewport; //스토리 컨텐츠 부분
@@ -103,8 +117,6 @@ public class SectionEventManager : MonoBehaviour
 
     //디버깅용 변수
     TextNode testjson = null;
-    public ItemDataNode testItem = null;
-    public storyFlagNode testFlag = null;
 
     private void Awake()
     {
@@ -113,8 +125,11 @@ public class SectionEventManager : MonoBehaviour
         sceneImage = viewport.Find("Content/UI_Image/Image").GetComponent<Image>();
         dialogueText = viewport.Find("Content/value").GetComponent<TextMeshProUGUI>();
         buttonPanel = viewport.Find("Content/Panel_Button").GetComponent<Transform>();
+        sectionEventParser = GetComponent<SectionEventParser>();
         itemDataManager = GetComponent<ItemDataManager>();
+        weaponDataManager = GetComponent<WeaponDataManager>();
         storyFlagManager = GetComponent<StoryFlagManager>();
+        userDataManager = GetComponent<UserDataManager>();
 
         LoadJson(jsonFileName); //Json파일 로드
     }
@@ -138,7 +153,7 @@ public class SectionEventManager : MonoBehaviour
         TextAsset jsonFile = Resources.Load<TextAsset>(filePath); //Json 파일 로드
         if (jsonFile == null)
         {
-            Debug.LogError($"[SectionEventManager] 파일을 찾을 수 없음: {jsonFileName}.json");
+            Debug.LogError($"[{GetType().Name}] 파일을 찾을 수 없음: {jsonFileName}.json");
             return;
         }
         //Json파일에서 텍스트 데이터를 가져와 Json객체 구조로 변경
@@ -167,13 +182,13 @@ public class SectionEventManager : MonoBehaviour
 
                 //action 수동 파싱
                 if (nodeObj.TryGetValue("action", out var actionToken))
-                    text.action = ParseActionNode((JObject)actionToken);
+                    text.action = sectionEventParser.ParseActionNode((JObject)actionToken);
                 
                 sectionData[key] = text; //키가 존재하지 않으면 동적 추가
             }
             else
             {
-                Debug.LogWarning($"[SectionEventManager] 인식할 수 없는 노드: {key}");
+                Debug.LogWarning($"[{GetType().Name}] 인식할 수 없는 노드: {key}");
             }
         }
         Debug.Log("Reading File : " + jsonFileName + ".json"); //파일 로드 확인 로그
@@ -203,155 +218,6 @@ public class SectionEventManager : MonoBehaviour
         if (sectionData.TryGetValue(key, out object node) && node is MenuNode menu)
             return menu;
         return null;
-    }
-
-    /// <summary>
-    /// Action태그의 사용 편의를 위한 수동 parser 틀
-    /// 아이템 처리와 flag처리를 간편하게 쓰기 위해 사용됨
-    /// </summary>
-    /// <param name="actionObj">처리가 필요한 action노드</param>
-    /// <returns>parsing 완료된 action노드</returns>
-    private ActionNode ParseActionNode(JObject actionObj)
-    {
-        ActionNode action = new ActionNode();
-
-        // image 처리
-        if (actionObj.TryGetValue("image", out var imgToken))
-            action.image = imgToken.ToString();
-
-        // get 아이템 처리
-        if (actionObj.TryGetValue("get", out var getToken))
-            action.get = ParseItemData(getToken);
-
-        // lost 아이템 처리
-        if (actionObj.TryGetValue("lost", out var lostToken))
-            action.lost = ParseItemData(lostToken);
-
-        // flagSet 처리
-        if (actionObj.TryGetValue("flagSet", out var flagSetToken))
-            action.flagSet = ParseStoryFlag(flagSetToken);
-
-        // flagCheck 처리
-        if (actionObj.TryGetValue("flagCheck", out var flagCheckToken))
-            action.flagCheck = ParseStoryFlag(flagCheckToken);
-
-        return action;
-    }
-
-    /// <summary>
-    /// 아이템 처리 부분의 parser (ParseActionNode함수에 사용)
-    /// </summary>
-    /// <param name="token">아이템 처리 action 정보</param>
-    private List<ItemData> ParseItemData(JToken token)
-    {
-        var list = new List<ItemData>();
-
-        if (token == null)
-            return list;
-
-        if (token.Type == JTokenType.Array)
-        {
-            var arr = (JArray)token;
-
-            //이중 배열인지 단일 배열인지 구분
-            /*
-                ex) 이중 배열
-                "get": [
-                ["item_apple", 3],
-                ["item_banana", 2]
-                ]
-                ex) 단일 배열
-                "lost": ["item_coin", 5]
-            */
-            if (arr.Count > 0 && arr[0].Type == JTokenType.Array)
-            {
-                //이중 배열
-                foreach (var inner in arr)
-                {
-                    var innerArr = (JArray)inner;
-                    var item = new ItemData
-                    {
-                        ItemCode = innerArr[0].ToString(),
-                        ItemAmount = innerArr[1].ToObject<int>()
-                    };
-                    list.Add(item);
-                }
-            }
-            else
-            {
-                // 단일 배열
-                var item = new ItemData
-                {
-                    ItemCode = arr[0].ToString(),
-                    ItemAmount = arr[1].ToObject<int>()
-                };
-                list.Add(item);
-            }
-        }
-        else
-        {
-            Debug.LogError($"[ParseItemData] 알 수 없는 토큰 타입: {token.Type}");
-        }
-
-        return list;
-    }
-
-    /// <summary>
-    /// 플래그 처리 부분의 parser (ParseActionNode함수에 사용)
-    /// </summary>
-    /// <param name="token">플래그 처리 action 정보</param>
-    private List<FlagData> ParseStoryFlag(JToken token)
-    {
-        var list = new List<FlagData>();
-
-        if (token == null)
-            return list;
-
-        if (token.Type == JTokenType.Array)
-        {
-            var arr = (JArray)token;
-
-            //이중 배열인지 단일 배열인지 구분
-            /*
-                ex) 이중 배열
-                "flagSet": [
-                ["flag_test1", true],
-                ["flag_test2", false]
-                ]
-                ex) 단일 배열
-                "flagCheck": ["flag_test1", false]
-            */
-            if (arr.Count > 0 && arr[0].Type == JTokenType.Array)
-            {
-                //이중 배열
-                foreach (var inner in arr)
-                {
-                    var innerArr = (JArray)inner;
-                    var item = new FlagData
-                    {
-                        flagCode = innerArr[0].ToString(),
-                        flagState = innerArr[1].ToObject<bool>()
-                    };
-                    list.Add(item);
-                }
-            }
-            else
-            {
-                // 단일 배열
-                var item = new FlagData
-                {
-                    flagCode = arr[0].ToString(),
-                    flagState = arr[1].ToObject<bool>()
-                };
-                list.Add(item);
-            }
-        }
-        else
-        {
-            Debug.LogError($"[ParseItemData] 알 수 없는 토큰 타입: {token.Type}");
-        }
-
-        return list;
     }
 
     /// <summary>
@@ -401,38 +267,74 @@ public class SectionEventManager : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning($"[SectionEventManager] 이미지 로드 실패 {imageName}");
+                Debug.LogWarning($"[{GetType().Name}] 이미지 로드 실패 {imageName}");
             }
         }
 
-        //아이템 처리
-        if (actions.get != null && actions.get.Count > 0 && actions.get is List<ItemData> getData)
+        //아이템 획득
+        if (actions.getI != null && actions.getI.Count > 0 && actions.getI is List<ItemData> getIData)
         {
-            foreach (ItemData actionItem in getData)
+            foreach (ItemData actionItem in getIData)
             {
-                if (actionItem != null && actionItem.ItemCode != "" && actionItem.ItemAmount != 0 &&
-                actionItem.ItemCode is string ItemCode && actionItem.ItemAmount is int ItemAmount)
+                if (actionItem != null && actionItem.itemCode != "" && actionItem.amount != 0 &&
+                actionItem.itemCode is string itemCode && actionItem.amount is int amount)
                 {
-                    testItem = itemDataManager.GetItemByCode(ItemCode);
+                    ItemDataNode itemData = itemDataManager.GetItemByCode(itemCode);
 
                     //테스트 출력
-                    Debug.Log($"\'{testItem.name}\'아이템을 {ItemAmount}개 획득했습니다.");
+                    Debug.Log($"\'{itemData.code}\'아이템을 {amount}개 획득했습니다.");
+                    StartCoroutine(userDataManager.GetItem(itemData.code,amount)); //api 메소드
                 }
             }
         }
 
         //아이템 유실
-        if (actions.lost != null && actions.lost.Count > 0 && actions.lost is List<ItemData> lostData)
+        if (actions.lostI != null && actions.lostI.Count > 0 && actions.lostI is List<ItemData> lostIData)
         {
-            foreach (ItemData actionItem in lostData)
+            foreach (ItemData actionItem in lostIData)
             {
-                if (actionItem != null && actionItem.ItemCode != "" && actionItem.ItemAmount != 0 &&
-                actionItem.ItemCode is string ItemCode && actionItem.ItemAmount is int ItemAmount)
+                if (actionItem != null && actionItem.itemCode != "" && actionItem.amount != 0 &&
+                actionItem.itemCode is string itemCode && actionItem.amount is int amount)
                 {
-                    testItem = itemDataManager.GetItemByCode(ItemCode);
+                    ItemDataNode itemData = itemDataManager.GetItemByCode(itemCode);
 
                     //테스트 출력
-                    Debug.Log($"\'{testItem.name}\'아이템을 {ItemAmount}개 잃었습니다.");
+                    Debug.Log($"\'{itemData.name}\'아이템을 {amount}개 잃었습니다.");
+                    StartCoroutine(userDataManager.LostItem(itemData.code,amount)); //api 메소드
+                }
+            }
+        }
+
+        //무기 획득
+        if (actions.getW != null && actions.getW.Count > 0 && actions.getW is List<WeaponData> getWData)
+        {
+            foreach (WeaponData actionWeapon in getWData)
+            {
+                if (actionWeapon != null && actionWeapon.weaponCode != "" && actionWeapon.amount != 0 &&
+                actionWeapon.weaponCode is string weaponCode && actionWeapon.amount is int amount)
+                {
+                    WeaponDataNode weaponData = weaponDataManager.GetWeaponByCode(weaponCode);
+
+                    //테스트 출력
+                    Debug.Log($"\'{weaponData.code}\'무기를 {amount}개 획득했습니다.");
+                    StartCoroutine(userDataManager.GetWeapon(weaponData.code,amount)); //api 메소드
+                }
+            }
+        }
+
+        //무기 유실
+        if (actions.lostW != null && actions.lostW.Count > 0 && actions.lostW is List<WeaponData> lostWData)
+        {
+            foreach (WeaponData actionWeapon in lostWData)
+            {
+                if (actionWeapon != null && actionWeapon.weaponCode != "" && actionWeapon.amount != 0 &&
+                actionWeapon.weaponCode is string weaponCode && actionWeapon.amount is int amount)
+                {
+                    WeaponDataNode weaponData = weaponDataManager.GetWeaponByCode(weaponCode);
+
+                    //테스트 출력
+                    Debug.Log($"\'{weaponData.name}\'무기를 {amount}개 잃었습니다.");
+                    StartCoroutine(userDataManager.LostWeapon(weaponData.code,amount)); //api 메소드
                 }
             }
         }
@@ -445,10 +347,11 @@ public class SectionEventManager : MonoBehaviour
                 if (actionFlag != null && actionFlag.flagCode != "" &&
                 actionFlag.flagCode is string flagCode && actionFlag.flagState is bool flagState)
                 {
-                    testFlag = storyFlagManager.GetFlagByCode(flagCode);
+                    storyFlagNode FlagData = storyFlagManager.GetFlagByCode(flagCode);
 
                     //테스트 출력
-                    Debug.Log($"\'{testFlag.name}\'플래그 상태를 {flagState}로 변경했습니다.");
+                    Debug.Log($"\'{FlagData.name}\'플래그 상태를 {flagState}로 변경했습니다.");
+                    StartCoroutine(userDataManager.FlagSet(FlagData.code,flagState)); //api 메소드
                 }
             }
         }
@@ -461,17 +364,27 @@ public class SectionEventManager : MonoBehaviour
                 if (actionFlag != null && actionFlag.flagCode != "" &&
                 actionFlag.flagCode is string flagCode && actionFlag.flagState is bool flagState)
                 {
-                    testFlag = storyFlagManager.GetFlagByCode(flagCode);
+                    storyFlagNode FlagData = storyFlagManager.GetFlagByCode(flagCode);
 
-                    //테스트 출력
-                    if (flagState == true)
-                    {
-                        Debug.Log($"\'{testFlag.name}\'플래그가 true값입니다.");
-                    }
-                    else
-                    {
-                        Debug.Log($"\'{testFlag.name}\'플래그가 false값입니다.");
-                    }
+                    StartCoroutine(userDataManager.FlagCheck( //api 메소드
+                        onResult: list => {
+                            foreach (var it in list)
+                            {
+                                if (flagCode == it.flagCode) {
+                                    if (flagState == it.flagState)
+                                    {
+                                        Debug.Log($"{it.flagCode}는 {flagState}를 만족합니다."); //테스트 출력
+                                    }
+                                    else
+                                    {
+                                        Debug.Log($"{it.flagCode}는 {flagState}를 만족하지 않습니다."); //테스트 출력
+                                    }
+                                }
+                            }
+                        },
+                        onError: (code,msg) => Debug.LogError($"[{GetType().Name}] 플래그 불러오기 실패: {code}/{msg}")
+                        )
+                    );
                 }
             }
         }
@@ -493,7 +406,8 @@ public class SectionEventManager : MonoBehaviour
     }
 
     //-------------------------------------------------------------------------------
-    // ** 테스트 출력 부분 **
+    // ** 게임 내 오브젝트 출력 부분 **
+    //-------------------------------------------------------------------------------
     void StartDialogue(string nodeKey)
     {
         if (sectionData.TryGetValue(nodeKey, out object node))
@@ -508,12 +422,12 @@ public class SectionEventManager : MonoBehaviour
             }
             else
             {
-                Debug.LogError($"[SectionEventManager] 알 수 없는 노드 타입: {node.GetType()}");
+                Debug.LogError($"[{GetType().Name}] 알 수 없는 노드 타입: {node.GetType()}");
             }
         }
         else
         {
-            Debug.LogError($"[SectionEventManager] {nodeKey}노드를 찾을 수 없습니다.");
+            Debug.LogError($"[{GetType().Name}] {nodeKey}노드를 찾을 수 없습니다.");
         }
     }
 
@@ -591,7 +505,7 @@ public class SectionEventManager : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("MenuNode의 next 값이 없습니다. 종료 또는 대기 처리 필요.");
+                    Debug.Log($"[{GetType().Name}] MenuNode의 next 값이 없습니다. 종료 또는 대기 처리 필요.");
                 }
             });
         }

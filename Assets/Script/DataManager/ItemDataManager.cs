@@ -9,10 +9,10 @@ using System.Collections.Generic;
 //아이템 데이터 노드
 public class ItemDataNode
 {
-    public string code;
-    public string name;
-    public string description;
-    public List<string> category;
+    public string code; //아이템 코드
+    public string name; //아이템 이름
+    public string description; //아이템 설명
+    public List<string> category; //아이템 분류
 }
 //-------------------------------------------------------------------------------
 
@@ -28,14 +28,14 @@ public class ItemDataManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Itme 데이터 파일 로드
+    /// Item 데이터 파일 로드
     /// </summary>
     public void LoadItemJson()
     {
         TextAsset jsonFile = Resources.Load<TextAsset>(itemFolderPath); //Json 파일 로드
         if (jsonFile == null)
         {
-            Debug.LogError($"[ItemDataManager] 파일을 찾을 수 없음: item.json");
+            Debug.LogError($"[{GetType().Name}] 파일을 찾을 수 없음: item.json");
             return;
         }
 
@@ -44,7 +44,7 @@ public class ItemDataManager : MonoBehaviour
 
         if (itemList == null || itemList.Count == 0)
         {
-            Debug.LogError("[ItemDataManager] itemList가 비어있거나 파싱에 실패했습니다.");
+            Debug.LogError($"[{GetType().Name}] itemList가 비어있거나 파싱에 실패했습니다.");
             return;
         }
 
@@ -67,7 +67,7 @@ public class ItemDataManager : MonoBehaviour
     {
         if (itemDict.TryGetValue(code, out var data))
             return data;
-        Debug.LogWarning($"[ItemDataManager] 아이템 코드 {code}를 찾을 수 없습니다.");
+        Debug.LogWarning($"[{GetType().Name}] 아이템 코드 {code}을(를) 찾을 수 없습니다.");
         return null;
     }
 }
