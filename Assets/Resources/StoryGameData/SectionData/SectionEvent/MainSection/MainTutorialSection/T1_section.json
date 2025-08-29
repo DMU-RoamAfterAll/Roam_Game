@@ -1,11 +1,12 @@
 {
-	"id" : "101",
-  	"rate" : "T",
-  	"eventType" : "Toturial",
-  	"dialogues" : "",
+	"SectionInfo": {
+		"id" : "101",
+  		"rate" : "T",
+  		"eventType" : "Totorial",
 
-	"x" : -1,
-    "y"  : -9,
+		"x" : -1,
+    	"y"  : -9
+	},
 
 	"Text1": {
 		"value": [

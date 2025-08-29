@@ -1,5 +1,7 @@
 {
-    "id" : "02",
-    "rate": "B",
-    "eventType": "Treasure"
+    "SectionInfo": {
+        "id" : "02",
+        "rate": "B",
+        "eventType": "Treasure"
+    }
 }

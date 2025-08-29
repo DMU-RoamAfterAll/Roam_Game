@@ -1,5 +1,7 @@
 {
-    "id" : "03",
-    "rate": "E",
-    "eventType": "Trap"
+    "SectionInfo": {
+        "id" : "03",
+        "rate": "E",
+        "eventType": "Trap"
+    }
 }
