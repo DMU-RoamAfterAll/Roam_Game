@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5016582968547176021}
   - component: {fileID: 5748386649042195316}
   - component: {fileID: 1825825224095422867}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: MainSectionPrefab
   m_TagString: MainSection
   m_Icon: {fileID: 0}
@@ -104,6 +104,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sightObjects: {fileID: 0}
   sightSectionPrefab: {fileID: 0}
+  linkSections: []
   id: 0
   rate: 0
   eventType: 
@@ -112,7 +113,6 @@ MonoBehaviour:
   isPlayerOn: 0
   isCanMove: 0
   sectionPosition: {x: 0, y: 0}
-  linkSections: []
   stepCost: 0
 --- !u!58 &5748386649042195316
 CircleCollider2D:

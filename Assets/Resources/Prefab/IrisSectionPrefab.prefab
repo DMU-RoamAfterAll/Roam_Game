@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 661475424082495149}
   - component: {fileID: 3629888734085304846}
   - component: {fileID: 6074813902754021260}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: IrisSectionPrefab
   m_TagString: IrisSection
   m_Icon: {fileID: 0}

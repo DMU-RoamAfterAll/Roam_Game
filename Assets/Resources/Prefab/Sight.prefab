@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1218423831574869477}
   - component: {fileID: 1808416398379352442}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Sight
   m_TagString: Sight
   m_Icon: {fileID: 0}

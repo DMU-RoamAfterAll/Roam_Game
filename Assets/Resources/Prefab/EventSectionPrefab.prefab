@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3237825561558387826}
   - component: {fileID: 661475424082495149}
   - component: {fileID: 3629888734085304846}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: EventSectionPrefab
   m_TagString: VirtualSection
   m_Icon: {fileID: 0}
