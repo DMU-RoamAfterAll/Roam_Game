@@ -1,11 +1,15 @@
 using UnityEngine;
 using UnityEngine.Networking;
 using System.Collections;
+using System;
+using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
+using Newtonsoft.Json;
 
 public class UserDataManager : MonoBehaviour
 {
     protected string apiUrl = "http://125.176.246.14:8081"; //api 주소
-    public string username = "admin"; //테스트용 유저 이름
+    protected string username = "cnwvid"; //테스트용 유저 이름
     public string accessToken = ""; //로그인 토큰
 
     /// <summary>
@@ -29,18 +33,55 @@ public class UserDataManager : MonoBehaviour
     }
 
     /// <summary>
+    /// 조회 Json파일을 받아 Unity List로 변환해주는 함수
+    /// </summary>
+    /// <typeparam name="T">List 타입</typeparam>
+    /// <param name="req">변환할 리퀘스트</param>
+    /// <param name="onResult">리퀘스트 성공시 콜백</param>
+    /// <param name="onError">리퀘스트 실패시 콜백</param>
+    /// <returns></returns>
+    private IEnumerator GetJsonList<T>(
+        UnityWebRequest req,
+        Action<List<T>> onResult,
+        Action<long, string> onError
+    )
+    {
+        yield return SendApi(req);
+
+        if (req.result != UnityWebRequest.Result.Success)
+        {
+            onError?.Invoke(req.responseCode, req.error);
+            yield break;
+        }
+
+        var body = req.downloadHandler?.text ?? "";
+        try
+        {
+            List<T> list;
+            list = JsonConvert.DeserializeObject<List<T>>(body) ?? new List<T>();
+
+            onResult?.Invoke(list);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[GetJsonList<{typeof(T).Name}>] parse fail: {ex.Message} body='{body}'");
+            onError?.Invoke(req.responseCode, "parse_error");
+        }
+    }
+
+    /// <summary>
     /// api를 통해 서버에 아이템을 추가하는 함수
     /// </summary>
     /// <param name="itemCode">아이템 코드</param>
-    /// <param name="itemAmount">아이템 갯수</param>
+    /// <param name="amount">아이템 갯수</param>
     /// <returns></returns>
-    public IEnumerator GetItem(string itemCode, int itemAmount)
+    public IEnumerator GetItem(string itemCode, int amount)
     {
         string url =
         $"{apiUrl}/api/inventory/items" +
         $"?username={UnityWebRequest.EscapeURL(username)}" +
         $"&itemCode={UnityWebRequest.EscapeURL(itemCode)}" +
-        $"&amount={itemAmount}";
+        $"&amount={amount}";
 
         using (var req = UnityWebRequest.PostWwwForm(url, "")) //body부분 비우고 전송
             yield return SendApi(req);
@@ -50,21 +91,55 @@ public class UserDataManager : MonoBehaviour
     /// api를 통해 서버에 아이템을 삭제하는 함수
     /// </summary>
     /// <param name="itemCode">아이템 코드</param>
-    /// <param name="itemAmount">아이템 갯수</param>
+    /// <param name="amount">아이템 갯수</param>
     /// <returns></returns>
-    public IEnumerator LostItem(string itemCode, int itemAmount)
+    public IEnumerator LostItem(string itemCode, int amount)
     {
         string url =
             $"{apiUrl}/api/inventory/items" +
             $"?username={UnityWebRequest.EscapeURL(username)}" +
             $"&itemCode={UnityWebRequest.EscapeURL(itemCode)}" +
-            $"&amount={itemAmount}";
+            $"&amount={amount}";
 
         using (var req = UnityWebRequest.Delete(url))
             yield return SendApi(req);
     }
 
-    //public IEnumerator LostItem(string itemCode, int itemAmount)
+    /// <summary>
+    /// api를 통해 서버에 무기를 추가하는 함수
+    /// </summary>
+    /// <param name="weaponCode">무기 코드</param>
+    /// <param name="amount">무기 갯수</param>
+    /// <returns></returns>
+    public IEnumerator GetWeapon(string weaponCode, int amount)
+    {
+        string url =
+        $"{apiUrl}/api/inventory/weapons" +
+        $"?username={UnityWebRequest.EscapeURL(username)}" +
+        $"&weaponCode={UnityWebRequest.EscapeURL(weaponCode)}" +
+        $"&amount={amount}";
+
+        using (var req = UnityWebRequest.PostWwwForm(url, "")) //body부분 비우고 전송
+            yield return SendApi(req);
+    }
+
+    /// <summary>
+    /// api를 통해 서버에 무기를 삭제하는 함수
+    /// </summary>
+    /// <param name="weaponCode">무기 코드</param>
+    /// <param name="amount">무기 갯수</param>
+    /// <returns></returns>
+    public IEnumerator LostWeapon(string weaponCode, int amount)
+    {
+        string url =
+            $"{apiUrl}/api/inventory/weapons" +
+            $"?username={UnityWebRequest.EscapeURL(username)}" +
+            $"&weaponCode={UnityWebRequest.EscapeURL(weaponCode)}" +
+            $"&amount={amount}";
+
+        using (var req = UnityWebRequest.Delete(url))
+            yield return SendApi(req);
+    }
 
     /// <summary>
     /// api를 통해 서버의 플래그를 설정하는 함수
@@ -79,19 +154,28 @@ public class UserDataManager : MonoBehaviour
             $"?username={UnityWebRequest.EscapeURL(username)}" +
             $"&choiceCode={UnityWebRequest.EscapeURL(flagCode)}" +
             $"&condition={flagState}";
-        using (var req = new UnityWebRequest(url, ""))
+
+        using (var req = UnityWebRequest.PostWwwForm(url, ""))
             yield return SendApi(req);
     }
 
-    public IEnumerator FlagCheck(string flagCode) //수정 중
+
+    /// <summary>
+    /// api를 통해 서버의 특정 플래그의 정보를 불러오는 함수
+    /// **api 조회로 인한 성능 저하를 최소화 하기 위한 조치 필요**
+    /// </summary>
+    /// <param name="onResult">리퀘스트 성공시 콜백</param>
+    /// <param name="onError">리퀘스트 실패시 콜백</param>
+    /// <returns></returns>
+    public IEnumerator FlagCheck(Action<List<FlagData>> onResult = null, Action<long, string> onError = null)
     {
         string url =
-            $"{apiUrl}/api/choices" +
-            $"?username={UnityWebRequest.EscapeURL(username)}" +
-            $"&choiceCode={UnityWebRequest.EscapeURL(flagCode)}";
+            $"{apiUrl}/api/flags" +
+            $"?username={UnityWebRequest.EscapeURL(username)}";
+
         using (var req = UnityWebRequest.Get(url))
         {
-            yield return SendApi(req);
+            yield return GetJsonList<FlagData>(req, onResult, onError);
         }
     }
 }

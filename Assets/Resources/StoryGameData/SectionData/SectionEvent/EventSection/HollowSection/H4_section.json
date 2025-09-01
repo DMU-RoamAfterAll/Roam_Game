@@ -1,7 +1,9 @@
 {
-  "id" : "01",
-  "rate": "B",
-  "eventType": "Treasure",
+  "SectionInfo": {
+    "id" : "01",
+    "rate": "B",
+    "eventType": "Treasure"
+  },
   
   "Text1": {
     "value": [

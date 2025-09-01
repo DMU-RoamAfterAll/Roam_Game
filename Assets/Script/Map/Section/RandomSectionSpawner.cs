@@ -22,6 +22,20 @@ public class MainEventJsonData {
     public float y;
 }
 
+[System.Serializable]
+public class SectionInfo {
+    public string id;
+    public string rate;
+    public string eventType;
+    public float x;
+    public float y;
+}
+
+[System.Serializable]
+public class SectionDoc {
+    public SectionInfo SectionInfo;
+}
+
 public class RandomSectionSpawner : MonoBehaviour {
     [SerializeField] private List<SectionData> sections = new List<SectionData>();
     public List<SectionData> Sections => sections;
@@ -108,10 +122,11 @@ public class RandomSectionSpawner : MonoBehaviour {
 
         // 7) Create main sections first
         for (int i = 0; i < mainSectionCount; i++) {
-            MainEventJsonData data = JsonUtility.FromJson<MainEventJsonData>(mainJsons[i].text);
-            Vector2 pos;
-            if(data.x == 0 && data.y == 0) { pos = RandomMainSection(); }
-            else { pos = new Vector2(data.x, data.y); }
+            SectionInfo info = ParseSectionInfo(mainJsons[i].text);
+            
+            Vector2 pos = (Mathf.Approximately(info.x, 0f) && Mathf.Approximately(info.y, 0f))
+                ? RandomMainSection()
+                : new Vector2(info.x, info.y);
 
             GameObject go = Instantiate(mainSectionPrefab, pos, Quaternion.identity);
             go.transform.SetParent(this.transform);
@@ -120,8 +135,8 @@ public class RandomSectionSpawner : MonoBehaviour {
 
             SectionData section = go.GetComponent<SectionData>();
             section.id              = $"StoryGameData/SectionData/SectionEvent/MainSection/Main{areaAsset.areaName}/{mainJsons[i].name}.json";
-            section.rate            = data.rate[0];
-            section.eventType       = data.eventType;
+            section.rate            = string.IsNullOrEmpty(info.rate) ? 'N' : info.rate[0];
+            section.eventType       = info.eventType;
             section.isVisited       = false;
             section.isCleared       = false;
             section.isPlayerOn      = false;
@@ -143,8 +158,11 @@ public class RandomSectionSpawner : MonoBehaviour {
 
         // 9) Create normal sections
         for (int i = 0; i < sectionCount; i++) {
-            EventJsonData data = JsonUtility.FromJson<EventJsonData>(eventJsons[i].text);
-            Vector2 pos = sectionPoints[i];
+            SectionInfo info = ParseSectionInfo(eventJsons[i].text);
+
+            Vector2 pos = (Mathf.Approximately(info.x, 0f) && Mathf.Approximately(info.y, 0f))
+                ? sectionPoints[i]
+                : new Vector2(info.x, info.y);
 
             GameObject go = Instantiate(sectionPrefab, new Vector3(pos.x, pos.y, 0f), Quaternion.identity);
             go.transform.SetParent(this.transform);
@@ -153,8 +171,8 @@ public class RandomSectionSpawner : MonoBehaviour {
 
             SectionData section = go.GetComponent<SectionData>();
             section.id              = $"StoryGameData/SectionData/SectionEvent/EventSection/{areaAsset.areaName}/{eventJsons[i].name}.json";
-            section.rate            = data.rate[0];
-            section.eventType       = data.eventType;
+            section.rate            = string.IsNullOrEmpty(info.rate) ? 'N' : info.rate[0];
+            section.eventType       = info.eventType;
             section.isVisited       = false;
             section.isCleared       = false;
             section.isPlayerOn      = false;
@@ -178,6 +196,16 @@ public class RandomSectionSpawner : MonoBehaviour {
         areaLocate.FindAreaPoint();
 
         #endregion
+    }
+
+    private static SectionInfo ParseSectionInfo(string json) {
+        var doc = JsonUtility.FromJson<SectionDoc>(json);
+        if(doc == null || doc.SectionInfo == null) {
+            Debug.LogError("Json파일 없음");
+            return new SectionInfo();
+        }
+
+        return doc.SectionInfo;
     }
 
     List<Vector2> GenerateGuaranteedPoints(int count, float minDist, float maxDist, float maxRadius, Vector2? current = null) {
@@ -212,7 +240,9 @@ public class RandomSectionSpawner : MonoBehaviour {
 
     Vector2 RandomMainSection() {
         System.Random rng = new System.Random(UniqueSeed());
-        return new Vector2(Random.Range(maxRadius * -1, maxRadius), Random.Range(maxRadius * -1, maxRadius));
+        float x = (float)(rng.NextDouble() * 2.0 - 1.0) * maxRadius;
+        float y = (float)(rng.NextDouble() * 2.0 - 1.0) * maxRadius;
+        return new Vector2(x, y);
     }
 
     void AdjustMainSection() {

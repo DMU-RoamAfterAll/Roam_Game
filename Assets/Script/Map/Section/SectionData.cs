@@ -1,14 +1,13 @@
 using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
-
 public class SectionData : MonoBehaviour {
     [Header("Game Data")]
     public GameObject sightObjects; //시야 오브젝트를 저장할 오브젝트
     public GameObject sightSectionPrefab; //시야 오브젝트 프리팹
 
     public List<LinkSection> linkSections;
-    public string id; //Section의 id값
+    public string id; //Section의 고유 id값
     public char rate; //Section의 등급 
     public string eventType; //Section의 이벤트 종류
     public bool isVisited; //Player가 와 본 Section인지
