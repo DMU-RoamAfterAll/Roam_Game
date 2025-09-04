@@ -965,6 +965,7 @@ GameObject:
   - component: {fileID: 994506508}
   - component: {fileID: 994506511}
   - component: {fileID: 994506509}
+  - component: {fileID: 994506510}
   m_Layer: 0
   m_Name: StoryEventManager
   m_TagString: Untagged
@@ -1045,7 +1046,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d68bcf7156763574086b09a76c1e014a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  accessToken: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjbnd2aWQiLCJpYXQiOjE3NTY0NDUzMDksImV4cCI6MTc1NjQ0NjIwOX0.x_rftka45R3ukljcCQ5TvY6efkaaeHSLh2MFRzT_5OKdGuEKPkL1QlFnGjWxpbnZVegNqO5r0-kI7CeHL6dnww
+  accessToken: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjbnd2aWQiLCJpYXQiOjE3NTY5NzQ1NTYsImV4cCI6MTc1Njk3NTQ1Nn0.NnACY7Imjua8bo8LVG9f-oRgaHb6T0e8Qa7nbbVrQ2w1gA-SHc1gBeMg6EXHKk9r-0Oqa73mF2EYMbOPOsvDJA
 --- !u!114 &994506511
 MonoBehaviour:
   m_ObjectHideFlags: 0

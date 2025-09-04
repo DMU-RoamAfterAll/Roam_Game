@@ -25,6 +25,7 @@ public class UserDataManager : MonoBehaviour
 
         yield return req.SendWebRequest();
 
+        //디버깅용 로그
         Debug.Log($"[{GetType().Name}] code={req.responseCode}, result={req.result}");
         if (req.result == UnityWebRequest.Result.Success)
             Debug.Log($"[{GetType().Name}] OK body='{req.downloadHandler.text}'");
@@ -64,8 +65,27 @@ public class UserDataManager : MonoBehaviour
         }
         catch (Exception ex)
         {
-            Debug.LogError($"[GetJsonList<{typeof(T).Name}>] parse fail: {ex.Message} body='{body}'");
+            Debug.LogError($"[{GetType().Name}] GetJsonList<{typeof(T).Name}> parse fail: {ex.Message} body='{body}'");
             onError?.Invoke(req.responseCode, "parse_error");
+        }
+    }
+
+    /// <summary>
+    /// api를 통해 유저의 아이템 정보를 불러오는 함수
+    /// **api 조회로 인한 성능 저하를 최소화 하기 위한 조치 필요**
+    /// </summary>
+    /// <param name="onResult">리퀘스트 성공시 콜백</param>
+    /// <param name="onError">리퀘스트 실패시 콜백</param>
+    /// <returns></returns>
+    public IEnumerator ItemCheck(Action<List<ItemData>> onResult = null, Action<long, string> onError = null)
+    {
+        string url =
+            $"{apiUrl}/api/inventory/items" +
+            $"?username={UnityWebRequest.EscapeURL(username)}";
+
+        using (var req = UnityWebRequest.Get(url))
+        {
+            yield return GetJsonList<ItemData>(req, onResult, onError);
         }
     }
 
@@ -103,6 +123,25 @@ public class UserDataManager : MonoBehaviour
 
         using (var req = UnityWebRequest.Delete(url))
             yield return SendApi(req);
+    }
+
+    /// <summary>
+    /// api를 통해 유저의 무기 정보를 불러오는 함수
+    /// **api 조회로 인한 성능 저하를 최소화 하기 위한 조치 필요**
+    /// </summary>
+    /// <param name="onResult">리퀘스트 성공시 콜백</param>
+    /// <param name="onError">리퀘스트 실패시 콜백</param>
+    /// <returns></returns>
+    public IEnumerator WeaponCheck(Action<List<WeaponData>> onResult = null, Action<long, string> onError = null)
+    {
+        string url =
+            $"{apiUrl}/api/inventory/weapons" +
+            $"?username={UnityWebRequest.EscapeURL(username)}";
+
+        using (var req = UnityWebRequest.Get(url))
+        {
+            yield return GetJsonList<WeaponData>(req, onResult, onError);
+        }
     }
 
     /// <summary>
@@ -159,9 +198,8 @@ public class UserDataManager : MonoBehaviour
             yield return SendApi(req);
     }
 
-
     /// <summary>
-    /// api를 통해 서버의 특정 플래그의 정보를 불러오는 함수
+    /// api를 통해 유저의 플래그 정보를 불러오는 함수
     /// **api 조회로 인한 성능 저하를 최소화 하기 위한 조치 필요**
     /// </summary>
     /// <param name="onResult">리퀘스트 성공시 콜백</param>

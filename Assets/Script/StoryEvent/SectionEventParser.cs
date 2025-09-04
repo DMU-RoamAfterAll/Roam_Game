@@ -15,31 +15,50 @@ public class SectionEventParser : MonoBehaviour
     {
         ActionNode action = new ActionNode();
 
-        // image 처리
+        //허용된 Action값 체크 변수
+        var allowedKeys = new HashSet<string>(StringComparer.Ordinal) //대소문자 구별
+        {
+            "image",
+            "checkI", "getI", "lostI",
+            "checkW", "getW", "lostW",
+            "flagSet", "flagCheck"
+        };
+
+        //알 수 없는 Action값 제외
+        foreach (var prop in actionObj.Properties())
+        {
+            if (!allowedKeys.Contains(prop.Name))
+            {
+                UnityEngine.Debug.LogWarning(
+                    $"[ParseActionNode] 알 수 없는 action 키: '{prop.Name}'  value={prop.Value}");
+            }
+        }
+
+        //올바른 Action 처리
         if (actionObj.TryGetValue("image", out var imgToken))
             action.image = imgToken.ToString();
+        
+        if (actionObj.TryGetValue("checkI", out var checkIToken))
+            action.checkI = ParseItemData(checkIToken);
 
-        // getI 처리
         if (actionObj.TryGetValue("getI", out var getIToken))
             action.getI = ParseItemData(getIToken);
 
-        // lostI 처리
         if (actionObj.TryGetValue("lostI", out var lostIToken))
             action.lostI = ParseItemData(lostIToken);
+        
+        if (actionObj.TryGetValue("checkW", out var checkWToken))
+            action.checkW = ParseWeaponData(checkWToken);
 
-        // getW 처리
         if (actionObj.TryGetValue("getW", out var getWToken))
             action.getW = ParseWeaponData(getWToken);
 
-        // lostW 처리
         if (actionObj.TryGetValue("lostW", out var lostWToken))
             action.lostW = ParseWeaponData(lostWToken);
 
-        // flagSet 처리
         if (actionObj.TryGetValue("flagSet", out var flagSetToken))
             action.flagSet = ParseStoryFlag(flagSetToken);
 
-        // flagCheck 처리
         if (actionObj.TryGetValue("flagCheck", out var flagCheckToken))
             action.flagCheck = ParseStoryFlag(flagCheckToken);
 
