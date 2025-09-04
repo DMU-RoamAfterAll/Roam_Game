@@ -11,6 +11,8 @@ public class CameraFollow : MonoBehaviour {
     private Vector2 lastTouchPosition;
 
     void Start() {
+        target = MapSceneDataManager.Instance.Player.transform;
+        
         smoothSpeed = 0.25f;
         moveSpeed = 20f;
         isLockOn = true;
@@ -38,7 +40,7 @@ public class CameraFollow : MonoBehaviour {
         cameraPosition.x += Time.deltaTime * horizontal * moveSpeed;
         cameraPosition.y += Time.deltaTime * vertical * moveSpeed;
 
-        this.transform.position = cameraPosition;
+        this.transform.position = new Vector3(cameraPosition.x, cameraPosition.y, -10f);
 
         #elif UNITY_IOS || UNITY_ANDROID
 
@@ -70,10 +72,9 @@ public class CameraFollow : MonoBehaviour {
         }
 
         Vector3 desiredPosition = target.position + offset;
-        desiredPosition.z = -10f; // 2D 카메라는 일반적으로 z축 -10에 위치
 
         Vector3 smoothedPosition = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed);
-        transform.position = smoothedPosition;
+        transform.position = new Vector3(smoothedPosition.x, smoothedPosition.y, -10f);
     }
 
     public void SwitchLockOn() {

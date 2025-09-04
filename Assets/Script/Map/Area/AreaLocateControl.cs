@@ -150,6 +150,7 @@ public class AreaLocateControl : MonoBehaviour {
         this.gameObject.AddComponent<LinkSectionSpawner>();
 
         MapSceneDataManager.mapData.isMapSetUp = true;
+        Player.GetComponent<PlayerControl>().isCanMove = true;
         Player.GetComponent<PlayerControl>().DetectSection();
     }
 

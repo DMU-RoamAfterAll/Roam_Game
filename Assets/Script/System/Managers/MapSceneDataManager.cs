@@ -21,6 +21,9 @@ public class MapSceneDataManager : MonoBehaviour {
     public List<GameObject> mainSections;
 
     public StepManager stepManagerUI;
+    public SectionEnterBtn enterBtnUI;
+
+    public CameraZoom cameraZoom;
 
     ///Instance
     void Awake() {
@@ -38,7 +41,10 @@ public class MapSceneDataManager : MonoBehaviour {
 
         Player = GameObject.FindGameObjectWithTag(Tag.Player);
         originSection = GameObject.FindGameObjectWithTag(Tag.Origin);
+        cameraZoom = GameObject.FindGameObjectWithTag(Tag.ObjCamera).GetComponent<CameraZoom>();
         stepManagerUI = GameObject.FindGameObjectWithTag(Tag.StepUI).GetComponent<StepManager>();
+        enterBtnUI = GameObject.FindGameObjectWithTag(Tag.EnterBtnUI).GetComponent<SectionEnterBtn>();
+        enterBtnUI.gameObject.SetActive(false);
         playerLocate = "origin";
 
         mapSceneData.areaNumber = Regex.Matches(

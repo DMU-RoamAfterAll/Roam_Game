@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,18 +11,26 @@ public class PlayerControl : MonoBehaviour {
 
     [Header("Game Data")]
     public float maxDistance;
+    public CameraZoom cameraZoom;
+
+    public bool isCanMove;
+    bool _confirmBusy;
 
     void Start() {
+        isCanMove = false;
+        _confirmBusy = false;
         currentSection = this.transform.parent.gameObject;
+
         maxDistance = MapSceneDataManager.mapData.initialMaxDistance;
+        cameraZoom = MapSceneDataManager.Instance.cameraZoom;
     }
 
     void Update() {
-        if(MapSceneDataManager.mapData.isMapSetUp) MovePlayerToSection(); //맵 생성이 안료되었을 때 이동 가능
+        if(isCanMove) ClickSection(); //맵 생성이 안료되었을 때 이동 가능
     }
 
     ///클릭한 Section이 이미 방문아혔거나 감지범위 내일때 플레이어의 위치 이동 혹은 VirualSection을 통해서 이동
-    void MovePlayerToSection() {
+    void ClickSection() {
         // 1) 입력 처리 (마우스 클릭 또는 터치)
         bool inputDown =
             Input.GetMouseButtonDown(0)
@@ -41,19 +50,12 @@ public class PlayerControl : MonoBehaviour {
             || hit.collider.CompareTag(Tag.MainSection)
             || hit.collider.CompareTag(Tag.Origin)
             || hit.collider.CompareTag(Tag.IrisSection)) {
-
+                
                 var sd = hit.collider.GetComponent<SectionData>();
                 // ← 여기서 비용 체크
 
-                Debug.Log("실제 필요한 StepCost = " + GetStepCost(sd.sectionPosition));
-                if (!MapSceneDataManager.Instance.stepManagerUI.TryConsumeSteps(sd.stepCost)) return;
-
-                // 비용이 충분하면 실제 이동 처리
-                preSection = transform.parent.gameObject;
-                currentSection = hit.collider.gameObject;
-                sectionData = sd;
-                Move(currentSection, sectionData);
-                return;
+                _ = HandleSectionClickAsync(hit.collider.gameObject, sd);
+                return;    
             }
 
             // 가상 섹션(범위 초과) 클릭 시
@@ -61,24 +63,50 @@ public class PlayerControl : MonoBehaviour {
                 var vsd = hit.collider.GetComponent<VirtualSectionData>();
                 var realSd = vsd.truthSection.GetComponent<SectionData>();
                 // ← 동일하게 비용 체크
-                if (!MapSceneDataManager.Instance.stepManagerUI.TryConsumeSteps(realSd.stepCost)) return;
-
-                preSection = transform.parent.gameObject;
-                currentSection = vsd.truthSection;
-                sectionData = realSd;
-                Move(currentSection, sectionData);
+                _ = HandleSectionClickAsync(vsd.truthSection, realSd);
                 return;
             }
         }
     }
 
-    void Move(GameObject currentObj, SectionData sectionData) {
+    async Task HandleSectionClickAsync(GameObject targetObj, SectionData sd) {
+        cameraZoom.ZoomInSection(targetObj.transform.position);
+
+        if(_confirmBusy) return;
+        _confirmBusy = true;
+
+        try {
+            Debug.Log("Need StepCost = " + GetStepCost(sd.sectionPosition));
+
+            bool ok = await MapSceneDataManager.Instance.enterBtnUI.ShowConfirmBtn("Move To Section?");
+            if(!ok) return;
+
+            if(!MapSceneDataManager.Instance.stepManagerUI.TryConsumeSteps(sd.stepCost)) {
+                Debug.Log("You Need More Step");
+                return;
+            }
+            
+            //StoryScene 진입
+
+            MoveToSection(targetObj, sd);
+        }
+        finally {
+            _confirmBusy = false;
+        }
+    }
+
+    void MoveToSection(GameObject currentObj, SectionData sectionD) {
+        cameraZoom.ZoomOutSection();
+        preSection = transform.parent.gameObject;
+        currentSection = currentObj;
+        sectionData = sectionD;
+
         this.transform.SetParent(currentObj.transform);
         this.transform.position = currentObj.transform.position; //Player의 위치 이동
 
-        sectionData.SetPlayerOnSection();
+        sectionD.SetPlayerOnSection();
         if(preSection.GetComponent<SectionData>() != null) preSection.GetComponent<SectionData>().SetPlayerOnSection(); //이동한 오브젝트의 상태 변환
-        sectionData.SetSight(); //sight오브젝트 추가
+        sectionD.SetSight(); //sight오브젝트 추가
         DetectSection();
     }
 
@@ -138,5 +166,5 @@ public class PlayerControl : MonoBehaviour {
     void OnDrawGizmos() {
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(this.transform.position, maxDistance);
-    } 
+    }
 }

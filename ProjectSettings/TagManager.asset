@@ -16,6 +16,8 @@ TagManager:
   - IrisSection
   - WeatherUI
   - EventSection
+  - EnterBtnUI
+  - ObjCamera
   layers:
   - Default
   - TransparentFX
