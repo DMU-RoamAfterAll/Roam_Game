@@ -82,12 +82,11 @@ public class PlayerControl : MonoBehaviour {
             if(!ok) return;
 
             if(!MapSceneDataManager.Instance.stepManagerUI.TryConsumeSteps(sd.stepCost)) {
+                cameraZoom.ZoomOutSection();
                 Debug.Log("You Need More Step");
                 return;
             }
             
-            //StoryScene 진입
-
             MoveToSection(targetObj, sd);
         }
         finally {
@@ -108,6 +107,9 @@ public class PlayerControl : MonoBehaviour {
         if(preSection.GetComponent<SectionData>() != null) preSection.GetComponent<SectionData>().SetPlayerOnSection(); //이동한 오브젝트의 상태 변환
         sectionD.SetSight(); //sight오브젝트 추가
         DetectSection();
+
+        SwitchSceneManager.Instance.sectionPath = sectionD.id;
+        SwitchSceneManager.Instance.MoveScene(SceneList.Story);
     }
 
     public void DetectSection() {
