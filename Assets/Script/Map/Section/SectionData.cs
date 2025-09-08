@@ -15,7 +15,6 @@ public class SectionData : MonoBehaviour {
     public bool isPlayerOn; //Player가 현재 이 Section에 위치하고 있는지
     public bool isCanMove; //Player가 이 Section으로 이동할 수 있는지
     public Vector2 sectionPosition; //이 Section의 위치
-    public int stepCost; //이 Section까지 이동하는데 필요한 걸음 수
 
     #region Section 시각화
 
@@ -27,7 +26,6 @@ public class SectionData : MonoBehaviour {
     void Start() {
         sightObjects = MapSceneDataManager.mapData.sightObjects;
         sightSectionPrefab = MapSceneDataManager.mapData.sightSectionPrefab;
-        stepCost = 100; //필요한 걸음 수 -> 변화 필요
 
         #region Section 시각화
 

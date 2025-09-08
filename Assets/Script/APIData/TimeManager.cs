@@ -4,15 +4,22 @@ using TMPro;
 using System.Globalization;
 
 public class TimeManager : MonoBehaviour {
-    public TMP_Text timeText;
+    public static TimeManager Instance { get; private set; } //씬에서 모두 접근 가능하도록 Instance화
 
-    void Start() {
-        timeText = this.GetComponent<TMP_Text>();
+    public DateTime currentTime;
+
+    void Awake() {
+        if (Instance != null && Instance != this)  {
+            Destroy(this.gameObject);
+            return;
+        }
+
+        DontDestroyOnLoad(this.gameObject);
+
+        Instance = this;
     }
 
     void Update() {
-        DateTime currentTime;
-
         #if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
 
         try {
@@ -32,6 +39,7 @@ public class TimeManager : MonoBehaviour {
 
         #endif
         CultureInfo enUS = new CultureInfo("en-US");
-        timeText.text = currentTime.ToString("dddd, MMMM d, yyyy - hh:mm:ss tt", enUS);
+
+        Debug.Log(currentTime);
     }
 }

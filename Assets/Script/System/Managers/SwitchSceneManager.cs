@@ -1,9 +1,12 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
 public class SwitchSceneManager : MonoBehaviour
 {
@@ -69,6 +72,7 @@ public class SwitchSceneManager : MonoBehaviour
         // 3) Map 활성화
         SetSceneRootActive(baseSceneName, true);
         SceneManager.SetActiveScene(baseScene);
+        DisableEnterBtnUIInScene(baseSceneName);
 
         // 4) (옵션) Boot 언로드
         if(unloadBootAfterEnterBase) {
@@ -146,6 +150,7 @@ public class SwitchSceneManager : MonoBehaviour
         {
             SetSceneRootActive(baseSceneName, true);
             SceneManager.SetActiveScene(SceneManager.GetSceneByName(baseSceneName));
+            DisableEnterBtnUIInScene(baseSceneName);
         }
 
         _busy = false;
@@ -165,6 +170,7 @@ public class SwitchSceneManager : MonoBehaviour
 
         SetSceneRootActive(baseSceneName, true);
         SceneManager.SetActiveScene(SceneManager.GetSceneByName(baseSceneName));
+        DisableEnterBtnUIInScene(baseSceneName);
 
         _busy = false;
     }
@@ -184,8 +190,27 @@ public class SwitchSceneManager : MonoBehaviour
         if (!_busy) StartCoroutine(CoPopOverlay());
     }
 
+    private static void DisableEnterBtnUIInScene(string sceneName)
+    {
+        var scene = SceneManager.GetSceneByName(sceneName);
+        if (!scene.isLoaded) return;
+
+        foreach (var root in scene.GetRootGameObjects())
+        {
+            var btn = root.GetComponentInChildren<SectionEnterBtn>(true);
+            if (btn != null)
+            {
+                btn.gameObject.SetActive(false);
+                Debug.Log($"[SwitchSceneManager] EnterBtnUI disabled in scene '{sceneName}' → {btn.gameObject.name}");
+                break;
+            }
+        }
+    }
+
+    #if UNITY_EDITOR
     [MenuItem("Tools/Scenes/GoTo MapScene")]
     public static void GoToMapScene() {
         SwitchSceneManager.Instance.MoveScene(SceneList.Map);
     }
+    #endif
 }

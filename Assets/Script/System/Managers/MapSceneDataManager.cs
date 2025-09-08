@@ -51,8 +51,7 @@ public class MapSceneDataManager : MonoBehaviour {
         cameraZoom = roots.SelectMany(r => r.GetComponentsInChildren<CameraZoom>(true)) // ★ 오타 수정
                           .FirstOrDefault();
 
-        stepManagerUI = roots.SelectMany(r => r.GetComponentsInChildren<StepManager>(true)) // ★ 오타 수정
-                             .FirstOrDefault();
+        stepManagerUI = StepManager.Instance;
 
         // enterBtnUI는 Start 코루틴에서 한 프레임 늦게 끌 것 (다른 스크립트가 켜는 것보다 나중에)
         // playerLocate 등 가벼운 값은 지금 세팅

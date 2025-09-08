@@ -6,9 +6,7 @@ using UnityEngine.Android;
 #endif
 
 public class StepManager : MonoBehaviour {
-    [Header("UI")]
-    public TMP_Text stepCountText;          // 하루 전체 걸음 수 표시
-    public TMP_Text availableStepsText;     // 남은 걸음 수 표시
+    public static StepManager Instance { get; private set; } //씬에서 모두 접근 가능하도록 Instance화
 
     #if UNITY_ANDROID && !UNITY_EDITOR
     private const string PERMISSION = "android.permission.ACTIVITY_RECOGNITION";
@@ -16,15 +14,21 @@ public class StepManager : MonoBehaviour {
     private bool isInitialized = false;
     #endif
 
-    private int rawStepCount;
-    public int availableSteps { get; private set; }
+    public int rawStepCount;
+    public int availableSteps;
+
+    void Awake() {
+        if (Instance != null && Instance != this)  {
+            Destroy(this.gameObject);
+            return;
+        }
+
+        DontDestroyOnLoad(this.gameObject);
+
+        Instance = this;
+    }
 
     void Start() {
-        if (stepCountText       == null) stepCountText       = GameObject.Find("StepCountText")      .GetComponent<TMP_Text>();
-        if (availableStepsText  == null) availableStepsText  = GameObject.Find("AvailableStepsText").GetComponent<TMP_Text>();
-
-        Application.targetFrameRate = 60;
-
         #if UNITY_ANDROID && !UNITY_EDITOR
         if (!Permission.HasUserAuthorizedPermission(PERMISSION))
             Permission.RequestUserPermission(PERMISSION);
@@ -47,12 +51,7 @@ public class StepManager : MonoBehaviour {
                 rawStepCount    += delta;
                 availableSteps  += delta;
             }
-
-            // 3) UI 출력
-            UpdateUI();
         }
-        #else
-        UpdateUI();
         #endif
     }
 
@@ -73,8 +72,6 @@ public class StepManager : MonoBehaviour {
         }
         catch (System.Exception ex) {
             Debug.LogError($"[StepManager] 초기화 실패: {ex}");
-            stepCountText.text = "StepSensor Init Fail!";
-            availableStepsText.text = "N/A";
         }
     }
     #endif
@@ -90,14 +87,7 @@ public class StepManager : MonoBehaviour {
 
     // Java 측에서 센서를 찾지 못했을 때 호출
     public void OnStepSensorUnavailable() {
-        stepCountText.text      = "Can't Attach Sensor";
-        availableStepsText.text = "N/A";
         Debug.LogWarning("[StepManager] 걸음 센서가 감지되지 않았습니다.");
-    }
-
-    public void UpdateUI() {
-        stepCountText.text       = $"Total Steps: {rawStepCount:N0}";
-        availableStepsText.text  = $"Available Steps: {availableSteps:N0}";
     }
 
     #if UNITY_EDITOR
@@ -105,7 +95,6 @@ public class StepManager : MonoBehaviour {
     [ContextMenu("+ 100 steps")]
     private void Add100Steps() {
         availableSteps += 100;
-        UpdateUI();
     }
     #endif
 }

@@ -17,8 +17,26 @@ public class CreateAreaAssets : MonoBehaviour {
 
     public string[] jsonUrls;
 
-    async void Start() {
-        jsonUrls = new [] {
+    #if UNITY_EDITOR
+    private async void Start() {
+        jsonUrls = BuildUrls();
+        folderPath = MapSceneDataManager.mapData.areaAssetDataFolderPath;
+
+        if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+        await CreateAreaDataAssets();
+    }
+    #else
+    private void Start() {
+        jsonUrls = BuildUrls();
+        folderPath = Path.Combine(Application.persistentDataPath, "AreaAssetData");
+
+        if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+        StartCoroutine(CreateAreaAssetsRunTime());
+    }
+    #endif
+
+    private string[] BuildUrls() {
+        return new [] {
             $"{GameDataManager.Data.baseUrl}/CNWV/Resources/AreaAssetData/ForestSection.json",
             $"{GameDataManager.Data.baseUrl}/CNWV/Resources/AreaAssetData/HollowSection.json",
             $"{GameDataManager.Data.baseUrl}/CNWV/Resources/AreaAssetData/Area03.json",
@@ -26,20 +44,6 @@ public class CreateAreaAssets : MonoBehaviour {
             $"{GameDataManager.Data.baseUrl}/CNWV/Resources/AreaAssetData/Area05.json",
             $"{GameDataManager.Data.baseUrl}/CNWV/Resources/AreaAssetData/TutorialSection.json"
         };
-
-        #if UNITY_EDITOR
-            folderPath = MapSceneDataManager.mapData.areaAssetDataFolderPath;
-        #else
-            folderPath = Path.Combine(Application.persistentDataPath, "AreaAssetData");
-        #endif
-
-        if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
-
-        #if UNITY_EDITOR
-            await CreateAreaDataAssets();
-        #else
-            StartCoroutine(CreateAreaAssetsRunTime());
-        #endif
     }
 
 #if UNITY_EDITOR
@@ -126,9 +130,10 @@ public class CreateAreaAssets : MonoBehaviour {
                 var mgr = go.AddComponent<AreaAssetManager>();
                 mgr.areaAsset = jsonData;
 
-                GameDataManager.Instance.areaObjects.Add(go);
+                if(MapSceneDataManager.Instance != null) MapSceneDataManager.Instance.areaObjects.Add(go);
+                else Debug.LogError("[CreateAreaAssets] MapSceneDataManager.Instance is null");
 
-                Debug.Log($"[CreateAreaAssets] Created AreaObject: {go.name}, total count = {GameDataManager.Instance.areaObjects.Count}");
+                Debug.Log($"[CreateAreaAssets] Created AreaObject: {go.name}, total count = {MapSceneDataManager.Instance.areaObjects.Count}");
             }
         }
 

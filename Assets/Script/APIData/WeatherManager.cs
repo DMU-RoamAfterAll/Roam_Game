@@ -8,7 +8,7 @@ using UnityEngine.Android;
 
 
 public class WeatherManager : MonoBehaviour {
-    public TMP_Text weatherText;
+    public static WeatherManager Instance { get; private set; } //씬에서 모두 접근 가능하도록 Instance화
 
     private string baseUrl;
     public string city = "Seoul";
@@ -16,10 +16,21 @@ public class WeatherManager : MonoBehaviour {
     private float _lastRequestTime = -Mathf.Infinity;
     private const float REQUEST_COOLDOWN = 60f;
 
+    public WeatherResponse resp;
+
+    void Awake() {
+        if (Instance != null && Instance != this)  {
+            Destroy(this.gameObject);
+            return;
+        }
+
+        DontDestroyOnLoad(this.gameObject);
+
+        Instance = this;
+    }
 
     void Start() {
-        weatherText = GameObject.FindGameObjectWithTag(Tag.WeatherUI).GetComponent<TMP_Text>();
-        baseUrl = $"http://125.176.246.14:8000";
+        baseUrl = $"{GameDataManager.Data.baseUrl}:8000";
 
         RefreshWeather();
 
@@ -32,7 +43,6 @@ public class WeatherManager : MonoBehaviour {
 
     public void RefreshWeather() {
         if(Time.time < _lastRequestTime + REQUEST_COOLDOWN) {
-            weatherText.text = "Loading...";
             return;
         }
 
@@ -49,7 +59,6 @@ public class WeatherManager : MonoBehaviour {
         #elif UNITY_IOS || UNITY_ANDROID
 
         if(!Input.location.isEnabledByUser) {
-            weatherText.text = "locate system is off";
             yield break;
         }
 
@@ -62,7 +71,6 @@ public class WeatherManager : MonoBehaviour {
         }
 
         if(Input.location.status == LocationServiceStatus.Failed) {
-            weatherText.text = "cant bring locate";
             yield break;
         }
         else {
@@ -74,7 +82,7 @@ public class WeatherManager : MonoBehaviour {
 
         #else
 
-        weatherText.text = "cant support platform";
+        Debug.Log("Not Support Platform")
 
         #endif
     }
@@ -97,25 +105,19 @@ public class WeatherManager : MonoBehaviour {
         if (www.result == UnityWebRequest.Result.ConnectionError ||
             www.result == UnityWebRequest.Result.ProtocolError) 
         {
-            weatherText.text = $"Error: {www.error}";
+            Debug.Log("Error");
         }
         else {
             // (1) JSON 전체를 로그로 확인해 보면 확실합니다.
             Debug.Log($"Weather JSON: {www.downloadHandler.text}");
 
             // (2) 새 스펙으로 파싱
-            var resp = JsonUtility.FromJson<WeatherResponse>(www.downloadHandler.text);
-
-            // (3) 화면에 도시·날씨·온도 모두 표시
-            weatherText.text =
-                $"CITY : {resp.city}\n" +
-                $"WEATHER : {resp.description}\n" +
-                $"TEMP : {resp.temp:0.0}";
+            resp = JsonUtility.FromJson<WeatherResponse>(www.downloadHandler.text);
         }
     }
 
     [System.Serializable]
-    private class WeatherResponse {
+    public class WeatherResponse {
         public string description;
         public float temp;
         public string city;

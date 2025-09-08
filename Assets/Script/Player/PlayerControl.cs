@@ -81,7 +81,7 @@ public class PlayerControl : MonoBehaviour {
             bool ok = await MapSceneDataManager.Instance.enterBtnUI.ShowConfirmBtn("Move To Section?");
             if(!ok) return;
 
-            if(!MapSceneDataManager.Instance.stepManagerUI.TryConsumeSteps(sd.stepCost)) {
+            if(!MapSceneDataManager.Instance.stepManagerUI.TryConsumeSteps(GetStepCost(sd.sectionPosition))) {
                 cameraZoom.ZoomOutSection();
                 Debug.Log("You Need More Step");
                 return;
