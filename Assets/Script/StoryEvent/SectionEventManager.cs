@@ -24,12 +24,14 @@ public class CommonNode
 public class ActionNode
 {
     public string image; //삽화를 변경하기 위한 삽화 명을 작성하는 노드, 본문을 출력하기 전 삽화 변경이 이루어짐
+    public List<ItemData> checkI; //아이템 수량 확인을 위한 노드, <"아이템 코드", 갯수>형식으로 작성
     public List<ItemData> getI; //아이템 획득 기능을 위한 노드, <"아이템 코드", 갯수>형식으로 작성
     public List<ItemData> lostI; //아이템 유실 기능을 위한 노드, <"아이템 코드", 갯수>형식으로 작성
-    public List<WeaponData> getW; //무기 획득 기능을 위한 노드, `<"무기 코드", 갯수>` 형식으로 작성
-    public List<WeaponData> lostW; //무기 유실 기능을 위한 노드, `<"무기 코드", 갯수>` 형식으로 작성
-    public List<FlagData> flagSet; //플래그 설정을 위한 플래그 명을 작성하는 노드, <"플래그명", boolean>형식으로 작성
-    public List<FlagData> flagCheck; //본문을 내보내기 위해 플래그를 확인하는 노드, <"플래그명", boolean>형식으로 작성
+    public List<WeaponData> checkW; //무기 수량 확인을 위한 노드, <"무기 코드", 갯수> 형식으로 작성
+    public List<WeaponData> getW; //무기 획득 기능을 위한 노드, <"무기 코드", 갯수> 형식으로 작성
+    public List<WeaponData> lostW; //무기 유실 기능을 위한 노드, <"무기 코드", 갯수> 형식으로 작성
+    public List<FlagData> flagSet; //플래그 설정을 위한 플래그 명을 작성을 위한 노드, <"플래그명", boolean>형식으로 작성
+    public List<FlagData> flagCheck; //본문을 내보내기 위해 플래그를 확인을 위한 노드, <"플래그명", boolean>형식으로 작성
                                       //(리스트 형식으로 복수 체크 가능)
 }
 
@@ -166,8 +168,13 @@ public class SectionEventManager : MonoBehaviour
             string key = pair.Key;
             JObject nodeObj = (JObject)pair.Value;
 
+            //세션 정보 무시
+            if (key == "SectionInfo")
+            {
+                continue;
+            }
             //본문과 선택지 여부에 따라 저장
-            if (key.StartsWith("Menu"))
+            else if (key.StartsWith("Menu"))
             {
                 MenuNode menu = nodeObj.ToObject<MenuNode>();
                 sectionData[key] = menu; //키가 존재하지 않으면 동적 추가
@@ -183,7 +190,7 @@ public class SectionEventManager : MonoBehaviour
                 //action 수동 파싱
                 if (nodeObj.TryGetValue("action", out var actionToken))
                     text.action = sectionEventParser.ParseActionNode((JObject)actionToken);
-                
+
                 sectionData[key] = text; //키가 존재하지 않으면 동적 추가
             }
             else
@@ -271,6 +278,43 @@ public class SectionEventManager : MonoBehaviour
             }
         }
 
+        //아이템 체크
+        if (actions.checkI != null && actions.checkI.Count > 0 && actions.checkI is List<ItemData> checkIData)
+        {
+            foreach (ItemData actionItem in checkIData)
+            {
+                if (actionItem != null && actionItem.itemCode != "" && actionItem.amount >= 0 &&
+                actionItem.itemCode is string itemCode && actionItem.amount is int amount)
+                {
+                    ItemDataNode itemData = itemDataManager.GetItemByCode(itemCode);
+
+                    StartCoroutine(userDataManager.ItemCheck( //api 메소드
+                        onResult: list =>
+                        {
+                            foreach (var it in list)
+                            {
+                                if (itemCode == it.itemCode)
+                                {
+                                    if (amount <= it.amount)
+                                    {
+                                        Debug.Log($"{itemData.name}의 수량이 필요 수량을 만족합니다.");
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        Debug.Log($"{itemData.name}의 수량이 필요 수량을 만족하지 않습니다. (추가 필요 수량 : {amount - it.amount})");
+                                        break;
+                                    }
+                                }
+                            }
+                        },
+                        onError: (code, msg) => Debug.LogError($"[{GetType().Name}] 아이템 불러오기 실패: {code}/{msg}")
+                        )
+                    );
+                }
+            }
+        }
+
         //아이템 획득
         if (actions.getI != null && actions.getI.Count > 0 && actions.getI is List<ItemData> getIData)
         {
@@ -283,7 +327,7 @@ public class SectionEventManager : MonoBehaviour
 
                     //테스트 출력
                     Debug.Log($"\'{itemData.code}\'아이템을 {amount}개 획득했습니다.");
-                    StartCoroutine(userDataManager.GetItem(itemData.code,amount)); //api 메소드
+                    StartCoroutine(userDataManager.GetItem(itemData.code, amount)); //api 메소드
                 }
             }
         }
@@ -304,6 +348,43 @@ public class SectionEventManager : MonoBehaviour
                 }
             }
         }
+        
+        //무기 체크
+        if (actions.checkW != null && actions.checkW.Count > 0 && actions.checkW is List<WeaponData> checkWData)
+        {
+            foreach (WeaponData actionWeapon in checkWData)
+            {
+                if (actionWeapon != null && actionWeapon.weaponCode != "" && actionWeapon.amount >= 0 &&
+                actionWeapon.weaponCode is string weaponCode && actionWeapon.amount is int amount)
+                {
+                    WeaponDataNode weaponData = weaponDataManager.GetWeaponByCode(weaponCode);
+
+                    StartCoroutine(userDataManager.WeaponCheck( //api 메소드
+                        onResult: list =>
+                        {
+                            foreach (var it in list)
+                            {
+                                if (weaponCode == it.weaponCode)
+                                {
+                                    if (amount <= it.amount)
+                                    {
+                                        Debug.Log($"{weaponData.name}의 수량이 필요 수량을 만족합니다.");
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        Debug.Log($"{weaponData.name}의 수량이 필요 수량을 만족하지 않습니다. (추가 필요 수량 : {amount - it.amount})");
+                                        break;
+                                    }
+                                }
+                            }
+                        },
+                        onError: (code, msg) => Debug.LogError($"[{GetType().Name}] 무기 불러오기 실패: {code}/{msg}")
+                        )
+                    );
+                }
+            }
+        }
 
         //무기 획득
         if (actions.getW != null && actions.getW.Count > 0 && actions.getW is List<WeaponData> getWData)
@@ -317,7 +398,7 @@ public class SectionEventManager : MonoBehaviour
 
                     //테스트 출력
                     Debug.Log($"\'{weaponData.code}\'무기를 {amount}개 획득했습니다.");
-                    StartCoroutine(userDataManager.GetWeapon(weaponData.code,amount)); //api 메소드
+                    StartCoroutine(userDataManager.GetWeapon(weaponData.code, amount)); //api 메소드
                 }
             }
         }
@@ -351,7 +432,7 @@ public class SectionEventManager : MonoBehaviour
 
                     //테스트 출력
                     Debug.Log($"\'{FlagData.name}\'플래그 상태를 {flagState}로 변경했습니다.");
-                    StartCoroutine(userDataManager.FlagSet(FlagData.code,flagState)); //api 메소드
+                    StartCoroutine(userDataManager.FlagSet(flagCode,flagState)); //api 메소드
                 }
             }
         }
@@ -373,11 +454,13 @@ public class SectionEventManager : MonoBehaviour
                                 if (flagCode == it.flagCode) {
                                     if (flagState == it.flagState)
                                     {
-                                        Debug.Log($"{it.flagCode}는 {flagState}를 만족합니다."); //테스트 출력
+                                        Debug.Log($"{FlagData.name}는 {flagState}를 만족합니다."); //테스트 출력
+                                        break;
                                     }
                                     else
                                     {
-                                        Debug.Log($"{it.flagCode}는 {flagState}를 만족하지 않습니다."); //테스트 출력
+                                        Debug.Log($"{FlagData.name}는 {flagState}를 만족하지 않습니다."); //테스트 출력
+                                        break;
                                     }
                                 }
                             }
