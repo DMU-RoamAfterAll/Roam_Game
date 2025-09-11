@@ -39,7 +39,5 @@ public class TimeManager : MonoBehaviour {
 
         #endif
         CultureInfo enUS = new CultureInfo("en-US");
-
-        Debug.Log(currentTime);
     }
 }
