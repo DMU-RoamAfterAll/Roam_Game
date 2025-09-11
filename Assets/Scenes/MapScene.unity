@@ -932,7 +932,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 233b4fe734de0467298f7bb81ae89996, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timeText: {fileID: 0}
 --- !u!114 &508152743
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1774,8 +1773,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b88bbff13c49b4468835d31117b13327, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stepCountText: {fileID: 0}
-  availableStepsText: {fileID: 0}
+  rawStepCount: 0
+  availableSteps: 0
 --- !u!1 &1067312535
 GameObject:
   m_ObjectHideFlags: 0
@@ -2121,8 +2120,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 884cad6753b0843b882392ca145ad2dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weatherText: {fileID: 0}
   city: Seoul
+  resp:
+    description: 
+    temp: 0
+    city: 
 --- !u!1001 &1287388724
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2541,7 +2543,11 @@ PrefabInstance:
       objectReference: {fileID: 973027712}
     - target: {fileID: 7675655915877188070, guid: c666e3791405dc040b097ef4ce2294eb, type: 3}
       propertyPath: m_RenderMode
-      value: 0
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7675655915877188070, guid: c666e3791405dc040b097ef4ce2294eb, type: 3}
+      propertyPath: m_SortingOrder
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 7675655915877188070, guid: c666e3791405dc040b097ef4ce2294eb, type: 3}
       propertyPath: m_PlaneDistance
@@ -3324,7 +3330,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!212 &1490040433
 SpriteRenderer:
   m_ObjectHideFlags: 0
