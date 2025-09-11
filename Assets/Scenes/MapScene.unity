@@ -2424,7 +2424,11 @@ PrefabInstance:
       objectReference: {fileID: 973027712}
     - target: {fileID: 7675655915877188070, guid: c666e3791405dc040b097ef4ce2294eb, type: 3}
       propertyPath: m_RenderMode
-      value: 0
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7675655915877188070, guid: c666e3791405dc040b097ef4ce2294eb, type: 3}
+      propertyPath: m_SortingOrder
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 7675655915877188070, guid: c666e3791405dc040b097ef4ce2294eb, type: 3}
       propertyPath: m_PlaneDistance
@@ -3207,7 +3211,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!212 &1490040433
 SpriteRenderer:
   m_ObjectHideFlags: 0
