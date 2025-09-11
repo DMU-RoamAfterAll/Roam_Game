@@ -41,7 +41,7 @@ public class SectionData : MonoBehaviour {
     }
 
     ///플레이어가 처음 Section에 도달했을 때 시야 프리팹 생성
-    public void SetOption() {
+    public void SetSight() {
         if(!isVisited) {
             isVisited = true;
         }
