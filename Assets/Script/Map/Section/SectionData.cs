@@ -2,10 +2,6 @@ using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
 public class SectionData : MonoBehaviour {
-    [Header("Game Data")]
-    public GameObject sightObjects; //시야 오브젝트를 저장할 오브젝트
-    public GameObject sightSectionPrefab; //시야 오브젝트 프리팹
-
     public List<LinkSection> linkSections;
     public string id; //Section의 고유 id값
     public char rate; //Section의 등급 
@@ -24,9 +20,6 @@ public class SectionData : MonoBehaviour {
     #endregion
 
     void Start() {
-        sightObjects = MapSceneDataManager.mapData.sightObjects;
-        sightSectionPrefab = MapSceneDataManager.mapData.sightSectionPrefab;
-
         #region Section 시각화
 
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -48,17 +41,12 @@ public class SectionData : MonoBehaviour {
     }
 
     ///플레이어가 처음 Section에 도달했을 때 시야 프리팹 생성
-    public void SetSight() {
+    public void SetOption() {
         if(!isVisited) {
             isVisited = true;
         }
         else {
             return;
-        }
-
-        if(isVisited) {
-            GameObject go = Instantiate(sightSectionPrefab, this.transform.position, Quaternion.identity);
-            go.transform.SetParent(sightObjects.transform);
         }
     }
 

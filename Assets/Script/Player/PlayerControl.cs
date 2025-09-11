@@ -105,7 +105,7 @@ public class PlayerControl : MonoBehaviour {
 
         sectionD.SetPlayerOnSection();
         if(preSection.GetComponent<SectionData>() != null) preSection.GetComponent<SectionData>().SetPlayerOnSection(); //이동한 오브젝트의 상태 변환
-        sectionD.SetSight(); //sight오브젝트 추가
+        sectionD.SetOption();
         DetectSection();
 
         SwitchSceneManager.Instance.sectionPath = sectionD.id;

@@ -56,13 +56,6 @@ public class MapSceneDataManager : MonoBehaviour {
         // enterBtnUI는 Start 코루틴에서 한 프레임 늦게 끌 것 (다른 스크립트가 켜는 것보다 나중에)
         // playerLocate 등 가벼운 값은 지금 세팅
         playerLocate = "origin";
-
-        // 전역 Find 대신 씬-로컬로 SightObjects도 찾아보기 (가능하면)
-        var sightObjects = roots.SelectMany(r => r.GetComponentsInChildren<Transform>(true))
-                                .Select(t => t.gameObject)
-                                .FirstOrDefault(go => go.name == "SightObjects");
-        if (sightObjects != null) mapSceneData.sightObjects = sightObjects;
-        else mapSceneData.sightObjects = GameObject.Find("SightObjects"); // 최후의 수단
     }
 
     // ★ 한 프레임 늦춰서 UI 토글/원격 카운트 등 처리

@@ -22,10 +22,6 @@ public class MapSceneData : ScriptableObject {
     public GameObject sectionPrefab;
     public GameObject mainSectionPrefab;
     public GameObject linkSectionPrefab;
-    public GameObject sightSectionPrefab;
     public GameObject riverSectionPrefab;
     public GameObject IrisSectionPrefab;
-    
-    [Header("Object")]
-    public GameObject sightObjects; //시야 오브젝트를 모아두는 오브젝트
 }
