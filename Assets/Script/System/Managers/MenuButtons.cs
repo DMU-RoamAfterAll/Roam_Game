@@ -15,11 +15,11 @@ public class MenuButtons : MonoBehaviour {
     }
 
     public void OnClickNewGame() {
-        if(SaveLoadManager.Instance != null) {
-            SaveLoadManager.Instance.DeleteSave();
-        }
+        SaveLoadManager.Instance.NewGameClear(true);
 
         SwitchSceneManager.Instance.EnterBaseFromBoot();
+
+        SaveLoadManager.Instance.SaveNow();
     }
 
     public void OnClickContinue() {
@@ -33,16 +33,8 @@ public class MenuButtons : MonoBehaviour {
                 yield break;
             }
 
+            SaveLoadManager.Instance.pendingLoadData = data;
             SwitchSceneManager.Instance.EnterBaseFromBoot();
-
-            yield return new WaitUntil(() => {
-                var map = SceneManager.GetSceneByName(mapSceneName);
-                return map.IsValid() && map.isLoaded;
-            });
-
-            yield return new WaitUntil(() => SceneManager.GetActiveScene().name == mapSceneName);
-            yield return null;
-
-            yield return SaveLoadManager.Instance.ApplyLoadedData(data);
+            yield break;
     }
 }

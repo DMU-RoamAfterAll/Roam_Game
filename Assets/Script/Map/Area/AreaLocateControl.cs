@@ -149,9 +149,18 @@ public class AreaLocateControl : MonoBehaviour {
 
         this.gameObject.AddComponent<LinkSectionSpawner>();
 
+        var slm = SaveLoadManager.Instance;
+        if (slm != null && slm.pendingLoadData != null) {
+            Debug.Log("[AreaLocate] Applying pending save after map assembled");
+            yield return StartCoroutine(slm.ApplyLoadedData(slm.pendingLoadData));
+            slm.pendingLoadData = null;
+        }
+   
+
         MapSceneDataManager.mapData.isMapSetUp = true;
         Player.GetComponent<PlayerControl>().isCanMove = true;
         Player.GetComponent<PlayerControl>().DetectSection();
+        Debug.Log("Detect Section");
     }
 
     void CreateRiverSection() {

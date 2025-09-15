@@ -1400,6 +1400,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff4f607be53e34c1d897521ae30fdb58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  sectionDatas: []
+  save:
+    playerName: 
+    originSeed: 0
+    playerPos: {x: 0, y: 0, z: 0}
+    currentSectionId: 
+    preSectionId: 
+    visitedSectionIds: []
   path: 
   folder: 
   autoSaveOnPause: 1

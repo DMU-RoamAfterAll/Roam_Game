@@ -210,8 +210,8 @@ public class SwitchSceneManager : MonoBehaviour
     #if UNITY_EDITOR
     [MenuItem("Tools/Scenes/GoTo MapScene")]
     public static void GoToMapScene() {
-        SaveLoadManager.Instance?.SaveNow();
         SwitchSceneManager.Instance.MoveScene(SceneList.Map);
+        SaveLoadManager.Instance?.SaveNow();
     }
     #endif
 }
