@@ -1,18 +1,14 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\minig\\Roam_Game\\",
+  "WorkspaceRootPath": "C:\\Users\\minig\\Roam_Game\\Roam_Game\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{9FC98CB6-278D-CCBF-F6DA-B274B5CF8F59}|Assembly-CSharp.csproj|c:\\users\\minig\\roam_game\\assets\\script\\user\\loginmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9FC98CB6-278D-CCBF-F6DA-B274B5CF8F59}|Assembly-CSharp.csproj|solutionrelative:assets\\script\\user\\loginmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{9FC98CB6-278D-CCBF-F6DA-B274B5CF8F59}|Assembly-CSharp.csproj|C:\\Users\\minig\\Roam_Game\\Roam_Game\\assets\\script\\ui\\charinfo\\expandablepanel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9FC98CB6-278D-CCBF-F6DA-B274B5CF8F59}|Assembly-CSharp.csproj|solutionrelative:assets\\script\\ui\\charinfo\\expandablepanel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\minig\\Roam_Game\\Assets\\Script\\UI\\FixLayout.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Script\\UI\\FixLayout.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\minig\\Roam_Game\\Assets\\Script\\UI\\HideScrollbar.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Script\\UI\\HideScrollbar.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{9FC98CB6-278D-CCBF-F6DA-B274B5CF8F59}|Assembly-CSharp.csproj|c:\\users\\minig\\roam_game\\roam_game\\assets\\script\\ui\\charinfo\\scrolltoreveal.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9FC98CB6-278D-CCBF-F6DA-B274B5CF8F59}|Assembly-CSharp.csproj|solutionrelative:assets\\script\\ui\\charinfo\\scrolltoreveal.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -22,42 +18,33 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "LoginManager.cs",
-              "DocumentMoniker": "C:\\Users\\minig\\Roam_Game\\Assets\\Script\\User\\LoginManager.cs",
-              "RelativeDocumentMoniker": "Assets\\Script\\User\\LoginManager.cs",
-              "ToolTip": "C:\\Users\\minig\\Roam_Game\\Assets\\Script\\User\\LoginManager.cs",
-              "RelativeToolTip": "Assets\\Script\\User\\LoginManager.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACgAAABDAAAAAAAAAA==",
+              "DocumentIndex": 1,
+              "Title": "ScrollToReveal.cs",
+              "DocumentMoniker": "C:\\Users\\minig\\Roam_Game\\Roam_Game\\Assets\\Script\\UI\\CharInfo\\ScrollToReveal.cs",
+              "RelativeDocumentMoniker": "Assets\\Script\\UI\\CharInfo\\ScrollToReveal.cs",
+              "ToolTip": "C:\\Users\\minig\\Roam_Game\\Roam_Game\\Assets\\Script\\UI\\CharInfo\\ScrollToReveal.cs",
+              "RelativeToolTip": "Assets\\Script\\UI\\CharInfo\\ScrollToReveal.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAEAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-13T05:34:50.899Z",
+              "WhenOpened": "2025-09-15T07:54:36.165Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "FixLayout.cs",
-              "DocumentMoniker": "C:\\Users\\minig\\Roam_Game\\Assets\\Script\\UI\\FixLayout.cs",
-              "RelativeDocumentMoniker": "Assets\\Script\\UI\\FixLayout.cs",
-              "ToolTip": "C:\\Users\\minig\\Roam_Game\\Assets\\Script\\UI\\FixLayout.cs",
-              "RelativeToolTip": "Assets\\Script\\UI\\FixLayout.cs",
+              "DocumentIndex": 0,
+              "Title": "ExpandablePanel.cs",
+              "DocumentMoniker": "C:\\Users\\minig\\Roam_Game\\Roam_Game\\Assets\\Script\\UI\\CharInfo\\ExpandablePanel.cs",
+              "RelativeDocumentMoniker": "Assets\\Script\\UI\\CharInfo\\ExpandablePanel.cs",
+              "ToolTip": "C:\\Users\\minig\\Roam_Game\\Roam_Game\\Assets\\Script\\UI\\CharInfo\\ExpandablePanel.cs",
+              "RelativeToolTip": "Assets\\Script\\UI\\CharInfo\\ExpandablePanel.cs",
+              "ViewState": "AgIAABkAAAAAAAAAAAAQwCgAAAAbAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-02T11:46:51.089Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "HideScrollbar.cs",
-              "DocumentMoniker": "C:\\Users\\minig\\Roam_Game\\Assets\\Script\\UI\\HideScrollbar.cs",
-              "RelativeDocumentMoniker": "Assets\\Script\\UI\\HideScrollbar.cs",
-              "ToolTip": "C:\\Users\\minig\\Roam_Game\\Assets\\Script\\UI\\HideScrollbar.cs",
-              "RelativeToolTip": "Assets\\Script\\UI\\HideScrollbar.cs",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-02T02:26:00.76Z"
+              "WhenOpened": "2025-09-15T07:52:31.421Z",
+              "EditorCaption": ""
             }
           ]
         }
