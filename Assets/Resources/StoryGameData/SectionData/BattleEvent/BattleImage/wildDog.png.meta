@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: d5c517a2fac9fc14aba22395ea1dde01
+guid: 85dc06b725b5a8343a75131d43953c23
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4201181039601258628
-    second: F1_0
+      213: -8011182965245656395
+    second: wildDog_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,7 +100,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: F1_0
+      name: wildDog_0
       rect:
         serializedVersion: 2
         x: 0
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c7fe5717a1862b5c0800000000000000
-      internalID: -4201181039601258628
+      spriteID: 5b24fd5c98f82d090800000000000000
+      internalID: -8011182965245656395
       vertices: []
       indices: 
       edges: []
@@ -134,8 +134,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      F1_0: -4201181039601258628
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

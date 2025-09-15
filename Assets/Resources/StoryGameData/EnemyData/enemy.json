@@ -1,0 +1,62 @@
+[
+    {
+        "code" : "foe_3001",
+        "name": "들개",
+        "image": "wildDog",
+        "hp" : 40,
+        "atk" : 8,
+        "spd" : 12,
+        "hitRate": 60,
+        "evasionRate": 0,
+        "Counter Rate" : 5,
+        "description": "앙상한 갈색 털에 뼈마디가 드러난 몸을 지녔다. 날카로운 송곳니를 드러내며 잔해 속을 배회한다. 빠르게 선제공격하거나 도망가며, 무리로 나타나 위협을 가한다."
+    },
+    {
+        "code" : "foe_3002",
+        "name": "굶주린 생존자",
+        "image": "unstable_survivor",
+        "hp" : 70,
+        "atk" : 12,
+        "spd" : 9,
+        "hitRate": 70,
+        "evasionRate": 0,
+        "Counter Rate" : 8,
+        "description": "초췌한 몰골에 찢어진 옷을 걸치고 흐린 눈빛으로 주변을 노려본다. 방어보다는 맹공을 위주로 하며, 말이 통하지 않고 광기에 사로잡혀 있다."
+    },
+    {
+        "code" : "foe_3003",
+        "name": "무장 강도",
+        "image": "robbery",
+        "hp" : 110,
+        "atk" : 15,
+        "spd" : 11,
+        "hitRate": 75,
+        "evasionRate": 8,
+        "Counter Rate" : 6,
+        "description": "검은 옷과 두건으로 얼굴을 가리고 못이 박힌 곤봉을 들고 있다. 조직적으로 움직이며 무기를 능숙하게 사용한다."
+    },
+    {
+        "code" : "foe_3003",
+        "name": "드론",
+        "image": "turretAndDrone",
+        "hp" : 30,
+        "atk" : 5,
+        "spd" : 15,
+        "hitRate": 50,
+        "evasionRate": 3,
+        "Counter Rate" : 0,
+        "description": "작고 가벼운 기계로 공중을 빠르게 비행한다. 정찰과 기습 공격을 주로 하며, 원거리 무기가 없다면 파괴할 수 없다."
+    },
+    {
+        "code" : "foe_3004",
+        "name": "터렛",
+        "image": "turretAndDrone",
+        "hp" : 150,
+        "atk" : 20,
+        "spd" : 3,
+        "hitRate": 75,
+        "evasionRate": 0,
+        "Counter Rate" : 0,
+        "description": "폐허 속에 고정된 자동 방어 장치다. 느리지만 강력한 화력을 지니며, 움직이지 않고 자리에서 공격을 퍼붓는다."
+    }
+]
