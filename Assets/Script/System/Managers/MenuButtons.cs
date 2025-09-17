@@ -18,8 +18,6 @@ public class MenuButtons : MonoBehaviour {
         SaveLoadManager.Instance.NewGameClear(true);
 
         SwitchSceneManager.Instance.EnterBaseFromBoot();
-
-        SaveLoadManager.Instance.SaveNow();
     }
 
     public void OnClickContinue() {

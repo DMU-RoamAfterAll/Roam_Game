@@ -155,6 +155,8 @@ public class AreaLocateControl : MonoBehaviour {
             yield return StartCoroutine(slm.ApplyLoadedData(slm.pendingLoadData));
             slm.pendingLoadData = null;
         }
+
+        SaveLoadManager.Instance.SaveNow();
    
 
         MapSceneDataManager.mapData.isMapSetUp = true;
