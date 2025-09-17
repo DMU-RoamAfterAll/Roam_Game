@@ -14,6 +14,8 @@ public class WeaponDataNode
     public List<string> category; //무기 분류
     public int damage; //무기 데미지 값
     public int durability; //무기 내구도 값
+    public List<string> breakWarningMessages; //무기 파괴 경고 스크립트
+    public List<string> breakMessages; //무기 파괴 스크립트
 }
 //-------------------------------------------------------------------------------
 

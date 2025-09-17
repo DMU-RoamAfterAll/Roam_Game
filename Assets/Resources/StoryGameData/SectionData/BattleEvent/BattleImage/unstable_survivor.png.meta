@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: e67352a5b1d28fe4b841479211bc4699
+guid: 65e1927ff09ffa04faa9b35e0a42268c
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 9085287412545169438
-    second: "\u1103\u1173\u11AF\u1100\u1162 \u110C\u1165\u11AB\u1110\u116E\u110A\u1175\u11AB_0"
+      213: -7910244697757460631
+    second: unstable_survivor_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,7 +100,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: "\u1103\u1173\u11AF\u1100\u1162 \u110C\u1165\u11AB\u1110\u116E\u110A\u1175\u11AB_0"
+      name: unstable_survivor_0
       rect:
         serializedVersion: 2
         x: 0
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e18251b04cc651e70800000000000000
-      internalID: 9085287412545169438
+      spriteID: 967dfbf8b5a293290800000000000000
+      internalID: -7910244697757460631
       vertices: []
       indices: 
       edges: []
@@ -134,8 +134,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      "\u1103\u1173\u11AF\u1100\u1162 \u110C\u1165\u11AB\u1110\u116E\u110A\u1175\u11AB_0": 9085287412545169438
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
