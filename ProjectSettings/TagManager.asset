@@ -18,6 +18,7 @@ TagManager:
   - EventSection
   - EnterBtnUI
   - ObjCamera
+  - EventArea
   layers:
   - Default
   - TransparentFX

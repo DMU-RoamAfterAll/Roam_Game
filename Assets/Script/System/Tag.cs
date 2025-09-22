@@ -15,7 +15,8 @@ public enum TagName {
     EventSection,
     EnterBtnUI,
     ObjCamera,
-    MainCamera
+    MainCamera,
+    EventArea
 }
 
 public static class Tag {
@@ -34,4 +35,5 @@ public static class Tag {
     public static string EnterBtnUI => TagName.EnterBtnUI.ToString();
     public static string ObjCamera => TagName.ObjCamera.ToString();
     public static string MainCamera => TagName.MainCamera.ToString();
+    public static string EventArea => TagName.EventArea.ToString();
 }

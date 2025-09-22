@@ -24,4 +24,6 @@ public class MapSceneData : ScriptableObject {
     public GameObject linkSectionPrefab;
     public GameObject riverSectionPrefab;
     public GameObject IrisSectionPrefab;
+    public GameObject lightHolePrefab;
+    public GameObject evnetSectionPrefab;
 }
