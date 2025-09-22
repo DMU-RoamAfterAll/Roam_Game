@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -12,6 +13,8 @@ public class PlayerControl : MonoBehaviour {
     [Header("Game Data")]
     public float maxDistance;
     public CameraZoom cameraZoom;
+    public LayerMask sectionMask;
+    public LayerMask virtualSectionMask;
 
     public bool isCanMove;
     bool _confirmBusy;
@@ -36,6 +39,41 @@ public class PlayerControl : MonoBehaviour {
             Input.GetMouseButtonDown(0)
             || (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began);
         if (!inputDown) return;
+
+        if(IsPointerOverUI()) return;
+
+        var cam = MapSceneDataManager.Instance.worldCamera != null
+            ? MapSceneDataManager.Instance.worldCamera
+            : Camera.main;
+        Vector2 sp = (Input.touchCount > 0) ? (Vector2)Input.GetTouch(0).position
+                                            : (Vector2)Input.mousePosition;
+        Vector3 w3 = cam.ScreenToWorldPoint(new Vector3(sp.x, sp.y, cam.nearClipPlane));
+        Vector2 wp = new Vector3(w3.x, w3.y);
+
+        var realHits = Physics2D.OverlapPointAll(wp, sectionMask);
+        foreach(var col in realHits) {
+            if(!col) continue;
+            if(col.CompareTag(Tag.Section) || col.CompareTag(Tag.MainSection)
+                || col.CompareTag(Tag.Origin) || col.CompareTag(Tag.IrisSection)) {
+                    var sd = col.GetComponent<SectionData>();
+                    if(sd != null) { _=HandleSectionClickAsync(col.gameObject, sd); }
+                    return;
+                }
+        }
+
+        if(virtualSectionMask.value != 0) {
+            var vHits = Physics2D.OverlapPointAll(wp, virtualSectionMask);
+            foreach(var col in vHits) {
+                if(!col || !col.CompareTag(Tag.VirtualSection)) continue;
+                var vsd = col.GetComponent<VirtualSectionData>();
+                if(vsd && vsd.truthSection) {
+                    var realSd = vsd.truthSection.GetComponent<SectionData>();
+                    if(realSd) { _=HandleSectionClickAsync(vsd.truthSection, realSd); }
+                    return;
+                }
+            }
+        }
+    
 
         // 2) 화면 좌표 → 월드 좌표 변환
         Vector2 screenPos = Input.GetMouseButtonDown(0)
@@ -67,6 +105,13 @@ public class PlayerControl : MonoBehaviour {
                 return;
             }
         }
+    }
+
+    bool IsPointerOverUI() {
+        if(EventSystem.current == null) return false;
+        if(Input.touchCount > 0) return EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId);
+
+        return EventSystem.current.IsPointerOverGameObject();
     }
 
     async Task HandleSectionClickAsync(GameObject targetObj, SectionData sd) {

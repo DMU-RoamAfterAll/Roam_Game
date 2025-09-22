@@ -14,7 +14,8 @@ public enum TagName {
     WeatherUI,
     EventSection,
     EnterBtnUI,
-    ObjCamera
+    ObjCamera,
+    MainCamera
 }
 
 public static class Tag {
@@ -32,4 +33,5 @@ public static class Tag {
     public static string EventSection => TagName.EventSection.ToString();
     public static string EnterBtnUI => TagName.EnterBtnUI.ToString();
     public static string ObjCamera => TagName.ObjCamera.ToString();
+    public static string MainCamera => TagName.MainCamera.ToString();
 }

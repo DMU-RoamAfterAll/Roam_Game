@@ -12,6 +12,7 @@ public class MapSceneDataManager : MonoBehaviour {
 
     public GameObject Player;
     public GameObject originSection;
+    public Camera worldCamera;
     public string playerLocate;
 
     public static MapSceneData mapData => Instance.mapSceneData;
@@ -47,6 +48,10 @@ public class MapSceneDataManager : MonoBehaviour {
         originSection = roots.SelectMany(r => r.GetComponentsInChildren<Transform>(true))
                              .Select(t => t.gameObject)
                              .FirstOrDefault(go => go.CompareTag(Tag.Origin));
+
+
+        var cameras = roots.SelectMany(r => r.GetComponentsInChildren<Camera>(true)).ToArray();
+        worldCamera = cameras.FirstOrDefault(c => c.CompareTag(Tag.MainCamera));
 
         cameraZoom = roots.SelectMany(r => r.GetComponentsInChildren<CameraZoom>(true)) // ★ 오타 수정
                           .FirstOrDefault();

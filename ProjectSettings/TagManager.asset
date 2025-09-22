@@ -25,10 +25,10 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
-  - ObjectLayer
-  - 
+  - UI_Front
+  - UI_Back
+  - World
+  - Darkness
   - 
   - 
   - 
@@ -54,6 +54,18 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: UI_Back
+    uniqueID: 4242874861
+    locked: 0
+  - name: World
+    uniqueID: 337792585
+    locked: 0
+  - name: Darkness
+    uniqueID: 2619716369
+    locked: 0
+  - name: UI_Front
+    uniqueID: 3264192335
     locked: 0
   m_RenderingLayers:
   - Default

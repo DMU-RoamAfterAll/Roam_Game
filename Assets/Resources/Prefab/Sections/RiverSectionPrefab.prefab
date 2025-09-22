@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3237825561558387826}
   - component: {fileID: 661475424082495149}
   - component: {fileID: 3629888734085304846}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: RiverSectionPrefab
   m_TagString: River
   m_Icon: {fileID: 0}
@@ -75,9 +75,9 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 10
+  m_SortingLayerID: 337792585
+  m_SortingLayer: 2
+  m_SortingOrder: 7
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
   m_Color: {r: 0, g: 0.8958945, b: 1, a: 1}
   m_FlipX: 0

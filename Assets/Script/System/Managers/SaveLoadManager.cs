@@ -151,10 +151,18 @@ public class SaveLoadManager : MonoBehaviour {
                     player.transform.SetParent(cur.transform, true);
                     player.transform.position = cur.transform.position;
                     cur.isPlayerOn = true;
-                } else {
+                }
+                else {
                     Debug.LogWarning($"[Load] currentSectionId '{data.currentSectionId}' -> '{curId}' not found");
                 }
-            } else {
+            }
+            else if(pendingLoadData != null && string.IsNullOrEmpty(data.currentSectionId)) {
+                pc.currentSection = MapSceneDataManager.Instance.originSection;
+                pc.sectionData    = null;
+                player.transform.SetParent(pc.currentSection.transform, true);
+                player.transform.position = pc.currentSection.transform.position;
+            }
+            else {
                 Debug.LogWarning("[Load] currentSectionId is null/empty in save");
             }
 
