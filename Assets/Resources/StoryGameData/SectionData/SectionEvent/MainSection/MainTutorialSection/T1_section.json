@@ -1,11 +1,11 @@
 {
 	"SectionInfo": {
 		"id" : "101",
-  		"rate" : "T",
-  		"eventType" : "Totorial",
+		"rate" : "T",
+		"eventType" : "Totorial",
 
 		"x" : -1,
-    	"y"  : -9
+		"y"  : -9
 	},
 
 	"Text1": {
@@ -15,8 +15,8 @@
 			"하늘은 희뿌연 먼지로 가득했고, 주위는 무너진 콘크리트와 뒤틀린 철골들로 뒤엉켜 있었다."
 		],
 		"action" : { "image": "T1-1",
-					 "checkI": [["item_1004", 4], ["item_test", 3]],
-					 "checkW": ["wp_2001", 3]},
+						"checkI": [["item_1004", 4], ["item_test", 3]],
+						"checkW": ["wp_2001", 3]},
 		"next": "Text2"
 	},
 	"Text2": {
