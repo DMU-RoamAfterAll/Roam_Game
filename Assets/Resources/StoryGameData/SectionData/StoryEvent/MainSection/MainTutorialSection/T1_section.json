@@ -1,11 +1,11 @@
 {
 	"SectionInfo": {
 		"id" : "101",
-  		"rate" : "T",
-  		"eventType" : "Totorial",
+		"rate" : "T",
+		"eventType" : "Totorial",
 
 		"x" : -1,
-    	"y"  : -9
+		"y"  : -9
 	},
 
 	"Text1": {
@@ -14,9 +14,9 @@
 			"해는 구름 뒤에서 빛을 뿜고 있었지만, 그 빛은 전혀 따뜻하지 않았다.",
 			"하늘은 희뿌연 먼지로 가득했고, 주위는 무너진 콘크리트와 뒤틀린 철골들로 뒤엉켜 있었다."
 		],
-		"action" : { "image": "T1-1",
-					 "checkI": [["item_1004", 4], ["item_test", 3]],
-					 "checkW": ["wp_2001", 3]},
+		"action" : { "image": "TSectionImage/T1-1",
+						"checkI": [["item_1004", 4], ["item_test", 3]],
+						"checkW": ["wp_2001", 3]},
 		"next": "Text2"
 	},
 	"Text2": {
@@ -36,7 +36,7 @@
 			"낡고 부서진 차량들 사이, 혹은 반쯤 붕괴된 상점의 안쪽.",
 			"어딘가엔 누군가 남기고 간 물자나 단서가 있을지도 모른다."
 		],
-		"action" : { "image": "T1-2" },
+		"action" : { "image": "TSectionImage/T1-2" },
 		"next": "Menu1"
 	},
 	"Menu1": {
