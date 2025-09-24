@@ -966,6 +966,7 @@ GameObject:
   - component: {fileID: 994506511}
   - component: {fileID: 994506509}
   - component: {fileID: 994506510}
+  - component: {fileID: 994506513}
   m_Layer: 0
   m_Name: StoryEventManager
   m_TagString: Untagged
@@ -1072,6 +1073,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90efeb69e4710604d8ca26a93561743a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &994506513
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 994506504}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c09abdbaf77786c44912d32764481030, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyList: []
 --- !u!1001 &1107440863
 PrefabInstance:
   m_ObjectHideFlags: 0

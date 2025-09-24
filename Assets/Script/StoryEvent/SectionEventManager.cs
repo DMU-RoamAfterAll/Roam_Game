@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using System.Collections;
 using KoreanTyper;
 using TMPro;
-using System;
+using System.Linq;
 
 //-------------------------------------------------------------------------------
 // ** Section Event Json 데이터 클래스 구조 **
@@ -101,14 +101,15 @@ public class SectionEventManager : MonoBehaviour
 {
     public string jsonFileName = ""; //불러올 Json파일 이름, 외부에서 받아옴
     private string jsonFolderPath =
-    "StoryGameData/SectionData/SectionEvent/MainSection/MainTutorialSection"; //Json폴더가 담긴 파일의 경로
+    "StoryGameData/SectionData/StoryEvent/MainSection/MainTutorialSection"; //Json폴더가 담긴 파일의 경로
     private string imageFolderPath =
-    "StoryGameData/SectionData/SectionImage/TSectionImage"; //게임 삽화가 담긴 파일의 경로
+    "StoryGameData/SectionData/SectionImage"; //게임 삽화가 담긴 파일의 경로
     private Dictionary<string, object> sectionData = new Dictionary<string, object>(); //파싱된 Json데이터
     private SectionEventParser sectionEventParser;
+    private EnemyDataManager enemyDataManager;
     private ItemDataManager itemDataManager;
-    private WeaponDataManager weaponDataManager;
     private StoryFlagManager storyFlagManager;
+    private WeaponDataManager weaponDataManager;
     private UserDataManager userDataManager;
 
     //컨텐츠 오브젝트
@@ -140,9 +141,10 @@ public class SectionEventManager : MonoBehaviour
         dialogueText = viewport.Find("Content/value").GetComponent<TextMeshProUGUI>();
         buttonPanel = viewport.Find("Content/Panel_Button").GetComponent<Transform>();
         sectionEventParser = GetComponent<SectionEventParser>();
+        enemyDataManager = GetComponent<EnemyDataManager>();
         itemDataManager = GetComponent<ItemDataManager>();
-        weaponDataManager = GetComponent<WeaponDataManager>();
         storyFlagManager = GetComponent<StoryFlagManager>();
+        weaponDataManager = GetComponent<WeaponDataManager>();
         userDataManager = GetComponent<UserDataManager>();
 
         LoadJson(jsonFileName); //Json파일 로드
@@ -295,16 +297,7 @@ public class SectionEventManager : MonoBehaviour
         //삽화 변경
         if (actions.image != null && actions.image != "" && actions.image is string imageName)
         {
-            Sprite newSprite = LoadSceneSprite(imageName);
-            if (newSprite != null)
-            {
-                sceneImage.sprite = newSprite;
-                Debug.Log($"이미지 변경 {imageName}");
-            }
-            else
-            {
-                Debug.LogWarning($"[{GetType().Name}] 이미지 로드 실패 {imageName}");
-            }
+            LoadSceneSprite(imageName);
         }
 
         //아이템 체크
@@ -507,16 +500,26 @@ public class SectionEventManager : MonoBehaviour
     /// <summary>
     /// 삽화 이미지 로더 메소드
     /// </summary>
-    /// <param name="imageName">확장자를 제외한 삽화 이미지 파일명</param>
-    /// <returns>삽화 이미지 렌더링 실행</returns>
-    Sprite LoadSceneSprite(string imageName)
+    /// <param name="imageName">확장자를 제외한 삽화 이미지 파일명 (SectionImage이후 경로 포함)</param>
+    void LoadSceneSprite(string imageName)
     {
-        string imagePath = $"{imageFolderPath}/{imageName}";
+        string imagePath = $"{imageFolderPath}/{imageName}"; //이미지 주소 생성
 
         Texture2D texture = Resources.Load<Texture2D>(imagePath);
-        if (texture == null) return null;
+        if (texture == null) return;
 
-        return Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+        //삽화 이미지 랜더링
+        Sprite newSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+
+        if (newSprite != null)
+        {
+            sceneImage.sprite = newSprite; //게임 내 이미지 적용
+            Debug.Log($"이미지 변경 {imageName}");
+        }
+        else
+        {
+            Debug.LogWarning($"[{GetType().Name}] 이미지 로드 실패 {imageName}");
+        }
     }
 
     //-------------------------------------------------------------------------------
@@ -558,9 +561,9 @@ public class SectionEventManager : MonoBehaviour
             Destroy(child.gameObject); //버튼 리셋
         }
 
-        HandleNodeActions(node.action); //이미지 로드
+        HandleNodeActions(node.action); //액션 실행
 
-        if (!string.IsNullOrEmpty(node.next))
+        if (!string.IsNullOrEmpty(node.next)) //본문 출력
         {
             StartCoroutine(TypeTextCoroutine(string.Join("\n", node.value), () =>
             {
@@ -633,14 +636,50 @@ public class SectionEventManager : MonoBehaviour
 
     void DisplayBattleNode(BattleNode node)
     {
-        Debug.Log("배틀 실행");
-        //텍스트 비우기
-        dialogueText.text = "일단 실행 확인";
+        List<string> battleOrder = node.battleOrder;
 
-        //기존 버튼 제거
-        foreach (Transform child in buttonPanel)
+        if (battleOrder.Count > 1 && battleOrder.Count(item => item == "player") == 1)
         {
-            Destroy(child.gameObject);
+            Debug.Log($"배틀 실행 : {string.Join("→", battleOrder)}");
+
+            //현재 적 정보 리스트 불러오기
+            List<EnemyDataNode> currentEnemyList = new List<EnemyDataNode>();
+            string BattleImage = "";
+            foreach (string enemyCode in battleOrder)
+            {
+                if (enemyCode == "player")
+                {
+                    currentEnemyList.Add(null); //플레이어 턴에선 null값을 삽입
+                }
+                else
+                {
+                    EnemyDataNode enemyDict = enemyDataManager.GetEnemyByCode(enemyCode);
+                    if (enemyDict != null)
+                    {
+                        currentEnemyList.Add(enemyDict);
+                        BattleImage = enemyDict.image;
+                    }
+                    else
+                    {
+                        Debug.LogError($"[{GetType().Name}] 잘못된 적 코드값 : {enemyCode}");
+                    }
+                }
+            }
+            //텍스트 비우기
+            dialogueText.text = "";
+
+            //기존 버튼 제거
+            foreach (Transform child in buttonPanel)
+            {
+                Destroy(child.gameObject);
+            }
+
+            LoadSceneSprite(BattleImage); //전투 이미지 출력
+            dialogueText.text = node.battleIntro[0];
+        }
+        else
+        {
+            Debug.LogError($"[{GetType().Name}] 잘못된 battleOrder : {string.Join("→", battleOrder)}");
         }
     }
     //-------------------------------------------------------------------------------
