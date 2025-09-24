@@ -305,6 +305,7 @@ public class RandomSectionSpawner : MonoBehaviour {
         }
     }
 
+    //이름 바꾸기
     [ContextMenu("Spawn Event Section")]
     private void CreateEventSection() {
         List<Vector2> eventSectionPoints = GenerateGuaranteedPoints(

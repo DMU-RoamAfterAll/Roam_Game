@@ -187,18 +187,6 @@ public class PlayerControl : MonoBehaviour {
                     return;
                 }
             }
-
-            if(go.CompareTag(Tag.EventSection)) {
-                var esd = go.GetComponent<EventSectionData>();
-                if (esd != null) {
-                    if (debugClicks) Debug.Log($"[PC] Section matched → HandleSectionClickAsync id='{esd.id}'");
-                    _ = HandleSectionClickAsync(go, esd);
-                    return;
-                }
-                else if (debugClicks) {
-                    Debug.Log("[PC]   (no SectionData component)");
-                }
-            }
         }
 
         // 4) 보조: RaycastAll (마스크 무시, 태그로만 탐지) — 진짜 막혔는지 진단용
@@ -229,18 +217,6 @@ public class PlayerControl : MonoBehaviour {
                     if (debugClicks) Debug.Log($"[PC] (RC) Virtual matched → real='{real.name}', id='{realSd.id}'");
                     _ = HandleSectionClickAsync(real, realSd);
                     return;
-                }
-            }
-
-            if(go.CompareTag(Tag.EventSection)) {
-                var esd = go.GetComponent<EventSectionData>();
-                if (esd != null) {
-                    if (debugClicks) Debug.Log($"[PC] Section matched → HandleSectionClickAsync id='{sd.id}'");
-                    _ = HandleSectionClickAsync(go, sd);
-                    return;
-                }
-                else if (debugClicks) {
-                    Debug.Log("[PC]   (no SectionData component)");
                 }
             }
         }

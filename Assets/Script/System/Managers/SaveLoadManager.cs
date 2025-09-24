@@ -13,7 +13,6 @@ public class SaveData {
     public string currentSectionId;
     public string preSectionId;
     public List<string> visitedSectionIds = new List<string>();
-    public List<Vector2> eventSections = new List<Vector2>();
 }
 
 public class SaveLoadManager : MonoBehaviour {
@@ -221,11 +220,6 @@ public class SaveLoadManager : MonoBehaviour {
             save.preSectionId     = pc.preSection != null
                 ? NormalizeId(pc.preSection.GetComponent<SectionData>()?.id) : null; // ★ 2구간 정규화
         }
-
-        //EventSection 저장
-        // foreach(var es in MapSceneDataManager.Instance.eventArea.GetComponentsInChildren<SectionData>(true)) {
-            
-        // }
 
         return save;
     }
