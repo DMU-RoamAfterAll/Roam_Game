@@ -37,7 +37,7 @@ public class SectionEventParser : MonoBehaviour
         //올바른 Action 처리
         if (actionObj.TryGetValue("image", out var imgToken))
             action.image = imgToken.ToString();
-        
+
         if (actionObj.TryGetValue("checkI", out var checkIToken))
             action.checkI = ParseItemData(checkIToken);
 
@@ -46,7 +46,7 @@ public class SectionEventParser : MonoBehaviour
 
         if (actionObj.TryGetValue("lostI", out var lostIToken))
             action.lostI = ParseItemData(lostIToken);
-        
+
         if (actionObj.TryGetValue("checkW", out var checkWToken))
             action.checkW = ParseWeaponData(checkWToken);
 
@@ -61,7 +61,7 @@ public class SectionEventParser : MonoBehaviour
 
         if (actionObj.TryGetValue("flagCheck", out var flagCheckToken))
             action.flagCheck = ParseStoryFlag(flagCheckToken);
-
+            
         return action;
     }
 
