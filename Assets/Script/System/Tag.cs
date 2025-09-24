@@ -15,6 +15,7 @@ public enum TagName {
     EnterBtnUI,
     ObjCamera,
     MainCamera,
+    //이름 바꾸기
     EventArea
 }
 
