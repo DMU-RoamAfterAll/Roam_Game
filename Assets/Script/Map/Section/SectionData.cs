@@ -43,11 +43,23 @@ public class SectionData : MonoBehaviour {
     public void SetOption() {
         if(!isVisited) {
             isVisited = true;
+            LightObj();
             SaveLoadManager.Instance.AddVisitedSectionIds(id);
         }
         else {
             return;
         }
+    }
+
+    public void LightObj() {
+        var parent = this.transform;
+        var prefab = MapSceneDataManager.mapData.lightHolePrefab;
+
+        var go = Instantiate(prefab, parent, false);
+
+        var t = go.transform;
+        t.localPosition = Vector3.zero;
+        t.localRotation = Quaternion.identity;
     }
 
 

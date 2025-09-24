@@ -305,6 +305,7 @@ public class RandomSectionSpawner : MonoBehaviour {
         }
     }
 
+    //이름 바꾸기
     [ContextMenu("Spawn Event Section")]
     private void CreateEventSection() {
         List<Vector2> eventSectionPoints = GenerateGuaranteedPoints(
@@ -318,5 +319,8 @@ public class RandomSectionSpawner : MonoBehaviour {
         foreach(var point in eventSectionPoints) {
             Debug.Log("EventSection Vector : " + point);
         }
+
+        GameObject go = Instantiate(MapSceneDataManager.mapData.evnetSectionPrefab, eventSectionPoints[1], Quaternion.identity);
+        go.transform.SetParent(MapSceneDataManager.Instance.eventArea.transform);
     }
 }

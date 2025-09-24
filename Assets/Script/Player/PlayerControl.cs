@@ -1,110 +1,269 @@
+using UnityEngine.UI;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
-using System.Collections.Generic;
+using UnityEngine.EventSystems;
 using System.Linq;
 
 public class PlayerControl : MonoBehaviour {
     [Header("Section Data")]
-    public GameObject preSection; //이전에 위치했던 Section
-    public GameObject currentSection; //지금 위치하고있는 Section
-    public SectionData sectionData; //위치하고 있는 Section의 SectionData 컴포넌트
+    public GameObject preSection;
+    public GameObject currentSection;
+    public SectionData sectionData;
 
     [Header("Game Data")]
     public float maxDistance;
     public CameraZoom cameraZoom;
 
+    [Header("Input Masks (auto set by names below)")]
+    public LayerMask sectionMask;
+
+    // ⚠️ 여기에 "Physics Layer" 이름을 적어둬 (Sorting Layer 말고!)
+    [SerializeField] string[] sectionLayerNames = { "World" };
+
+    [Header("Debug")]
+    [SerializeField] bool debugClicks = true;
+
     public bool isCanMove;
     bool _confirmBusy;
 
+    // --- 자동 마스크 세팅 ---
+    void Reset()      { AutoAssignMasks(); }
+    void OnValidate() { AutoAssignMasks(); }
+    void Awake()      { AutoAssignMasks(); }
+
     void Start() {
-        isCanMove = false;
+        isCanMove   = false;
         _confirmBusy = false;
-        currentSection = this.transform.parent.gameObject;
+        if (transform.parent) currentSection = transform.parent.gameObject;
 
         maxDistance = MapSceneDataManager.mapData.initialMaxDistance;
-        cameraZoom = MapSceneDataManager.Instance.cameraZoom;
+        cameraZoom  = MapSceneDataManager.Instance.cameraZoom;
+
+        if (debugClicks) {
+            Debug.Log($"[PC] Start: sectionMask={sectionMask.value} ({MaskToLayers(sectionMask)}), " +
+                      $"layerNames=[{string.Join(",", sectionLayerNames)}]");
+        }
     }
 
     void Update() {
-        if(isCanMove) ClickSection(); //맵 생성이 안료되었을 때 이동 가능
+        if (isCanMove) ClickSection();
     }
 
-    ///클릭한 Section이 이미 방문아혔거나 감지범위 내일때 플레이어의 위치 이동 혹은 VirualSection을 통해서 이동
+    void AutoAssignMasks() {
+        sectionMask = NamesToLayerMask(sectionLayerNames);
+        if (debugClicks) {
+            Debug.Log($"[PC] AutoAssignMasks → sectionMask={sectionMask.value} ({MaskToLayers(sectionMask)})");
+        }
+    }
+
+    static LayerMask NamesToLayerMask(params string[] names) {
+        int mask = 0;
+        if (names == null) return 0;
+        foreach (var n in names) {
+            if (string.IsNullOrWhiteSpace(n)) continue;
+            int li = LayerMask.NameToLayer(n);
+            if (li >= 0) mask |= 1 << li;
+            else Debug.LogWarning($"[PC] Physics Layer '{n}' not found.");
+        }
+        return mask;
+    }
+
+    static string MaskToLayers(LayerMask mask) {
+        if (mask.value == 0) return "(none)";
+        var layers = Enumerable.Range(0, 32).Where(i => (mask.value & (1 << i)) != 0).Select(LayerMask.LayerToName);
+        return string.Join(",", layers);
+    }
+
+    // 포인터가 UI 위에 있는지 + 어떤 UI들이 막는지까지 로그
+    bool IsPointerOverUI(Vector2 screenPos) {
+        if (EventSystem.current == null) return false;
+
+        var ped = new PointerEventData(EventSystem.current) { position = screenPos };
+        var results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(ped, results);
+
+        if (debugClicks && results.Count > 0) LogUIRaycastResults(results);
+
+        return results.Count > 0; // 하나라도 맞으면 UI가 막는 중
+    }
+
+    // 디테일 로그: 이름, 계층 경로, 레이어, raycastTarget, CanvasGroup 설정 등
+    void LogUIRaycastResults(List<RaycastResult> results) {
+        Debug.Log($"[PC][UI] Raycast hits = {results.Count}");
+        for (int i = 0; i < results.Count; i++) {
+            var go = results[i].gameObject;
+            var graphic = go ? go.GetComponent<Graphic>() : null;
+            var cg = go ? go.GetComponentInParent<CanvasGroup>() : null;
+
+            string path = GetHierarchyPath(go ? go.transform : null);
+            string layer = go ? LayerMask.LayerToName(go.layer) : "(null)";
+            bool rt = graphic ? graphic.raycastTarget : false;
+            string cgInfo = cg ? $"blocksRaycasts={cg.blocksRaycasts}, ignoreParentGroups={cg.ignoreParentGroups}" : "(no CanvasGroup)";
+
+            Debug.Log($"  #{i} name='{go?.name}', path='{path}', layer='{layer}', raycastTarget={rt}, {cgInfo}");
+        }
+    }
+
+    // 깔끔한 경로 출력용
+    string GetHierarchyPath(Transform t) {
+        if (t == null) return "(null)";
+        var parts = new List<string>();
+        while (t != null) { parts.Add(t.name); t = t.parent; }
+        parts.Reverse();
+        return string.Join("/", parts);
+    }
+
+    // ----- 클릭 처리 -----
     void ClickSection() {
-        // 1) 입력 처리 (마우스 클릭 또는 터치)
-        bool inputDown =
-            Input.GetMouseButtonDown(0)
-            || (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began);
+        // 0) 입력 감지
+        bool inputDown = Input.GetMouseButtonDown(0) ||
+                         (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began);
         if (!inputDown) return;
 
-        // 2) 화면 좌표 → 월드 좌표 변환
-        Vector2 screenPos = Input.GetMouseButtonDown(0)
-            ? (Vector2)Input.mousePosition
-            : Input.GetTouch(0).position;
-        Vector2 worldPos = Camera.main.ScreenToWorldPoint(screenPos);
+        if (debugClicks) {
+            string src = Input.touchCount > 0 ? "TOUCH" : "MOUSE";
+            Debug.Log($"[PC] Click start ({src})");
+        }
 
-        // 3) 클릭/터치 위치에 있는 섹션 판별
-        foreach (var hit in Physics2D.RaycastAll(worldPos, Vector2.zero)) {
-            // 일반 섹션 클릭 시
-            if (hit.collider.CompareTag(Tag.Section)
-            || hit.collider.CompareTag(Tag.MainSection)
-            || hit.collider.CompareTag(Tag.Origin)
-            || hit.collider.CompareTag(Tag.IrisSection)) {
-                
-                var sd = hit.collider.GetComponent<SectionData>();
-                // ← 여기서 비용 체크
+        Vector2 sp = (Input.touchCount > 0) ? (Vector2)Input.GetTouch(0).position
+                                            : (Vector2)Input.mousePosition;
 
-                _ = HandleSectionClickAsync(hit.collider.gameObject, sd);
-                return;    
+        // 1) UI 위면 차단 (여기서 막히면 Darkness UI가 raycastTarget=true일 수 있음)
+        if (IsPointerOverUI(sp)) {
+            if (debugClicks) Debug.Log("[PC] Blocked by UI raycast (Image.raycastTarget=true?)");
+            return;
+        }
+
+        // 2) 카메라 선택/좌표 변환
+        var cam = MapSceneDataManager.Instance.worldCamera != null
+            ? MapSceneDataManager.Instance.worldCamera
+            : Camera.main;
+
+        if (cam == null) {
+            Debug.LogWarning("[PC] No Camera found (worldCamera & Camera.main are null)");
+            return;
+        }
+
+        // 오쏘그래픽이면 nearClip도 무시되지만, 안전하게 스크린→월드 변환
+        Vector3 w3 = cam.ScreenToWorldPoint(new Vector3(sp.x, sp.y, Mathf.Abs(cam.nearClipPlane)));
+        Vector2 wp = new Vector2(w3.x, w3.y);
+
+        if (debugClicks) {
+            Debug.Log($"[PC] Cam='{cam.name}', ortho={cam.orthographic}, near={cam.nearClipPlane}, far={cam.farClipPlane}");
+            Debug.Log($"[PC] Screen({sp.x:F1},{sp.y:F1}) -> World({wp.x:F2},{wp.y:F2})");
+            Debug.Log($"[PC] sectionMask={sectionMask.value} ({MaskToLayers(sectionMask)})");
+        }
+
+        // 3) OverlapPointAll (LayerMask로 필터)
+        var hits = Physics2D.OverlapPointAll(wp, sectionMask);
+        if (debugClicks) Debug.Log($"[PC] OverlapPointAll hits={hits.Length}");
+
+        foreach (var col in hits) {
+            if (!col) continue;
+            var go = col.gameObject;
+            string info = $"name='{go.name}', tag='{go.tag}', layer='{LayerMask.LayerToName(go.layer)}'";
+            if (debugClicks) Debug.Log("[PC]  - hit " + info);
+
+            if (go.CompareTag(Tag.Section) || go.CompareTag(Tag.MainSection) ||
+                go.CompareTag(Tag.Origin)  || go.CompareTag(Tag.IrisSection)) {
+                var sd = go.GetComponent<SectionData>();
+                if (sd != null) {
+                    if (debugClicks) Debug.Log($"[PC] Section matched → HandleSectionClickAsync id='{sd.id}'");
+                    _ = HandleSectionClickAsync(go, sd);
+                    return;
+                } else if (debugClicks) {
+                    Debug.Log("[PC]   (no SectionData component)");
+                }
             }
 
-            // 가상 섹션(범위 초과) 클릭 시
-            if (hit.collider.CompareTag(Tag.VirtualSection)) {
-                var vsd = hit.collider.GetComponent<VirtualSectionData>();
-                var realSd = vsd.truthSection.GetComponent<SectionData>();
-                // ← 동일하게 비용 체크
-                _ = HandleSectionClickAsync(vsd.truthSection, realSd);
-                return;
+            if (go.CompareTag(Tag.VirtualSection)) {
+                var vsd    = go.GetComponent<VirtualSectionData>();
+                var real   = vsd ? vsd.truthSection : null;
+                var realSd = real ? real.GetComponent<SectionData>() : null;
+                if (real && realSd) {
+                    if (debugClicks) Debug.Log($"[PC] Virtual matched → real='{real.name}', id='{realSd.id}'");
+                    _ = HandleSectionClickAsync(real, realSd);
+                    return;
+                }
             }
         }
+
+        // 4) 보조: RaycastAll (마스크 무시, 태그로만 탐지) — 진짜 막혔는지 진단용
+        var rayHits = Physics2D.RaycastAll(wp, Vector2.zero);
+        if (debugClicks) Debug.Log($"[PC] Physics2D.RaycastAll (no mask) hits={rayHits.Length}");
+        foreach (var h in rayHits) {
+            var go = h.collider ? h.collider.gameObject : null;
+            if (!go) continue;
+            if (debugClicks) {
+                Debug.Log($"[PC]  - RC hit name='{go.name}', tag='{go.tag}', layer='{LayerMask.LayerToName(go.layer)}'");
+            }
+
+            if (go.CompareTag(Tag.Section) || go.CompareTag(Tag.MainSection) ||
+                go.CompareTag(Tag.Origin)  || go.CompareTag(Tag.IrisSection)) {
+                var esd = go.GetComponent<SectionData>();
+                if (esd != null) {
+                    if (debugClicks) Debug.Log($"[PC] (RC) Section matched → HandleSectionClickAsync id='{esd.id}'");
+                    _ = HandleSectionClickAsync(go, esd);
+                    return;
+                }
+            }
+
+            if (go.CompareTag(Tag.VirtualSection)) {
+                var vsd    = go.GetComponent<VirtualSectionData>();
+                var real   = vsd ? vsd.truthSection : null;
+                var realSd = real ? real.GetComponent<SectionData>() : null;
+                if (real && realSd) {
+                    if (debugClicks) Debug.Log($"[PC] (RC) Virtual matched → real='{real.name}', id='{realSd.id}'");
+                    _ = HandleSectionClickAsync(real, realSd);
+                    return;
+                }
+            }
+        }
+
+        if (debugClicks) Debug.Log("[PC] No section found under pointer.");
     }
 
     async Task HandleSectionClickAsync(GameObject targetObj, SectionData sd) {
+        if (debugClicks) Debug.Log($"[PC] HandleSectionClickAsync → target='{targetObj.name}', id='{sd?.id}'");
+
         cameraZoom.ZoomInSection(targetObj.transform.position);
 
-        if(_confirmBusy) return;
+        if (_confirmBusy) { if (debugClicks) Debug.Log("[PC] confirm busy"); return; }
         _confirmBusy = true;
 
         try {
-            Debug.Log("Need StepCost = " + GetStepCost(sd.sectionPosition));
+            int cost = GetStepCost(sd.sectionPosition);
+            Debug.Log($"[PC] Need StepCost = {cost}");
 
             bool ok = await MapSceneDataManager.Instance.enterBtnUI.ShowConfirmBtn("Move To Section?");
-            if(!ok) return;
+            if (!ok) { if (debugClicks) Debug.Log("[PC] move canceled"); return; }
 
-            if(!MapSceneDataManager.Instance.stepManagerUI.TryConsumeSteps(GetStepCost(sd.sectionPosition))) {
+            if (!MapSceneDataManager.Instance.stepManagerUI.TryConsumeSteps(cost)) {
                 cameraZoom.ZoomOutSection();
-                Debug.Log("You Need More Step");
+                Debug.Log("[PC] Not enough steps");
                 return;
             }
-            
+
             MoveToSection(targetObj, sd);
         }
-        finally {
-            _confirmBusy = false;
-        }
+        finally { _confirmBusy = false; }
     }
 
     void MoveToSection(GameObject currentObj, SectionData sectionD) {
+        if (debugClicks) Debug.Log($"[PC] MoveToSection → '{currentObj.name}', id='{sectionD?.id}'");
+
         cameraZoom.ZoomOutSection();
-        preSection = transform.parent.gameObject;
+        if (transform.parent) preSection = transform.parent.gameObject;
         currentSection = currentObj;
         sectionData = sectionD;
 
-        this.transform.SetParent(currentObj.transform);
-        this.transform.position = currentObj.transform.position; //Player의 위치 이동
+        transform.SetParent(currentObj.transform);
+        transform.position = currentObj.transform.position;
 
         sectionD.SetPlayerOnSection();
-        if(preSection.GetComponent<SectionData>() != null) preSection.GetComponent<SectionData>().SetPlayerOnSection(); //이동한 오브젝트의 상태 변환
+        var preSD = preSection ? preSection.GetComponent<SectionData>() : null;
+        if (preSD != null) preSD.SetPlayerOnSection();
         sectionD.SetOption();
         DetectSection();
 
@@ -113,60 +272,41 @@ public class PlayerControl : MonoBehaviour {
     }
 
     public void DetectSection() {
-        Collider2D[] hits = Physics2D.OverlapCircleAll(this.transform.position, maxDistance); //Ray를 원형으로 생성
+        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, maxDistance);
+        if (debugClicks) Debug.Log($"[PC] DetectSection around {transform.position} r={maxDistance} hits={hits.Length}");
 
-        HashSet<SectionData> detectedSections = new HashSet<SectionData>();
+        var detectedSections = hits
+            .Select(h => h ? h.GetComponent<SectionData>() : null)
+            .Where(sd => sd != null)
+            .ToHashSet();
 
-        foreach(var hit in hits) {
-            if(hit.CompareTag(Tag.Section) || hit.CompareTag(Tag.MainSection) || hit.CompareTag(Tag.Origin)) {
-                SectionData sd = hit.GetComponent<SectionData>();
-
-                if(sd != null) detectedSections.Add(sd); //감지된 Section 저장
-            }
-        }
-    
-        SectionData[] allSections = MapSceneDataManager.Instance.sections //모든 Section가져오기
+        var allSections = MapSceneDataManager.Instance.sections
             .Concat(MapSceneDataManager.Instance.mainSections)
-            .Select(go => go.GetComponent<SectionData>())
+            .Select(go => go ? go.GetComponent<SectionData>() : null)
             .Where(sd => sd != null)
             .ToArray();
 
-        foreach(var section in allSections) {
-            bool canMove = false;
+        foreach (var section in allSections) {
+            bool canMove = detectedSections.Contains(section);
 
-            // 감지된 Section이면 무조건 true
-            if (detectedSections.Contains(section)) {
-                canMove = true;
-            }
-            else {
-                // LinkSection 검사
-                LinkSection[] links = this.gameObject.GetComponents<LinkSection>();
-
-                foreach (var link in links) {
-                    if (link.linkedSection == section.gameObject) {
-                        canMove = true;
-                        break; // 하나라도 일치하면 더 볼 필요 없음
-                    }
+            if (!canMove) {
+                foreach (var link in GetComponents<LinkSection>()) {
+                    if (link && link.linkedSection == section.gameObject) { canMove = true; break; }
                 }
             }
 
-            // isCanMove 설정
             section.isCanMove = canMove;
-
-            // 색상 업데이트
             section.UpdateSectionColor();
         }
     }
 
     int GetStepCost(Vector2 sectionPosition) {
-        int step = (int)(Vector2.Distance(this.gameObject.transform.position, sectionPosition));
-
+        int step = (int)(Vector2.Distance(transform.position, sectionPosition));
         return step * 10;
     }
 
-    ///DetectSection을 시각화
     void OnDrawGizmos() {
         Gizmos.color = Color.cyan;
-        Gizmos.DrawWireSphere(this.transform.position, maxDistance);
+        Gizmos.DrawWireSphere(transform.position, maxDistance);
     }
 }

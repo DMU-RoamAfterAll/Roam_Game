@@ -12,9 +12,11 @@ public enum TagName {
     StepUI,
     IrisSection,
     WeatherUI,
-    EventSection,
     EnterBtnUI,
-    ObjCamera
+    ObjCamera,
+    MainCamera,
+    //이름 바꾸기
+    EventArea
 }
 
 public static class Tag {
@@ -29,7 +31,8 @@ public static class Tag {
     public static string StepUI => TagName.StepUI.ToString();
     public static string IrisSection => TagName.IrisSection.ToString();
     public static string WeatherUI => TagName.WeatherUI.ToString();
-    public static string EventSection => TagName.EventSection.ToString();
     public static string EnterBtnUI => TagName.EnterBtnUI.ToString();
     public static string ObjCamera => TagName.ObjCamera.ToString();
+    public static string MainCamera => TagName.MainCamera.ToString();
+    public static string EventArea => TagName.EventArea.ToString();
 }

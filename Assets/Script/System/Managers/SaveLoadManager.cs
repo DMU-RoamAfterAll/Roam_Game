@@ -136,7 +136,10 @@ public class SaveLoadManager : MonoBehaviour {
         Debug.Log($"[Load] visited ids in save: {data.visitedSectionIds?.Count ?? 0}");
         foreach (var raw in data.visitedSectionIds) {
             var id = NormalizeId(raw);          // ★ 2구간 정규화
-            if (map.TryGetValue(id, out var sec)) sec.isVisited = true;
+            if (map.TryGetValue(id, out var sec)) {
+                sec.isVisited = true;
+                sec.LightObj();
+            }
             else Debug.LogWarning($"[Load] visitedId '{raw}' -> '{id}' not found in map");
         }
 
@@ -151,10 +154,18 @@ public class SaveLoadManager : MonoBehaviour {
                     player.transform.SetParent(cur.transform, true);
                     player.transform.position = cur.transform.position;
                     cur.isPlayerOn = true;
-                } else {
+                }
+                else {
                     Debug.LogWarning($"[Load] currentSectionId '{data.currentSectionId}' -> '{curId}' not found");
                 }
-            } else {
+            }
+            else if(pendingLoadData != null && string.IsNullOrEmpty(data.currentSectionId)) {
+                pc.currentSection = MapSceneDataManager.Instance.originSection;
+                pc.sectionData    = null;
+                player.transform.SetParent(pc.currentSection.transform, true);
+                player.transform.position = pc.currentSection.transform.position;
+            }
+            else {
                 Debug.LogWarning("[Load] currentSectionId is null/empty in save");
             }
 
