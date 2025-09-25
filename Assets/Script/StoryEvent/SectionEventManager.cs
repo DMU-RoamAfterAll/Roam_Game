@@ -114,16 +114,10 @@ public class SectionEventManager : MonoBehaviour
 
     //컨텐츠 오브젝트
     public Transform viewport; //스토리 컨텐츠 부분
+    List<EnemyDataNode> currentEnemyList = new List<EnemyDataNode>(); //전투 씬 진입 시 전투할 대상 적 리스트
     public GameObject buttonPrefab; //버튼 프리팹 (인스펙터 접속)
     public Transform buttonPanel; //버튼 부모 오브젝트
     public Image sceneImage; //UI에 띄울 이미지 컴포넌트
-
-    // //다음으로 버튼튼 y값 수정
-    // public float customY = -200f;
-    // //선택지 버튼 변수
-    // float yOffset = -40f; //버튼 간 세로 간격
-    // public float startY = -10f; //시작 위치 기준값
-    // int index = 1;
 
     //타이핑 변수
     public TextMeshProUGUI dialogueText; //출력될 텍스트 컴포넌트
@@ -525,6 +519,11 @@ public class SectionEventManager : MonoBehaviour
     //-------------------------------------------------------------------------------
     // ** 게임 내 오브젝트 출력 부분 **
     //-------------------------------------------------------------------------------
+
+    /// <summary>
+    /// 노드의 출력을 위한 메소드, 노드의 키값에 따라 알맞은 출력 메소드를 실행
+    /// </summary>
+    /// <param name="nodeKey">출력을 시작할 노드의 키값</param>
     void StartDialogue(string nodeKey)
     {
         if (sectionData.TryGetValue(nodeKey, out object node))
@@ -552,6 +551,10 @@ public class SectionEventManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 본문 출력 메소드
+    /// </summary>
+    /// <param name="node">출력할 본문 노드</param>
     void DisplayTextNode(TextNode node)
     {
         StopAllCoroutines();
@@ -581,16 +584,17 @@ public class SectionEventManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 선택지 출력 메소드
+    /// </summary>
+    /// <param name="node">출력할 선택지 노드</param>
     void DisplayMenuNode(MenuNode node)
     {
         //텍스트 비우기
         dialogueText.text = "";
 
         //기존 버튼 제거
-        foreach (Transform child in buttonPanel)
-        {
-            Destroy(child.gameObject);
-        }
+        ClearButtons();
 
         foreach (MenuOption option in node.menuOption)
         {
@@ -608,10 +612,7 @@ public class SectionEventManager : MonoBehaviour
                 Debug.Log($"선택됨: {option.id}");
 
                 //선택지 클릭 후 기존 버튼 제거
-                foreach (Transform child in buttonPanel)
-                {
-                    Destroy(child.gameObject);
-                }
+                ClearButtons();
 
                 //액션 처리
                 if (option.action != null)
@@ -634,6 +635,24 @@ public class SectionEventManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 버튼 UI 제거 메소드
+    /// </summary>
+    void ClearButtons()
+    {
+        for (int i = buttonPanel.childCount - 1; i >= 0; i--)
+        {
+            var t = buttonPanel.GetChild(i);
+            var btn = t.GetComponent<Button>();
+            if (btn != null) btn.onClick.RemoveAllListeners(); //리스너 해제
+            Destroy(t.gameObject); //버튼 삭제
+        }
+    }
+
+    /// <summary>
+    /// 전투 씬 출력 메소드
+    /// </summary>
+    /// <param name="node">출력할 전투 노드</param>
     void DisplayBattleNode(BattleNode node)
     {
         List<string> battleOrder = node.battleOrder;
@@ -643,7 +662,6 @@ public class SectionEventManager : MonoBehaviour
             Debug.Log($"배틀 실행 : {string.Join("→", battleOrder)}");
 
             //현재 적 정보 리스트 불러오기
-            List<EnemyDataNode> currentEnemyList = new List<EnemyDataNode>();
             string BattleImage = "";
             foreach (string enemyCode in battleOrder)
             {
@@ -676,11 +694,21 @@ public class SectionEventManager : MonoBehaviour
 
             LoadSceneSprite(BattleImage); //전투 이미지 출력
             dialogueText.text = node.battleIntro[0];
+
+            //전투 인트로 출력
+            StartCoroutine(TypeTextCoroutine(string.Join("\n", node.battleIntro)));
+
+            EnterBattleTurn(currentEnemyList); //턴제 전투 돌입
         }
         else
         {
             Debug.LogError($"[{GetType().Name}] 잘못된 battleOrder : {string.Join("→", battleOrder)}");
         }
+    }
+
+    void EnterBattleTurn(List<EnemyDataNode> currentEnemyList)
+    {
+        
     }
     //-------------------------------------------------------------------------------
 }

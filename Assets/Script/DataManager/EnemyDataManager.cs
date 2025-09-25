@@ -14,7 +14,7 @@ public class EnemyDataNode
     public int hp; //체력
     public int atk; //공격력
     public int spd; //민첩
-    public int hitRate; //공격 확률
+    public int hitRate; //공격 적중 확률
     public int evasionRate; //회피 확률
     public int CounterRate; //반격 확률
     public string description; //적 설명
