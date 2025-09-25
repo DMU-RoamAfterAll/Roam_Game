@@ -28,7 +28,7 @@ public class GameDataManager : MonoBehaviour {
             return;
         }
 
-        gameData.baseUrl = "http://125.176.246.14";
+        gameData.baseUrl = "http://125.176.246.14:8081";
         gameData.playerName = "Potato";
         gameData.seed = Guid.NewGuid().GetHashCode();
 
