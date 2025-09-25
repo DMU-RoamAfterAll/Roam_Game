@@ -91,7 +91,7 @@ public class LoginManager : MonoBehaviour
             Debug.Log("로그인 성공: 토큰 저장 완료");
 
             // 로그인 성공 이후 작업
-            // SceneManager.LoadScene("MapScene");
+            SceneManager.LoadScene("BootScene");
         }
         else // 실패 시
         {
