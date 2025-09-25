@@ -12,7 +12,6 @@ public class MapSceneDataManager : MonoBehaviour {
 
     public GameObject Player;
     public GameObject originSection;
-    public GameObject eventArea;
     public Camera worldCamera;
     public string playerLocate;
 
@@ -25,6 +24,7 @@ public class MapSceneDataManager : MonoBehaviour {
     public StepManager stepManagerUI;
     public SectionEnterBtn enterBtnUI;
     public CameraZoom cameraZoom;
+    public PlayerControl pc;
 
     void Awake() {
         if (Instance != null && Instance != this) {
@@ -50,11 +50,6 @@ public class MapSceneDataManager : MonoBehaviour {
                              .Select(t => t.gameObject)
                              .FirstOrDefault(go => go.CompareTag(Tag.Origin));
 
-        eventArea = roots.SelectMany(r => r.GetComponentsInChildren<Transform>(true))
-                             .Select(t => t.gameObject)
-                             .FirstOrDefault(go => go.CompareTag(Tag.EventArea));
-
-
         var cameras = roots.SelectMany(r => r.GetComponentsInChildren<Camera>(true)).ToArray();
         worldCamera = cameras.FirstOrDefault(c => c.CompareTag(Tag.MainCamera));
 
@@ -62,6 +57,8 @@ public class MapSceneDataManager : MonoBehaviour {
                           .FirstOrDefault();
 
         stepManagerUI = StepManager.Instance;
+        
+        pc = Player.GetComponent<PlayerControl>();
 
         // enterBtnUI는 Start 코루틴에서 한 프레임 늦게 끌 것 (다른 스크립트가 켜는 것보다 나중에)
         // playerLocate 등 가벼운 값은 지금 세팅

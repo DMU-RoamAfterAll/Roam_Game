@@ -25,4 +25,4 @@ MonoBehaviour:
   riverSectionPrefab: {fileID: 944879611818450130, guid: 154164cf6c96546b8b9e2e22d299902c, type: 3}
   IrisSectionPrefab: {fileID: 944879611818450130, guid: 69a9e65dc00f84f149d6c9a92cbb4291, type: 3}
   lightHolePrefab: {fileID: 2709266026802814724, guid: 82dcbd737019941aca025f6918abbb56, type: 3}
-  evnetSectionPrefab: {fileID: 944879611818450130, guid: 4d94d9d94caae4c1a8151b50d214d46b, type: 3}
+  hiddenSectionPrefab: {fileID: 944879611818450130, guid: 4d94d9d94caae4c1a8151b50d214d46b, type: 3}

@@ -1,4 +1,5 @@
 using UnityEngine.UI;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -18,7 +19,6 @@ public class PlayerControl : MonoBehaviour {
     [Header("Input Masks (auto set by names below)")]
     public LayerMask sectionMask;
 
-    // ⚠️ 여기에 "Physics Layer" 이름을 적어둬 (Sorting Layer 말고!)
     [SerializeField] string[] sectionLayerNames = { "World" };
 
     [Header("Debug")]
@@ -250,25 +250,31 @@ public class PlayerControl : MonoBehaviour {
         finally { _confirmBusy = false; }
     }
 
-    void MoveToSection(GameObject currentObj, SectionData sectionD) {
-        if (debugClicks) Debug.Log($"[PC] MoveToSection → '{currentObj.name}', id='{sectionD?.id}'");
-
+    void MoveToSection(GameObject toObj, SectionData toSd) {
         cameraZoom.ZoomOutSection();
-        if (transform.parent) preSection = transform.parent.gameObject;
-        currentSection = currentObj;
-        sectionData = sectionD;
 
-        transform.SetParent(currentObj.transform);
-        transform.position = currentObj.transform.position;
+        var fromObj = transform.parent ? transform.parent.gameObject : null;
+        var fromSd = fromObj ? fromObj.GetComponent<SectionData>() : null;
 
-        sectionD.SetPlayerOnSection();
-        var preSD = preSection ? preSection.GetComponent<SectionData>() : null;
-        if (preSD != null) preSD.SetPlayerOnSection();
-        sectionD.SetOption();
+        preSection = fromObj;
+        currentSection = toObj;
+        sectionData = toSd;
+
+        transform.SetParent(toObj.transform, true);
+        transform.position = toObj.transform.position;
+
+        toSd.SetPlayerOnSection();
+        if(fromSd != null) fromSd.SetPlayerOnSection();
+        toSd.SetOption();
         DetectSection();
 
-        SwitchSceneManager.Instance.sectionPath = sectionD.id;
+        SwitchSceneManager.Instance.sectionPath = toSd.id;
         SwitchSceneManager.Instance.MoveScene(SceneList.Story);
+    }
+
+    IEnumerator DestroyNextFrame(GameObject go) {
+        yield return null;
+        if (go) Destroy(go);
     }
 
     public void DetectSection() {

@@ -14,6 +14,8 @@ public class SwitchSceneManager : MonoBehaviour
 
     public string sectionPath;
 
+    public PlayerControl pc;
+
     [Header("Base Scene (항상 유지하는 씬)")]
     [SerializeField] private string baseSceneName = SceneList.Map; // "MapScene"
 
@@ -33,6 +35,7 @@ public class SwitchSceneManager : MonoBehaviour
 
     private IEnumerator Start()
     {
+        pc = MapSceneDataManager.Instance.pc;
         // 자동 로드를 끔: BootScene만 보이게 유지
         if (autoLoadBaseOnStart)
             yield return EnsureBaseLoaded();  // 필요하면 켜서 사용
@@ -205,12 +208,17 @@ public class SwitchSceneManager : MonoBehaviour
                 break;
             }
         }
-    }
+    }   
 
     #if UNITY_EDITOR
     [MenuItem("Tools/Scenes/GoTo MapScene")]
     public static void GoToMapScene() {
         SwitchSceneManager.Instance.MoveScene(SceneList.Map);
+        pc.sectionData.isCleared = true;
+        SectionData sd = pc.sectionData;
+        if(sd.eventType == "Tutorial") {
+            sd.gameObject.GetComponent<TutorialManager>().CompleteSection();
+        }
         SaveLoadManager.Instance?.SaveNow();
     }
     #endif

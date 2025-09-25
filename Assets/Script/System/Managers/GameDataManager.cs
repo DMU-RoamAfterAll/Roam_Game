@@ -30,7 +30,9 @@ public class GameDataManager : MonoBehaviour {
 
         gameData.baseUrl = "http://125.176.246.14";
         gameData.playerName = "Potato";
-        gameData.seed = Guid.NewGuid().GetHashCode();
+        //gameData.seed = Guid.NewGuid().GetHashCode();
+        gameData.seed = -1803581142;
+        gameData.tutorialClear = false;
 
         Application.targetFrameRate = 60;
     }

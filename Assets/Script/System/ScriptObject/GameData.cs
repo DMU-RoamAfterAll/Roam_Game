@@ -8,4 +8,5 @@ public class GameData : ScriptableObject {
     public string baseUrl;
     public string playerName;
     public int seed;
+    public bool tutorialClear;
 }
