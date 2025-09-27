@@ -20,8 +20,6 @@ public class SaveLoadManager : MonoBehaviour {
 
     public List<SectionData> sectionDatas;
     public SaveData save;
-    
-    public PlayerControl pc;
 
     [Header("File Path Check")]
     [SerializeField] private string path;
@@ -58,8 +56,6 @@ public class SaveLoadManager : MonoBehaviour {
         Debug.Log($"[SaveLoad] Save Path = {path}");
 
         save = new SaveData();
-
-        pc = MapSceneDataManager.Instance.pc;
     }
 
     //현재 MapScene에서 상태 스냅샷
@@ -147,6 +143,7 @@ public class SaveLoadManager : MonoBehaviour {
             else Debug.LogWarning($"[Load] visitedId '{raw}' -> '{id}' not found in map");
         }
 
+        var pc = player != null ? player.GetComponent<PlayerControl>() : null;
         // PlayerControl 복원 (current / previous도 정규화): null;
         if (pc != null) {
             if (!string.IsNullOrEmpty(data.currentSectionId)) {
@@ -215,6 +212,8 @@ public class SaveLoadManager : MonoBehaviour {
 
         GameObject player = MapSceneDataManager.Instance.Player;
         if (player != null) save.playerPos = player.transform.position;
+
+        PlayerControl pc = player.GetComponent<PlayerControl>();
    
         if (pc != null) {
             save.currentSectionId = pc.sectionData != null
