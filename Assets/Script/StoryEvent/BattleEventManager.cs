@@ -1,7 +1,9 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
+using System.Linq;
 using UnityEditor;
+using System;
 
 // ------------------------------------------------------
 // 런타임 슬롯(이번 전투에서만 HP 추적). 스탯은 enemy json 기준으로 사용.
@@ -39,18 +41,26 @@ public class PlayerStats
 
 public class BattleEventManager : MonoBehaviour
 {
+    private SectionEventManager sectionEventManager;
+    private EventDisplayManager eventDisplayManager;
     public Dictionary<string, EnemyDataNode> enemyData = new Dictionary<string, EnemyDataNode>();
 
     public PlayerStats player;
+    private string battleImage = ""; //전투 삽화
 
-    // 승/패 후 이동할 노드 키 (원하면 EnterBattleTurn 호출 때 인자로 받기)
-    private string _nextOnWin;
-    private string _nextOnLose;
+    private string nextOnWin; //승리 후 이동할 노드 키
+    private string nextOnLose; //패배 후 이동할 노드 키
 
-    // 전투 턴 순서(플레이어= null, 적 = EnemySlot)
-    private List<object> _turnOrder; // object: null 또는 EnemySlot
-    private int _turnIndex;
-    private Coroutine _battleRoutine;
+    private List<object> turnOrder; //전투 턴 순서(플레이어= null, 적 = EnemySlot)
+    private int turnIndex;
+    private Coroutine battleRoutine;
+
+    private void Awake()
+    {
+        //참조 캐싱
+        sectionEventManager = GetComponent<SectionEventManager>();
+        eventDisplayManager = GetComponent<EventDisplayManager>();
+    }
 
     // ------------- 외부에서 시작하는 진입점 -------------
     /// <summary>
@@ -58,42 +68,57 @@ public class BattleEventManager : MonoBehaviour
     /// currentEnemyList: null = 플레이어 턴, EnemyDataNode = 적 턴
     /// nextOnWin/nextOnLose: 전투 종료 후 넘어갈 노드 키
     /// </summary>
-    public void EnterBattleTurn(List<string> battleOrder, string nextOnWin, string nextOnLose)
+    public void EnterBattleTurn(BattleNode node, string nextOnWin, string nextOnLose)
     {
-        _nextOnWin  = nextOnWin;
-        _nextOnLose = nextOnLose;
+        List<string> battleOrder = node.battleOrder;
+        nextOnWin = nextOnWin;
+        nextOnLose = nextOnLose;
 
-        // 기존 루틴 정리
-        if (_battleRoutine != null) {
-            StopCoroutine(_battleRoutine);
-            _battleRoutine = null;
+        //기존 루틴 정리
+        if (battleRoutine != null)
+        {
+            StopCoroutine(battleRoutine);
+            battleRoutine = null;
         }
 
-        _turnOrder = BuildTurnOrder(battleOrder); //적 리스트를 받아 슬롯으로 인스턴스화
+        turnOrder = BuildCurrentEnemyList(battleOrder); //적 리스트를 받아 슬롯으로 인스턴스화
 
-        if (_turnOrder == null || _turnOrder.Count == 0) { //배틀 턴이 비었다면 그대로 종료
+        if (turnOrder == null || turnOrder.Count == 0)
+        { //배틀 턴이 비었다면 그대로 종료
             Debug.LogWarning($"[{GetType().Name}] 빈 턴 순서입니다.");
             OnBattleFinished(false);
             return;
         }
+        else if (turnOrder.Count(item => item == null) != 1)
+        {
+            Debug.LogError($"[{GetType().Name}] 잘못된 battleOrder : {string.Join("→", battleOrder)}");
+            OnBattleFinished(false);
+            return;
+        }
 
-        _turnIndex = 0;
-        _battleRoutine = StartCoroutine(BattleLoop()); //메인 전투 실행
+        Debug.Log($"배틀 실행 : {string.Join("→", battleOrder)}");
+        eventDisplayManager.LoadSceneSprite(battleImage); //전투 이미지 출력
+        StartCoroutine(eventDisplayManager.TypeTextCoroutine(string.Join("\n", node.battleIntro))); //전투 인트로 출력
+
+        turnIndex = 0;
+        battleRoutine = StartCoroutine(BattleLoop()); //메인 전투 실행
     }
 
     /// <summary>
     /// 적 리스트를 받아 인스턴스(슬롯)로 바꾸는 메소드
+    /// 전투 삽화 설정을 함께 진행
     /// </summary>
     /// <param name="battleOrder">전투 순서가 담긴 리스트</param>
     /// <returns>인스턴스화 된 적 리스트</returns>
-    private List<object> BuildTurnOrder(List<string> battleOrder)
+    private List<object> BuildCurrentEnemyList(List<string> battleOrder)
     {
-        var order = new List<object>(battleOrder.Count);
+        bool flag = false;
+        var currentEnemyList = new List<object>(battleOrder.Count);
         foreach (var enemyCode in battleOrder)
         {
             if (enemyCode == "player") //플레이어 턴
             {
-                order.Add(null);
+                currentEnemyList.Add(null);
             }
             else //적 턴
             {
@@ -103,10 +128,14 @@ public class BattleEventManager : MonoBehaviour
                     Debug.LogError($"[{GetType().Name}] 적 데이터를 찾을 수 없습니다: {enemyCode}");
                     continue;
                 }
-                order.Add(new EnemySlot(tpl));
+                if (flag == false)
+                {
+                    battleImage = tpl.image;
+                }
+                currentEnemyList.Add(new EnemySlot(tpl));
             }
         }
-        return order;
+        return currentEnemyList;
     }
 
     /// <summary>
@@ -114,17 +143,23 @@ public class BattleEventManager : MonoBehaviour
     /// </summary>
     private IEnumerator BattleLoop()
     {
-        while (true) {
+        while (true)
+        {
+            //텍스트 비우기
+            eventDisplayManager.dialogueText.text = "";
+
+            //기존 버튼 제거
+            eventDisplayManager.ClearButtons();
+
             // 전투 종료 체크
             if (AllEnemiesDead()) { OnBattleFinished(true); yield break; } //모든 적 사망 (승리)
             if (player.hp <= 0) { OnBattleFinished(false); yield break; } //플레이어 사망 (패배)
 
-            var slot = _turnOrder[_turnIndex]; //현재 전투 대상 확인
-
-            if (slot == null) {
-                //--------- 플레이어 턴 ---------
+            var slot = turnOrder[turnIndex]; //현재 전투 대상 확인
+            //--------- 플레이어 턴 ---------
+            if (slot == null)
+            {
                 var target = FindFirstAliveEnemy(); //살아있는 적 찾기
-
                 if (target == null)
                 {
                     OnBattleFinished(true); //살아있는 적이 없을 경우 전투 종료 (승리)
@@ -135,14 +170,17 @@ public class BattleEventManager : MonoBehaviour
                 target.hp = Mathf.Max(0, target.hp - damage); //적 체력 수정
                 Debug.Log($"[{GetType().Name}] 유저 -> 적:{target.enemyData.name} | 데미지:{damage} (HP {target.hp}/{target.enemyData.hp})");
 
-                if (AllEnemiesDead()) { //모든 적이 죽었을 경우 전투 종료(승리)
+                if (AllEnemiesDead())
+                { //모든 적이 죽었을 경우 전투 종료(승리)
                     OnBattleFinished(true);
                     yield break;
                 }
-            } else {
-                //--------- 적 턴 ---------
+            }
+            //--------- 적 턴 ---------
+            else
+            {
                 var enemy = (EnemySlot)slot; //slot을 enemy로 전환
-                
+
                 if (!enemy.isDead) //적이 죽었는지 확인, 죽은 적 슬롯은 스킵
                 {
                     int damage = ComputeEnemyDamage(enemy); //적 데미지 계산
@@ -157,7 +195,7 @@ public class BattleEventManager : MonoBehaviour
                 }
             }
 
-            _turnIndex = (_turnIndex + 1) % _turnOrder.Count; //인덱스 증가
+            turnIndex = (turnIndex + 1) % turnOrder.Count; //인덱스 증가
 
             // 연출 딜레이 (원하면 조절/삭제)
             yield return null; // or yield return new WaitForSeconds(0.15f);
@@ -171,9 +209,9 @@ public class BattleEventManager : MonoBehaviour
     /// <returns>하나라도 살아 있으면 false, 아니라면 true</returns>
     private bool AllEnemiesDead()
     {
-        for (int i = 0; i < _turnOrder.Count; i++)
+        for (int i = 0; i < turnOrder.Count; i++)
         {
-            var slot = _turnOrder[i];
+            var slot = turnOrder[i];
             if (slot is EnemySlot e && !e.isDead) return false;
         }
         return true;
@@ -182,9 +220,9 @@ public class BattleEventManager : MonoBehaviour
     //해당 메소드를 적을 골라 때리는 방식으로 변환 필요
     private EnemySlot FindFirstAliveEnemy()
     {
-        for (int i = 0; i < _turnOrder.Count; i++)
+        for (int i = 0; i < turnOrder.Count; i++)
         {
-            var slot = _turnOrder[i];
+            var slot = turnOrder[i];
             if (slot is EnemySlot e && !e.isDead) return e;
         }
         return null;
@@ -219,10 +257,10 @@ public class BattleEventManager : MonoBehaviour
         Debug.Log(win ? "[Battle] 승리" : "[Battle] 패배");
 
         // 기존 루틴 정리
-        if (_battleRoutine != null)
+        if (battleRoutine != null)
         {
-            StopCoroutine(_battleRoutine);
-            _battleRoutine = null;
+            StopCoroutine(battleRoutine);
+            battleRoutine = null;
         }
 
         // 여기서 당신의 노드 시스템과 연결하세요:
