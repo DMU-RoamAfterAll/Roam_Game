@@ -86,8 +86,8 @@ public class BattleNode
     public List<string> battleIntro; //전투 시작 전 인트로 내용을 적는 노드, 리스트를 사용하여 여러 문장을 나누어 작성
     public List<string> battleOrder; //전투 진행 순서를 결정하는 노드, 리스트 앞쪽 순서부터 순서대로 진행
     public List<string> battleTriggers; //전투시 적용할 특성
-    public string BattleWin; //전투 승리 시 다음 출력을 위한 노드 키값, 본문이 출력된 후 해당 노드로 이동
-    public string BattleLose; //전투 패배 시 다음 출력을 위한 노드 키값, 본문이 출력된 후 해당 노드로 이동
+    public string battleWin; //전투 승리 시 다음 출력을 위한 노드 키값, 본문이 출력된 후 해당 노드로 이동
+    public string battleLose; //전투 패배 시 다음 출력을 위한 노드 키값, 본문이 출력된 후 해당 노드로 이동
 }
 
 //-------------------------------------------------------------------------------
@@ -98,8 +98,9 @@ public class SectionEventManager : MonoBehaviour
     private string jsonFolderPath =
     "StoryGameData/SectionData/StoryEvent/MainSection/MainTutorialSection"; //Json폴더가 담긴 파일의 경로
     private Dictionary<string, object> sectionData = new Dictionary<string, object>(); //파싱된 Json데이터
-    private SectionEventParser sectionEventParser;
+    private BattleEventManager battleEventManager;
     private EventDisplayManager eventDisplayManager;
+    private SectionEventParser sectionEventParser;
     private ItemDataManager itemDataManager;
     private StoryFlagManager storyFlagManager;
     private WeaponDataManager weaponDataManager;
@@ -111,8 +112,9 @@ public class SectionEventManager : MonoBehaviour
     private void Awake()
     {
         //참조 캐싱
-        sectionEventParser = GetComponent<SectionEventParser>();
+        battleEventManager = GetComponent<BattleEventManager>();
         eventDisplayManager = GetComponent<EventDisplayManager>();
+        sectionEventParser = GetComponent<SectionEventParser>();
         itemDataManager = GetComponent<ItemDataManager>();
         storyFlagManager = GetComponent<StoryFlagManager>();
         weaponDataManager = GetComponent<WeaponDataManager>();
@@ -465,7 +467,7 @@ public class SectionEventManager : MonoBehaviour
             }
             else if (node is BattleNode battleNode)
             {
-                eventDisplayManager.DisplayBattleNode(battleNode);
+                battleEventManager.EnterBattleTurn(battleNode);
             }
             else
             {

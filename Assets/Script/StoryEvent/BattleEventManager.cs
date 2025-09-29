@@ -43,6 +43,7 @@ public class BattleEventManager : MonoBehaviour
 {
     private SectionEventManager sectionEventManager;
     private EventDisplayManager eventDisplayManager;
+    private EnemyDataManager enemyDataManager;
     public Dictionary<string, EnemyDataNode> enemyData = new Dictionary<string, EnemyDataNode>();
 
     public PlayerStats player;
@@ -60,19 +61,20 @@ public class BattleEventManager : MonoBehaviour
         //참조 캐싱
         sectionEventManager = GetComponent<SectionEventManager>();
         eventDisplayManager = GetComponent<EventDisplayManager>();
+        enemyDataManager = GetComponent<EnemyDataManager>();
     }
 
     // ------------- 외부에서 시작하는 진입점 -------------
     /// <summary>
     /// 전투 진입 메소드, 해당 메소드를 통해 전투 시작
     /// currentEnemyList: null = 플레이어 턴, EnemyDataNode = 적 턴
-    /// nextOnWin/nextOnLose: 전투 종료 후 넘어갈 노드 키
     /// </summary>
-    public void EnterBattleTurn(BattleNode node, string nextOnWin, string nextOnLose)
+    /// <param name="node">출력할 전투 노드</param>
+    public void EnterBattleTurn(BattleNode node)
     {
         List<string> battleOrder = node.battleOrder;
-        nextOnWin = nextOnWin;
-        nextOnLose = nextOnLose;
+        nextOnWin = node.battleWin;
+        nextOnLose = node.battleLose;
 
         //기존 루틴 정리
         if (battleRoutine != null)
@@ -97,11 +99,11 @@ public class BattleEventManager : MonoBehaviour
         }
 
         Debug.Log($"배틀 실행 : {string.Join("→", battleOrder)}");
-        eventDisplayManager.LoadSceneSprite(battleImage); //전투 이미지 출력
-        StartCoroutine(eventDisplayManager.TypeTextCoroutine(string.Join("\n", node.battleIntro))); //전투 인트로 출력
-
-        turnIndex = 0;
-        battleRoutine = StartCoroutine(BattleLoop()); //메인 전투 실행
+        eventDisplayManager.DisplayBattleIntro( //전투 인트로 출력
+            node.battleIntro,
+            battleImage,
+            onBattleStart: () => { battleRoutine = StartCoroutine(BattleLoop()); } //인트로 출력이 끝난다면 메인 전투 루프 실행
+        );
     }
 
     /// <summary>
@@ -123,7 +125,8 @@ public class BattleEventManager : MonoBehaviour
             else //적 턴
             {
                 //적 인스턴스 생성, EnemyDataNode에서 스탯을 읽고 hp만 런타임 관리
-                if (!enemyData.TryGetValue(enemyCode, out var tpl) || tpl == null)
+                var tpl = enemyDataManager.GetEnemyByCode(enemyCode);
+                if(tpl == null)
                 {
                     Debug.LogError($"[{GetType().Name}] 적 데이터를 찾을 수 없습니다: {enemyCode}");
                     continue;
@@ -143,13 +146,12 @@ public class BattleEventManager : MonoBehaviour
     /// </summary>
     private IEnumerator BattleLoop()
     {
+        turnIndex = 0;
+
         while (true)
         {
             //텍스트 비우기
             eventDisplayManager.dialogueText.text = "";
-
-            //기존 버튼 제거
-            eventDisplayManager.ClearButtons();
 
             // 전투 종료 체크
             if (AllEnemiesDead()) { OnBattleFinished(true); yield break; } //모든 적 사망 (승리)
@@ -198,7 +200,7 @@ public class BattleEventManager : MonoBehaviour
             turnIndex = (turnIndex + 1) % turnOrder.Count; //인덱스 증가
 
             // 연출 딜레이 (원하면 조절/삭제)
-            yield return null; // or yield return new WaitForSeconds(0.15f);
+            yield return new WaitForSeconds(0.15f);
         }
     }
 
@@ -264,6 +266,6 @@ public class BattleEventManager : MonoBehaviour
         }
 
         // 여기서 당신의 노드 시스템과 연결하세요:
-        // StartDialogue(win ? _nextOnWin : _nextOnLose);
+        sectionEventManager.StartDialogue(win ? nextOnWin : nextOnLose);
     }
 }

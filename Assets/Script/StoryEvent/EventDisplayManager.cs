@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.Events;
 
 public class EventDisplayManager : MonoBehaviour
 {
@@ -45,8 +46,8 @@ public class EventDisplayManager : MonoBehaviour
     /// <param name="node">출력할 본문 노드</param>
     public void DisplayTextNode(TextNode node)
     {
-        StopAllCoroutines();
-        ClearButtons(); //버튼 제거
+        ClearButtons(); //기존 버튼 제거
+        StopTyping(); //기존 코루틴 제거
 
         sectionEventManager.HandleNodeActions(node.action); //액션 실행
 
@@ -54,12 +55,8 @@ public class EventDisplayManager : MonoBehaviour
         {
             StartCoroutine(TypeTextCoroutine(string.Join("\n", node.value), () =>
             {
-                GameObject buttonObj = Instantiate(buttonPrefab, buttonPanel);
-                Button button = buttonObj.GetComponent<Button>();
-                TextMeshProUGUI buttonText = buttonObj.GetComponentInChildren<TextMeshProUGUI>();
-                buttonText.text = "다음으로";
-                button.onClick.RemoveAllListeners();
-                button.onClick.AddListener(() => sectionEventManager.StartDialogue(node.next));
+                //다음으로 버튼 생성
+                CreateButtons("다음으로", () => sectionEventManager.StartDialogue(node.next));
             }));
         }
         else
@@ -74,29 +71,16 @@ public class EventDisplayManager : MonoBehaviour
     /// <param name="node">출력할 선택지 노드</param>
     public void DisplayMenuNode(MenuNode node)
     {
-        //텍스트 비우기
-        dialogueText.text = "";
-
-        //기존 버튼 제거
-        ClearButtons();
+        StopTyping(); //기존 코루틴 제거
+        dialogueText.text = ""; //텍스트 비우기
+        ClearButtons(); //기존 버튼 제거
 
         foreach (MenuOption option in node.menuOption)
         {
             //각 선택지에 대해 버튼 생성
-            GameObject buttonObj = Instantiate(buttonPrefab, buttonPanel);
-
-            Button button = buttonObj.GetComponent<Button>();
-            TextMeshProUGUI buttonText = buttonObj.GetComponentInChildren<TextMeshProUGUI>();
-
-            buttonText.text = option.label;
-
-            button.onClick.RemoveAllListeners();
-            button.onClick.AddListener(() =>
+            CreateButtons(option.label, () =>
             {
                 Debug.Log($"선택됨: {option.id}");
-
-                //선택지 클릭 후 기존 버튼 제거
-                ClearButtons();
 
                 //액션 처리
                 if (option.action != null)
@@ -108,7 +92,6 @@ public class EventDisplayManager : MonoBehaviour
                 //선택지 텍스트 출력
                 if (!string.IsNullOrEmpty(option.next))
                 {
-                    StopAllCoroutines();
                     sectionEventManager.StartDialogue(option.next);
                 }
                 else
@@ -120,57 +103,25 @@ public class EventDisplayManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 전투 씬 출력 메소드
+    /// 전투 인트로 출력 및 전투 삽화 변경 메소드
     /// </summary>
-    /// <param name="node">출력할 전투 노드</param>
-    public void DisplayBattleNode(BattleNode node)
+    /// <param name="battleIntro">출력할 전투 인트로 리스트</param>
+    /// <param name="battleImage">출력할 전투 삽화명</param>
+    /// <param name="onBattleStart">인트로 출력이 끝난 후 실행할 전투 콜백함수</param>
+    public void DisplayBattleIntro(List<string> battleIntro, string battleImage, UnityAction onBattleStart)
     {
-        List<string> battleOrder = node.battleOrder;
+        ClearButtons(); //기존 버튼 제거
+        StopTyping(); //기존 코루틴 제거
+        dialogueText.text = ""; //텍스트 비우기
 
-        if (battleOrder.Count > 1 && battleOrder.Count(item => item == "player") == 1)
-        {
-            Debug.Log($"배틀 실행 : {string.Join("→", battleOrder)}");
-
-            //현재 적 정보 리스트 불러오기
-            string BattleImage = "";
-            foreach (string enemyCode in battleOrder)
-            {
-                if (enemyCode == "player")
-                {
-                    currentEnemyList.Add(null); //플레이어 턴에선 null값을 삽입
-                }
-                else
-                {
-                    EnemyDataNode enemyDict = enemyDataManager.GetEnemyByCode(enemyCode);
-                    if (enemyDict != null)
-                    {
-                        currentEnemyList.Add(enemyDict);
-                        BattleImage = enemyDict.image;
-                    }
-                    else
-                    {
-                        Debug.LogError($"[{GetType().Name}] 잘못된 적 코드값 : {enemyCode}");
-                    }
-                }
+        LoadSceneSprite("BattleImage/"+battleImage); //전투 이미지 출력
+        StartCoroutine(TypeTextCoroutine(
+            string.Join("\n", battleIntro), //전투 인트로 출력
+            onComplete: () => {
+                CreateButtons("전투 시작", onBattleStart); //인트로 출력이 끝난다면 메인 전투 루프 실행
             }
-            //텍스트 비우기
-            dialogueText.text = "";
-
-            //기존 버튼 제거
-            ClearButtons();
-
-            LoadSceneSprite(BattleImage); //전투 이미지 출력
-            dialogueText.text = node.battleIntro[0];
-
-            //전투 인트로 출력
-            StartCoroutine(TypeTextCoroutine(string.Join("\n", node.battleIntro)));
-
-            //턴제 전투 돌입
-        }
-        else
-        {
-            Debug.LogError($"[{GetType().Name}] 잘못된 battleOrder : {string.Join("→", battleOrder)}");
-        }
+        )); //전투 인트로 출력
+            
     }
 
     //-------------------------------------------------------------------------------
@@ -178,9 +129,30 @@ public class EventDisplayManager : MonoBehaviour
     //-------------------------------------------------------------------------------
 
     /// <summary>
+    /// 버튼 UI 생성 메소드
+    /// </summary>
+    /// <param name="text">버튼에 표시 글자</param>
+    /// <param name="onClickAction">버튼 onClick 함수</param>
+    /// <returns></returns>
+    private Button CreateButtons(string text, UnityAction onClickAction)
+    {
+        GameObject buttonObj = Instantiate(buttonPrefab, buttonPanel);
+        Button button = buttonObj.GetComponent<Button>();
+        TextMeshProUGUI buttonText = buttonObj.GetComponentInChildren<TextMeshProUGUI>();
+        buttonText.text = text;
+        button.onClick.RemoveAllListeners();
+        button.onClick.AddListener(() => {
+            onClickAction?.Invoke();  
+            ClearButtons();                     // 패널 내 모든 버튼 삭제
+        });
+
+        return button;
+    }
+
+    /// <summary>
     /// 버튼 UI 제거 메소드
     /// </summary>
-    public void ClearButtons()
+    private void ClearButtons()
     {
         for (int i = buttonPanel.childCount - 1; i >= 0; i--)
         {
@@ -200,7 +172,11 @@ public class EventDisplayManager : MonoBehaviour
         string imagePath = $"{imageFolderPath}/{imageName}"; //이미지 주소 생성
 
         Texture2D texture = Resources.Load<Texture2D>(imagePath);
-        if (texture == null) return;
+        if (texture == null)
+        {
+            Debug.LogWarning($"[{GetType().Name}] 이미지 경로 오류 {imagePath}");
+            return;
+        }
 
         //삽화 이미지 랜더링
         Sprite newSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
@@ -221,14 +197,11 @@ public class EventDisplayManager : MonoBehaviour
     /// </summary>
     /// <param name="fullText">타이핑 효과를 넣고 싶은 텍스트 전문</param>
     /// <param name="onComplete">타이핑 완료시 실행할 이벤트</param>
-    public void StartTyping(string fullText, System.Action onComplete = null)
+    private void StartTyping(string fullText, System.Action onComplete = null)
     {
         //이전 코루틴이 실행 중이면 중단
-        if (typingCoroutine != null)
-        {
-            StopCoroutine(typingCoroutine);
-            typingCoroutine = null;
-        }
+        StopTyping();
+
         //새 코루틴 실행
         typingCoroutine = StartCoroutine(TypeTextCoroutine(fullText, () =>
         {
@@ -240,7 +213,7 @@ public class EventDisplayManager : MonoBehaviour
     /// <summary>
     /// 스크립트 타이핑 코루틴 중지 메소드
     /// </summary>
-    public void StopTyping()
+    private void StopTyping()
     {
         if (typingCoroutine != null)
         {
@@ -254,7 +227,7 @@ public class EventDisplayManager : MonoBehaviour
     /// </summary>
     /// <param name="fullText">타이핑 효과를 넣고 싶은 텍스트 전문</param>
     /// <param name="onComplete">타이핑 완료시 실행할 이벤트</param>
-    public IEnumerator TypeTextCoroutine(string fullText, System.Action onComplete = null)
+    private IEnumerator TypeTextCoroutine(string fullText, System.Action onComplete = null)
     {
         dialogueText.text = ""; //타이핑 첫 시작시 내용 초기화
         int typingLength = fullText.GetTypingLength(); //문장 길이 측정
