@@ -219,6 +219,7 @@ public class SwitchSceneManager : MonoBehaviour
         pc.sectionData.isCleared = true;
 
         var tuto = pc.sectionData.GetComponent<TutorialManager>();
+        if(tuto != null) tuto.CompleteSection();
         SaveLoadManager.Instance?.SaveNow();
     }
     #endif

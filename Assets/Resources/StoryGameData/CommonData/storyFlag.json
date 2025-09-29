@@ -3,5 +3,11 @@
     "code": "flag_test",
     "name": "테스트 플래그",
     "description": "테스트용으로 임시 제작한 플래그, 내용을 적당히 채우는 중."
+  },
+
+  {
+    "code": "t3_flag",
+    "name": "죽은 남자의 집 위치 추가",
+    "description": "T3_Section 완료 후 지도에 죽은 남자의 집 위치 추가"
   }
 ]

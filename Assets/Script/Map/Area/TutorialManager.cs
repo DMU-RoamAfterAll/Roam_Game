@@ -23,14 +23,16 @@ public class TutorialManager : MonoBehaviour {
     }
 
     public void CompleteSection() {
-        if(nextGo == null) {
+        if(nextGo == null) { 
             GameDataManager.Data.tutorialClear = true;
-            MapSceneDataManager.Instance.Player.transform.SetParent(p);
+            MapSceneDataManager.Instance?.Player.transform.SetParent(null);
+            GameObject tutorialArea = MapSceneDataManager.Instance?.areaObjects[MapSceneDataManager.Instance.areaObjects.Count - 1];
+            Destroy(tutorialArea);
+            MapSceneDataManager.Instance?.areaObjects.Remove(tutorialArea);
+            foreach(var n in MapSceneDataManager.Instance?.areaObjects) {
+                n.SetActive(true);
+            }
         }
-        else {
-            nextGo.GetComponent<CircleCollider2D>().enabled = true;
-            MapSceneDataManager.Instance.Player.transform.SetParent(nextGo.transform);
-        }
-        Destroy(this.gameObject); 
+        else { nextGo.GetComponent<CircleCollider2D>().enabled = true; }
     }
 }

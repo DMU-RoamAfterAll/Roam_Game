@@ -461,6 +461,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _camera: {fileID: 0}
+  cf: {fileID: 0}
+  zoomIn: 0
 --- !u!1 &226510915
 GameObject:
   m_ObjectHideFlags: 0
@@ -1210,6 +1212,68 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 820789978}
   m_CullTransparentMesh: 1
+--- !u!1001 &875207006
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1490040434}
+    m_Modifications:
+    - target: {fileID: 2709266026802814724, guid: 82dcbd737019941aca025f6918abbb56, type: 3}
+      propertyPath: m_Name
+      value: LightHole
+      objectReference: {fileID: 0}
+    - target: {fileID: 3624809126593110620, guid: 82dcbd737019941aca025f6918abbb56, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3624809126593110620, guid: 82dcbd737019941aca025f6918abbb56, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3624809126593110620, guid: 82dcbd737019941aca025f6918abbb56, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -9
+      objectReference: {fileID: 0}
+    - target: {fileID: 3624809126593110620, guid: 82dcbd737019941aca025f6918abbb56, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3624809126593110620, guid: 82dcbd737019941aca025f6918abbb56, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3624809126593110620, guid: 82dcbd737019941aca025f6918abbb56, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3624809126593110620, guid: 82dcbd737019941aca025f6918abbb56, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3624809126593110620, guid: 82dcbd737019941aca025f6918abbb56, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3624809126593110620, guid: 82dcbd737019941aca025f6918abbb56, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3624809126593110620, guid: 82dcbd737019941aca025f6918abbb56, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 82dcbd737019941aca025f6918abbb56, type: 3}
+--- !u!4 &875207007 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3624809126593110620, guid: 82dcbd737019941aca025f6918abbb56, type: 3}
+  m_PrefabInstance: {fileID: 875207006}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1036220794
 GameObject:
   m_ObjectHideFlags: 0
@@ -2220,7 +2284,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+  - {fileID: 2100000, guid: 0224bf0ac608d4e44b7eaac6fb9e0fea, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2896,7 +2960,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 875207007}
   m_Father: {fileID: 1221575636}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1490040435
@@ -2970,7 +3035,6 @@ MonoBehaviour:
   mapSceneData: {fileID: 11400000, guid: 6ce5e3c6dd11e4e3eb6d1b090f5a0d5d, type: 2}
   Player: {fileID: 0}
   originSection: {fileID: 0}
-  hiddenArea: {fileID: 0}
   worldCamera: {fileID: 0}
   playerLocate: 
   areaObjects: []
@@ -2979,6 +3043,7 @@ MonoBehaviour:
   stepManagerUI: {fileID: 0}
   enterBtnUI: {fileID: 0}
   cameraZoom: {fileID: 0}
+  pc: {fileID: 0}
 --- !u!1 &1627043982
 GameObject:
   m_ObjectHideFlags: 0
@@ -3207,6 +3272,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Player: {fileID: 0}
+  pc: {fileID: 0}
   minDistance: 0
   riverHeight: 0
   areaNumber: 0
