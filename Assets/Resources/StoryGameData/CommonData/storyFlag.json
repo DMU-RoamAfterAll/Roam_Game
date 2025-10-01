@@ -6,8 +6,20 @@
   },
 
   {
-    "code": "t3_flag",
+    "code": "t3_MapCheck",
     "name": "죽은 남자의 집 위치 추가",
     "description": "T3_Section 완료 후 지도에 죽은 남자의 집 위치 추가"
+  },
+
+  {
+    "code": "t3_GiveWater",
+    "name": "죽은 남자에게 물을 주었을 경우",
+    "description": "T3_Section 진행 중 죽은 남자에게 물을 건네었을 때"
+  },
+
+  {
+    "code": "m1_GetM2Map",
+    "name": "M1_Section 완료시",
+    "description": "M1_Section 완료 후 지도에 M2_Section 위치 추가"
   }
 ]
