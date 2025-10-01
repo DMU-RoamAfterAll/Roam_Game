@@ -185,6 +185,11 @@ public class AreaLocateControl : MonoBehaviour {
     }
 
     void StartToturial() {
+        if(GameDataManager.Data.tutorialClear) {
+            Destroy(areas[areaNumber - 1].gameObject);
+            return;
+        }
+        
         for(int i = 0; i < areaNumber - 1; i++) { areas[i].gameObject.SetActive(false); }
         foreach(var s in areas[areaNumber - 1].Sections) {
             s.gameObject.AddComponent<TutorialManager>();

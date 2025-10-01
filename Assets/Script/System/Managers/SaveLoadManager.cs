@@ -12,6 +12,7 @@ public class SaveData {
     public Vector3 playerPos;
     public string currentSectionId;
     public string preSectionId;
+    public bool tutorialClear;
     public List<string> visitedSectionIds = new List<string>();
 }
 
@@ -159,7 +160,7 @@ public class SaveLoadManager : MonoBehaviour {
                     Debug.LogWarning($"[Load] currentSectionId '{data.currentSectionId}' -> '{curId}' not found");
                 }
             }
-            else if(pendingLoadData != null && string.IsNullOrEmpty(data.currentSectionId)) {
+            else if(pendingLoadData != null && string.IsNullOrEmpty(data.currentSectionId) && !GameDataManager.Data.tutorialClear) {
                 pc.currentSection = MapSceneDataManager.Instance.originSection;
                 pc.sectionData    = null;
                 player.transform.SetParent(pc.currentSection.transform, true);
@@ -188,6 +189,8 @@ public class SaveLoadManager : MonoBehaviour {
         DeleteSave();              // 파일 삭제
         save = new SaveData();     // 메모리 초기화
 
+        GameDataManager.Data.tutorialClear = false;
+
         if (!resetSceneFlags) return;
 
         var msdm = MapSceneDataManager.Instance;
@@ -208,6 +211,7 @@ public class SaveLoadManager : MonoBehaviour {
 
     private SaveData TakeSnapshot() {
         save.playerName = GameDataManager.Data.playerName;
+        save.tutorialClear = GameDataManager.Data.tutorialClear;
         save.originSeed = GameDataManager.Data.seed;
 
         GameObject player = MapSceneDataManager.Instance.Player;
@@ -240,6 +244,8 @@ public class SaveLoadManager : MonoBehaviour {
             Debug.Log($"[SaveLoad] user = {data.playerName}, seed = {data.originSeed}");
             Debug.Log($"[SaveLoad] pos = {data.playerPos}");
 
+            GameDataManager.Data.tutorialClear = data.tutorialClear;
+
             StartCoroutine(ApplyLoadedData(data));
         }
         else {
@@ -253,6 +259,16 @@ public class SaveLoadManager : MonoBehaviour {
         if (!string.IsNullOrEmpty(norm) && !save.visitedSectionIds.Contains(norm)) {
             save.visitedSectionIds.Add(norm);
         }
+    }
+
+    public void AfterTutorialClear() {
+        if(save == null) return;
+        save.currentSectionId = "";
+        save.preSectionId = "";
+        save.visitedSectionIds = null;
+        GameObject player = MapSceneDataManager.Instance.Player;
+        if(player == null) return;
+        save.playerPos = player.transform.position;
     }
 
     #if UNITY_EDITOR

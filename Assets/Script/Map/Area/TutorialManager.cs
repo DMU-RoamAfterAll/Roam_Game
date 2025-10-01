@@ -26,6 +26,7 @@ public class TutorialManager : MonoBehaviour {
         if(nextGo == null) { 
             GameDataManager.Data.tutorialClear = true;
             MapSceneDataManager.Instance?.Player.transform.SetParent(null);
+            SaveLoadManager.Instance.AfterTutorialClear();
             GameObject tutorialArea = MapSceneDataManager.Instance?.areaObjects[MapSceneDataManager.Instance.areaObjects.Count - 1];
             Destroy(tutorialArea);
             MapSceneDataManager.Instance?.areaObjects.Remove(tutorialArea);

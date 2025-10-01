@@ -34,7 +34,6 @@ public class GameDataManager : MonoBehaviour {
         gameData.playerName = "Potato";
         //gameData.seed = Guid.NewGuid().GetHashCode();
         gameData.seed = -1803581142;
-        gameData.tutorialClear = false;
 
         Application.targetFrameRate = 60;
     }
