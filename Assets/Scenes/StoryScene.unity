@@ -967,6 +967,8 @@ GameObject:
   - component: {fileID: 994506509}
   - component: {fileID: 994506510}
   - component: {fileID: 994506513}
+  - component: {fileID: 994506515}
+  - component: {fileID: 994506514}
   m_Layer: 0
   m_Name: StoryEventManager
   m_TagString: Untagged
@@ -1001,14 +1003,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23fa315663c7fea4e868106ba9d1221e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  jsonId: 
-  viewport: {fileID: 0}
-  buttonPrefab: {fileID: 8142386380739390831, guid: becd6d666a370e24e85f6180cd36222d, type: 3}
-  buttonPanel: {fileID: 0}
-  sceneImage: {fileID: 0}
-  dialogueText: {fileID: 0}
-  delayPerChar: 0.01
-  delayPerSentence: 0.25
+  jsonFileName: T2_section
 --- !u!114 &994506508
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1086,6 +1081,44 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyList: []
+--- !u!114 &994506514
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 994506504}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1e1b41b4e7e0df45b4c2aef26c5a063, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  viewport: {fileID: 0}
+  buttonPrefab: {fileID: 8142386380739390831, guid: becd6d666a370e24e85f6180cd36222d, type: 3}
+  buttonPanel: {fileID: 0}
+  sceneImage: {fileID: 0}
+  dialogueText: {fileID: 0}
+  delayPerChar: 0.01
+  delayPerSentence: 0.25
+--- !u!114 &994506515
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 994506504}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89ce6b9069af26342ae62f3b09c5f2ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player:
+    hp: 100
+    atk: 10
+    spd: 10
+    hitRate: 70
+    evasionRate: 12
+    CounterRate: 3
 --- !u!1001 &1107440863
 PrefabInstance:
   m_ObjectHideFlags: 0
