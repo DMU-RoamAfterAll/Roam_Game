@@ -6,19 +6,15 @@ using System.Text;
 using TMPro;
 using UnityEngine.SceneManagement;
 
-#region 데이터 클래스
-// 로그인 요청 데이터 클래스
+#region DTOs (이름을 고유하게!)
 [System.Serializable]
-public class LoginRequest
-{
+public class AuthLoginRequest {
     public string username;
     public string password;
 }
 
-// 로그인 응답 데이터 클래스 (JWT 토큰 수신용)
 [System.Serializable]
-public class LoginResponse
-{
+public class AuthLoginResponse {
     public string accessToken;
     public string refreshToken;
 }
@@ -26,78 +22,88 @@ public class LoginResponse
 
 public class LoginManager : MonoBehaviour
 {
-    private string baseUrl = "http://125.176.246.14:8081/api/users";
+    private string baseUrl;
 
-    private string accessToken;
-    private string refreshToken;
-
-    // UI 입력창 아웃렛 접속
-    [Header("Login")]
+    [Header("Login UI")]
     public TMP_InputField idInputField;
     public TMP_InputField pwInputField;
     public Button loginBtn;
 
     void Start() {
-        baseUrl = $"{GameDataManager.Data.baseUrl}/api/users";
+        baseUrl = $"http://125.176.246.14:8081/api/users";
         Debug.Log($"[Login] baseUrl = {baseUrl}");
+        // AuthManager 존재 여부
+        Debug.Log($"[Login] AuthManager present? {(AuthManager.Instance != null ? "YES" : "NO")}");
+
+
+        if (AuthManager.Instance == null)
+            Debug.LogWarning("[Login] AuthManager Instance 없음. 씬에 AuthManager를 추가하세요.");
     }
-    // 로그인 버튼 onClick 이벤트 함수
-    public void LoginBtn()
-    {
+
+    public void LoginBtn() {
+        // 버튼 클릭 시 입력 상태
+        Debug.Log($"[Login] Click login. user='{idInputField?.text}', pwLen={(pwInputField?.text?.Length ?? 0)}");
         StartCoroutine(Login(idInputField.text, pwInputField.text));
     }
 
-    // 회원가입 씬으로 이동
-    public void GoRegisterSceneBtn()
-    {
+    public void GoRegisterSceneBtn() {
         SceneManager.LoadScene("RegisterScene");
     }
 
-    #region 로그인 코루틴 함수
-    public IEnumerator Login(string username, string password)
+    private IEnumerator Login(string username, string password)
     {
-        // 아이디나 비밀번호 칸 비워져있는지 확인
-        if (string.IsNullOrEmpty(idInputField.text) || 
-            string.IsNullOrEmpty(pwInputField.text)) 
-        {
+        if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password)) {
             Debug.Log("빈 칸을 채워주세요.");
             yield break;
         }
 
-        // 로그인 데이터 생성
-        var loginData = new LoginRequest 
-        { 
-            username = username, 
-            password = password 
-        };
-        // 데이터 JSON화
+        var loginData = new AuthLoginRequest { username = username, password = password };
         string jsonData = JsonUtility.ToJson(loginData);
 
-        // POST 요청 설정
-        UnityWebRequest request = new UnityWebRequest($"{baseUrl}/login", "POST");
-        request.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(jsonData));
-        request.downloadHandler = new DownloadHandlerBuffer();
-        request.SetRequestHeader("Content-Type", "application/json");
+        string url = $"{baseUrl}/login";
 
-        // 요청 전송
-        yield return request.SendWebRequest();
+        // 요청 준비
+        Debug.Log($"[Login] POST {url}");
+        //Debug.Log($"[Login] payload={jsonData}");
 
-        // 로그인 성공 시 작업
-        if (request.result == UnityWebRequest.Result.Success)
+        var req = new UnityWebRequest(url, "POST");
+        req.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(jsonData));
+        req.downloadHandler = new DownloadHandlerBuffer();
+        req.SetRequestHeader("Content-Type", "application/json");
+
+        float t0 = Time.realtimeSinceStartup; // 시간 측정
+
+        yield return req.SendWebRequest();
+        
+        float ms = (Time.realtimeSinceStartup - t0) * 1000f;
+
+        // 결과 요약
+        Debug.Log($"[Login] response result={req.result}, code={req.responseCode}, elapsed={ms:F0}ms");
+
+        // 응답 바디(문제 추적용)
+        // Debug.Log($"[Login] body={req.downloadHandler.text}");
+
+        if (req.result == UnityWebRequest.Result.Success && req.responseCode >= 200 && req.responseCode < 300)
         {
-            var response = JsonUtility.FromJson<LoginResponse>(request.downloadHandler.text);
-            accessToken = response.accessToken;
-            refreshToken = response.refreshToken;
-            Debug.Log("로그인 성공: 토큰 저장 완료");
+            var resp = JsonUtility.FromJson<AuthLoginResponse>(req.downloadHandler.text);
 
-            // 로그인 성공 이후 작업
+            // 토큰 길이만 출력
+            Debug.Log($"[Login] tokens received: accessLen={(resp?.accessToken?.Length ?? 0)}, refreshLen={(resp?.refreshToken?.Length ?? 0)}");
+
+            if (AuthManager.Instance != null) {
+                AuthManager.Instance.SetTokens(resp.accessToken, resp.refreshToken);
+                // 토큰 저장 처리 호출됨
+                Debug.Log("[Login] AuthManager.SetTokens called");
+            } else {
+                Debug.LogError("[Login] AuthManager 가 없어 자동 갱신이 비활성입니다. 씬에 AuthManager를 추가하세요.");
+            }
+
             SceneManager.LoadScene("BootScene");
         }
-        else // 실패 시
+        else
         {
-            Debug.Log("로그인 실패: " + request.error);
+            // 실패 상세
+            Debug.LogWarning($"[Login] 실패: error={req.error}, result={req.result}, code={req.responseCode}");
         }
     }
-    #endregion
-
 }

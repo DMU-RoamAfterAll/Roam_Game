@@ -1412,6 +1412,13 @@ MonoBehaviour:
   folder: 
   autoSaveOnPause: 1
   prettyPrint: 1
+  pendingLoadData:
+    playerName: 
+    originSeed: 0
+    playerPos: {x: 0, y: 0, z: 0}
+    currentSectionId: 
+    preSectionId: 
+    visitedSectionIds: []
 --- !u!1 &2017959633
 GameObject:
   m_ObjectHideFlags: 0
