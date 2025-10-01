@@ -47,21 +47,24 @@ public class EventDisplayManager : MonoBehaviour
     public void DisplayTextNode(TextNode node)
     {
         ClearButtons(); //기존 버튼 제거
-        StopTyping(); //기존 코루틴 제거
 
         sectionEventManager.HandleNodeActions(node.action); //액션 실행
 
         if (!string.IsNullOrEmpty(node.next)) //본문 출력
         {
-            StartCoroutine(TypeTextCoroutine(string.Join("\n", node.value), () =>
+            StartTyping(string.Join("\n", node.value), () =>
             {
                 //다음으로 버튼 생성
                 CreateButtons("다음으로", () => sectionEventManager.StartDialogue(node.next));
-            }));
+            });
         }
         else
         {
-            StartCoroutine(TypeTextCoroutine(string.Join("\n", node.value)));
+            StartTyping(string.Join("\n", node.value), () =>
+            {
+                //본문 완료 시 조사를 종료하고 맵 씬으로 이동
+                CreateButtons("조사 종료", () => SwitchSceneManager.GoToMapScene());
+            });
         }
     }
 
@@ -111,17 +114,29 @@ public class EventDisplayManager : MonoBehaviour
     public void DisplayBattleIntro(List<string> battleIntro, string battleImage, UnityAction onBattleStart)
     {
         ClearButtons(); //기존 버튼 제거
-        StopTyping(); //기존 코루틴 제거
         dialogueText.text = ""; //텍스트 비우기
 
         LoadSceneSprite("BattleImage/"+battleImage); //전투 이미지 출력
-        StartCoroutine(TypeTextCoroutine(
-            string.Join("\n", battleIntro), //전투 인트로 출력
-            onComplete: () => {
-                CreateButtons("전투 시작", onBattleStart); //인트로 출력이 끝난다면 메인 전투 루프 실행
-            }
-        )); //전투 인트로 출력
-            
+        StartTyping(string.Join("\n", battleIntro),() =>
+        {
+            //전투 인트로 출력 후 메인 전투 루프 실행
+            CreateButtons("전투 시작", onBattleStart);
+        });
+    }
+
+    public void DisplayAttackTargetMenu(List<EnemySlot> aliveEnemies, System.Action<EnemySlot> onSelected)
+    {
+        foreach (EnemySlot enemy in aliveEnemies)
+        {
+            EnemySlot targetEnemy = enemy;
+
+            Debug.Log(targetEnemy.InstanceName);
+            //각 선택지에 대해 버튼 생성
+            CreateButtons(targetEnemy.InstanceName, () =>
+            {
+                onSelected?.Invoke(targetEnemy); //선택된 적을 콜백으로 넘김
+            });
+        }
     }
 
     //-------------------------------------------------------------------------------
@@ -136,14 +151,32 @@ public class EventDisplayManager : MonoBehaviour
     /// <returns></returns>
     private Button CreateButtons(string text, UnityAction onClickAction)
     {
-        GameObject buttonObj = Instantiate(buttonPrefab, buttonPanel);
-        Button button = buttonObj.GetComponent<Button>();
-        TextMeshProUGUI buttonText = buttonObj.GetComponentInChildren<TextMeshProUGUI>();
-        buttonText.text = text;
-        button.onClick.RemoveAllListeners();
-        button.onClick.AddListener(() => {
-            onClickAction?.Invoke();  
-            ClearButtons();                     // 패널 내 모든 버튼 삭제
+        var buttonObj = Instantiate(buttonPrefab, buttonPanel);
+        buttonObj.name = $"Btn_{text}";
+        buttonObj.SetActive(true);
+
+        // 2) 컴포넌트 안전하게 찾기 (자식까지 탐색)
+        var button = buttonObj.GetComponentInChildren<Button>(true);
+        if (button == null)
+        {
+            Debug.LogError($"[CreateButtons] Button 컴포넌트를 찾지 못했습니다. 프리팹 계층을 확인하세요. obj={buttonObj.name}");
+            return null;
+        }
+
+        var label = buttonObj.GetComponentInChildren<TextMeshProUGUI>(true);
+        if (label == null)
+            Debug.LogWarning($"[CreateButtons] TextMeshProUGUI 라벨이 없습니다. obj={buttonObj.name}");
+        else
+            label.text = text;
+        // GameObject buttonObj = Instantiate(buttonPrefab, buttonPanel);
+        // Button button = buttonObj.GetComponentInChildren<Button>(true);
+        // TextMeshProUGUI buttonText = buttonObj.GetComponentInChildren<TextMeshProUGUI>();
+        // buttonText.text = text;
+        // button.onClick.RemoveAllListeners();
+        button.onClick.AddListener(() =>
+        { //클릭 시 onClick 실행 후 버튼 삭제
+            onClickAction?.Invoke();
+            ClearButtons();
         });
 
         return button;

@@ -4,13 +4,16 @@ using System.Collections;
 using System.Linq;
 using UnityEditor;
 using System;
+using Unity.VisualScripting;
 
 // ------------------------------------------------------
 // 런타임 슬롯(이번 전투에서만 HP 추적). 스탯은 enemy json 기준으로 사용.
 // ------------------------------------------------------
-class EnemySlot {
+public class EnemySlot
+{
     public EnemyDataNode enemyData; //적 데이터, 공격력 듯 필요한 고정 스탯을 불러옴
     public int hp; //이번 전투 hp
+    public int instanceId = 0; //적이 여러명일 시 구분을 위해 사용하는 고유 번호 (ex : 들개1 들개2 ... )
 
     /// <summary>
     /// 전투 진입 시 hp를 json 기준값으로 설정하는 메소드
@@ -22,7 +25,11 @@ class EnemySlot {
         hp = data.hp;
     }
 
-    public bool isDead => hp <= 0; //적의 생존 여부, 변수 사용시 hp를 사용하여 자동 계산
+    //적의 생존 여부, 변수 사용시 hp를 사용하여 자동 계산
+    public bool IsDead => hp <= 0;
+    
+    //고유 번호를 포함한 이름
+    public string InstanceName => instanceId == 0 ? enemyData.name : $"{enemyData.name}{instanceId}";
 }
 
 // ------------------------------------------------------
@@ -54,6 +61,7 @@ public class BattleEventManager : MonoBehaviour
 
     private List<object> turnOrder; //전투 턴 순서(플레이어= null, 적 = EnemySlot)
     private int turnIndex;
+    private bool battleEnded = false;
     private Coroutine battleRoutine;
 
     private void Awake()
@@ -114,16 +122,19 @@ public class BattleEventManager : MonoBehaviour
     /// <returns>인스턴스화 된 적 리스트</returns>
     private List<object> BuildCurrentEnemyList(List<string> battleOrder)
     {
-        bool flag = false;
+        Dictionary<string, int> spawnCount = new Dictionary<string, int>(); //같은 종류별로 등장 횟수를 추적
+        bool battleImageChange = true;
         var currentEnemyList = new List<object>(battleOrder.Count);
-        foreach (var enemyCode in battleOrder)
+        foreach (var code in battleOrder)
         {
-            if (enemyCode == "player") //플레이어 턴
+            if (code == "player") //플레이어 턴
             {
                 currentEnemyList.Add(null);
             }
             else //적 턴
             {
+                var enemyCode = code; //적 코드 저장
+
                 //적 인스턴스 생성, EnemyDataNode에서 스탯을 읽고 hp만 런타임 관리
                 var tpl = enemyDataManager.GetEnemyByCode(enemyCode);
                 if(tpl == null)
@@ -131,11 +142,29 @@ public class BattleEventManager : MonoBehaviour
                     Debug.LogError($"[{GetType().Name}] 적 데이터를 찾을 수 없습니다: {enemyCode}");
                     continue;
                 }
-                if (flag == false)
+                if (battleImageChange)
                 {
                     battleImage = tpl.image;
+                    battleImageChange = false;
                 }
-                currentEnemyList.Add(new EnemySlot(tpl));
+
+                if (!spawnCount.ContainsKey(enemyCode)) //등장 횟수 세기
+                    spawnCount[enemyCode] = 0;
+
+                spawnCount[enemyCode]++;
+
+                int count = 0;
+                foreach (var element in battleOrder) //전체에서 같은 적이 몇마리 있는지 확인
+                {
+                    if (element == enemyCode)
+                        count++;
+                }
+                //같은 적이 여러 마리면 1부터 번호 부여, 1마리만 있으면 0
+                int number = (count == 1) ? 0 : spawnCount[enemyCode];
+
+                var slot = new EnemySlot(tpl); //적 슬롯 생성
+                slot.instanceId = number; //고유 번호 추가
+                currentEnemyList.Add(slot);
             }
         }
         return currentEnemyList;
@@ -147,8 +176,9 @@ public class BattleEventManager : MonoBehaviour
     private IEnumerator BattleLoop()
     {
         turnIndex = 0;
+        battleEnded = false;
 
-        while (true)
+        while (!battleEnded)
         {
             //텍스트 비우기
             eventDisplayManager.dialogueText.text = "";
@@ -161,29 +191,41 @@ public class BattleEventManager : MonoBehaviour
             //--------- 플레이어 턴 ---------
             if (slot == null)
             {
-                var target = FindFirstAliveEnemy(); //살아있는 적 찾기
-                if (target == null)
+                bool selectionDone = false;
+                EnemySlot chosen = null;
+
+                //살아있는 적 목록 생성
+                var aliveList = turnOrder.OfType<EnemySlot>().Where(e => !e.IsDead).ToList();
+                if (aliveList.Count == 0) //살아있는 적이 없으면 즉시 종료
                 {
-                    OnBattleFinished(true); //살아있는 적이 없을 경우 전투 종료 (승리)
-                    yield break;
-                }
-
-                int damage = ComputePlayerDamage(target); //플레이어 데미지 계산
-                target.hp = Mathf.Max(0, target.hp - damage); //적 체력 수정
-                Debug.Log($"[{GetType().Name}] 유저 -> 적:{target.enemyData.name} | 데미지:{damage} (HP {target.hp}/{target.enemyData.hp})");
-
-                if (AllEnemiesDead())
-                { //모든 적이 죽었을 경우 전투 종료(승리)
                     OnBattleFinished(true);
                     yield break;
                 }
+
+                eventDisplayManager.DisplayAttackTargetMenu(aliveList, target =>
+                {
+                    chosen = target;
+                    selectionDone = true;
+
+                    int damage = ComputePlayerDamage(target); //플레이어 데미지 계산
+                    target.hp = Mathf.Max(0, target.hp - damage); //적 체력 수정
+                    Debug.Log($"[{GetType().Name}] 유저 -> 적:{target.enemyData.name} | 데미지:{damage} (HP {target.hp}/{target.enemyData.hp})");
+
+                    if (AllEnemiesDead())
+                    { //모든 적이 죽었을 경우 전투 종료(승리)
+                        OnBattleFinished(true);
+                        battleEnded = true;
+                    }
+                });
+                yield return new WaitUntil(() => selectionDone || battleEnded); //사용자의 전투가 끝날때까지 대기
+                if (battleEnded) yield break; //죽었을 경우 전투 종료 처리
             }
             //--------- 적 턴 ---------
             else
             {
                 var enemy = (EnemySlot)slot; //slot을 enemy로 전환
 
-                if (!enemy.isDead) //적이 죽었는지 확인, 죽은 적 슬롯은 스킵
+                if (!enemy.IsDead) //적이 죽었는지 확인, 죽은 적 슬롯은 스킵
                 {
                     int damage = ComputeEnemyDamage(enemy); //적 데미지 계산
                     player.hp = Mathf.Max(0, player.hp - damage); //플레이어 체력 수정
@@ -214,7 +256,7 @@ public class BattleEventManager : MonoBehaviour
         for (int i = 0; i < turnOrder.Count; i++)
         {
             var slot = turnOrder[i];
-            if (slot is EnemySlot e && !e.isDead) return false;
+            if (slot is EnemySlot e && !e.IsDead) return false;
         }
         return true;
     }
@@ -225,7 +267,7 @@ public class BattleEventManager : MonoBehaviour
         for (int i = 0; i < turnOrder.Count; i++)
         {
             var slot = turnOrder[i];
-            if (slot is EnemySlot e && !e.isDead) return e;
+            if (slot is EnemySlot e && !e.IsDead) return e;
         }
         return null;
     }
@@ -256,7 +298,7 @@ public class BattleEventManager : MonoBehaviour
     /// <param name="win"></param>
     private void OnBattleFinished(bool win)
     {
-        Debug.Log(win ? "[Battle] 승리" : "[Battle] 패배");
+        Debug.Log(win ? "전투 승리" : "전투 패배");
 
         // 기존 루틴 정리
         if (battleRoutine != null)
