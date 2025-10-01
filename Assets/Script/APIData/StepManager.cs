@@ -32,6 +32,9 @@ public class StepManager : MonoBehaviour {
         #if UNITY_ANDROID && !UNITY_EDITOR
         if (!Permission.HasUserAuthorizedPermission(PERMISSION))
             Permission.RequestUserPermission(PERMISSION);
+        #elif UNITY_EDITOR
+        rawStepCount = 9999;
+        availableSteps = 9999;
         #endif
     }
 
