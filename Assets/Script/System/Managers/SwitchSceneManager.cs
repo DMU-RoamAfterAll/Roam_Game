@@ -8,8 +8,7 @@ using System.Collections.Generic;
 using UnityEditor;
 #endif
 
-public class SwitchSceneManager : MonoBehaviour
-{
+public class SwitchSceneManager : MonoBehaviour {
     public static SwitchSceneManager Instance { get; private set; }
 
     public string sectionPath;
@@ -31,8 +30,7 @@ public class SwitchSceneManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    private IEnumerator Start()
-    {
+    private IEnumerator Start() {
         // 자동 로드를 끔: BootScene만 보이게 유지
         if (autoLoadBaseOnStart)
             yield return EnsureBaseLoaded();  // 필요하면 켜서 사용
@@ -205,12 +203,22 @@ public class SwitchSceneManager : MonoBehaviour
                 break;
             }
         }
-    }
+    }   
 
     #if UNITY_EDITOR
     [MenuItem("Tools/Scenes/GoTo MapScene")]
     public static void GoToMapScene() {
-        SwitchSceneManager.Instance.MoveScene(SceneList.Map);
+        Instance?.MoveScene(SceneList.Map);
+
+        var pc = MapSceneDataManager.Instance.Player.GetComponent<PlayerControl>();
+
+        if(pc == null) { Debug.LogError("[Menu] PlayerControl not found."); return; }
+        if(pc.sectionData == null) { Debug.LogError("[Menu] pc.sectionData is null"); return; }
+
+        pc.sectionData.isCleared = true;
+
+        var tuto = pc.sectionData.GetComponent<TutorialManager>();
+        if(tuto != null) tuto.CompleteSection();
         SaveLoadManager.Instance?.SaveNow();
     }
     #endif

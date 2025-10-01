@@ -12,6 +12,8 @@ public class GameDataManager : MonoBehaviour {
 
     public static GameData Data => Instance.gameData; //asset에 접근 시 사용하는 변수이름
 
+    public string sectionPath;
+
     ///Instance
     void Awake() {
         if (Instance != null && Instance != this)  {
@@ -30,7 +32,8 @@ public class GameDataManager : MonoBehaviour {
 
         gameData.baseUrl = "http://125.176.246.14:8081";
         gameData.playerName = "Potato";
-        gameData.seed = Guid.NewGuid().GetHashCode();
+        //gameData.seed = Guid.NewGuid().GetHashCode();
+        gameData.seed = -1803581142;
 
         Application.targetFrameRate = 60;
     }

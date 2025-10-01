@@ -31,7 +31,7 @@ public class SectionData : MonoBehaviour {
     ///플레이어가 Section에 있는지 없는지를 판별하는 함수
     public void SetPlayerOnSection() {
         isPlayerOn = !isPlayerOn;
-
+        
         if(linkSections != null) {
             foreach(var link in linkSections) {
                 Debug.Log("Is It LinkSections");

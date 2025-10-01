@@ -1,4 +1,5 @@
 using UnityEngine.UI;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -18,7 +19,6 @@ public class PlayerControl : MonoBehaviour {
     [Header("Input Masks (auto set by names below)")]
     public LayerMask sectionMask;
 
-    // ⚠️ 여기에 "Physics Layer" 이름을 적어둬 (Sorting Layer 말고!)
     [SerializeField] string[] sectionLayerNames = { "World" };
 
     [Header("Debug")]
@@ -169,8 +169,8 @@ public class PlayerControl : MonoBehaviour {
                 go.CompareTag(Tag.Origin)  || go.CompareTag(Tag.IrisSection)) {
                 var sd = go.GetComponent<SectionData>();
                 if (sd != null) {
-                    if (debugClicks) Debug.Log($"[PC] Section matched → HandleSectionClickAsync id='{sd.id}'");
-                    _ = HandleSectionClickAsync(go, sd);
+                    if (debugClicks) Debug.Log($"[PC] Section matched → HandleSectionClickRoutine id='{sd.id}'");
+                    StartCoroutine(HandleSectionClickRoutine(go, sd));
                     return;
                 } else if (debugClicks) {
                     Debug.Log("[PC]   (no SectionData component)");
@@ -183,7 +183,7 @@ public class PlayerControl : MonoBehaviour {
                 var realSd = real ? real.GetComponent<SectionData>() : null;
                 if (real && realSd) {
                     if (debugClicks) Debug.Log($"[PC] Virtual matched → real='{real.name}', id='{realSd.id}'");
-                    _ = HandleSectionClickAsync(real, realSd);
+                    StartCoroutine(HandleSectionClickRoutine(real, realSd));;
                     return;
                 }
             }
@@ -203,8 +203,8 @@ public class PlayerControl : MonoBehaviour {
                 go.CompareTag(Tag.Origin)  || go.CompareTag(Tag.IrisSection)) {
                 var esd = go.GetComponent<SectionData>();
                 if (esd != null) {
-                    if (debugClicks) Debug.Log($"[PC] (RC) Section matched → HandleSectionClickAsync id='{esd.id}'");
-                    _ = HandleSectionClickAsync(go, esd);
+                    if (debugClicks) Debug.Log($"[PC] (RC) Section matched → HandleSectionClickRoutine id='{esd.id}'");
+                    StartCoroutine(HandleSectionClickRoutine(go, esd));;
                     return;
                 }
             }
@@ -215,7 +215,7 @@ public class PlayerControl : MonoBehaviour {
                 var realSd = real ? real.GetComponent<SectionData>() : null;
                 if (real && realSd) {
                     if (debugClicks) Debug.Log($"[PC] (RC) Virtual matched → real='{real.name}', id='{realSd.id}'");
-                    _ = HandleSectionClickAsync(real, realSd);
+                    StartCoroutine(HandleSectionClickRoutine(real, realSd));
                     return;
                 }
             }
@@ -224,50 +224,77 @@ public class PlayerControl : MonoBehaviour {
         if (debugClicks) Debug.Log("[PC] No section found under pointer.");
     }
 
-    async Task HandleSectionClickAsync(GameObject targetObj, SectionData sd) {
-        if (debugClicks) Debug.Log($"[PC] HandleSectionClickAsync → target='{targetObj.name}', id='{sd?.id}'");
+    IEnumerator WaitTaskBool(Task<bool> task) {
+        while(!task.IsCompleted) yield return null;
+    }
 
+    IEnumerator HandleSectionClickRoutine(GameObject targetObj, SectionData sd) {
+        if (debugClicks) Debug.Log($"[PC] HandleSectionClickAsync → target='{targetObj.name}', id='{sd?.id}'");
+        // 2) 줌인
         cameraZoom.ZoomInSection(targetObj.transform.position);
 
-        if (_confirmBusy) { if (debugClicks) Debug.Log("[PC] confirm busy"); return; }
+        // 3) 중복 입력 방지
+        if (_confirmBusy) yield break;
         _confirmBusy = true;
 
         try {
             int cost = GetStepCost(sd.sectionPosition);
             Debug.Log($"[PC] Need StepCost = {cost}");
 
-            bool ok = await MapSceneDataManager.Instance.enterBtnUI.ShowConfirmBtn("Move To Section?");
-            if (!ok) { if (debugClicks) Debug.Log("[PC] move canceled"); return; }
+            // 4) Task<bool> → 코루틴 대기
+            var confirmTask = MapSceneDataManager.Instance.enterBtnUI.ShowConfirmBtn("Move To Section?");
+            yield return WaitTaskBool(confirmTask);
+            bool ok = confirmTask.Result;
 
-            if (!MapSceneDataManager.Instance.stepManagerUI.TryConsumeSteps(cost)) {
+            if (!ok) {
+                if (debugClicks) Debug.Log("[PC] move canceled");
                 cameraZoom.ZoomOutSection();
-                Debug.Log("[PC] Not enough steps");
-                return;
+                yield break;
             }
 
-            MoveToSection(targetObj, sd);
+            if (!MapSceneDataManager.Instance.stepManagerUI.TryConsumeSteps(cost)) {
+                Debug.Log("[PC] Not enough steps");
+                cameraZoom.ZoomOutSection();
+                yield break;
+            }
+
+            // 5) 실제 섹션 이동
+            StartCoroutine(MoveToSection(targetObj, sd));
         }
-        finally { _confirmBusy = false; }
+        finally {
+            _confirmBusy = false;
+        }
     }
 
-    void MoveToSection(GameObject currentObj, SectionData sectionD) {
-        if (debugClicks) Debug.Log($"[PC] MoveToSection → '{currentObj.name}', id='{sectionD?.id}'");
-
+    IEnumerator MoveToSection(GameObject toObj, SectionData toSd, float duration = 0.5f) {
         cameraZoom.ZoomOutSection();
-        if (transform.parent) preSection = transform.parent.gameObject;
-        currentSection = currentObj;
-        sectionData = sectionD;
+        
+        var fromObj = transform.parent ? transform.parent.gameObject : null;
+        var fromSd = fromObj ? fromObj.GetComponent<SectionData>() : null;
 
-        transform.SetParent(currentObj.transform);
-        transform.position = currentObj.transform.position;
+        preSection = fromObj;
+        currentSection = toObj;
+        sectionData = toSd;
 
-        sectionD.SetPlayerOnSection();
-        var preSD = preSection ? preSection.GetComponent<SectionData>() : null;
-        if (preSD != null) preSD.SetPlayerOnSection();
-        sectionD.SetOption();
+        Vector3 startPos = transform.position;
+        Vector3 endPos = toObj.transform.position;
+        float t = 0f;
+        while (t < 1f) {
+            t += Time.deltaTime / Mathf.Max(0.0001f, duration);
+            transform.position = Vector3.Lerp(startPos, endPos, t);
+            yield return null;
+        }
+        transform.SetParent(toObj.transform, true);
+        transform.position = endPos;
+
+        yield return new WaitForSeconds(0.3f);
+
+        toSd.SetPlayerOnSection();
+        if(fromSd != null) fromSd.SetPlayerOnSection();
+        toSd.SetOption();
         DetectSection();
 
-        SwitchSceneManager.Instance.sectionPath = sectionD.id;
+        GameDataManager.Instance.sectionPath = toSd.id;
         SwitchSceneManager.Instance.MoveScene(SceneList.Story);
     }
 

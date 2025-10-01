@@ -14,9 +14,7 @@ public enum TagName {
     WeatherUI,
     EnterBtnUI,
     ObjCamera,
-    MainCamera,
-    //이름 바꾸기
-    EventArea
+    MainCamera
 }
 
 public static class Tag {
@@ -34,5 +32,4 @@ public static class Tag {
     public static string EnterBtnUI => TagName.EnterBtnUI.ToString();
     public static string ObjCamera => TagName.ObjCamera.ToString();
     public static string MainCamera => TagName.MainCamera.ToString();
-    public static string EventArea => TagName.EventArea.ToString();
 }

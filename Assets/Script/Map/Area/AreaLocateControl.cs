@@ -6,6 +6,7 @@ using System.Collections;
 public class AreaLocateControl : MonoBehaviour {
     [Header("GameData")]
     public GameObject Player; //플레이어
+    public PlayerControl pc;
     public float minDistance; //section과의 최소 거린
     public int riverHeight; //중간 river 구역의 폭
     public int areaNumber; //area의 개수
@@ -32,9 +33,11 @@ public class AreaLocateControl : MonoBehaviour {
         areaNumber = MapSceneDataManager.mapData.areaNumber;
 
         Player = MapSceneDataManager.Instance.Player;
+        pc = MapSceneDataManager.Instance.pc;
 
         OnAreaMoveFinished += CreateRiverSection;
         OnAreaMoveFinished += CreateIrisSection;
+        OnAreaMoveFinished += StartToturial;
     }
 
     ///구역의 규격을 알아내는 함수
@@ -160,8 +163,8 @@ public class AreaLocateControl : MonoBehaviour {
    
 
         MapSceneDataManager.mapData.isMapSetUp = true;
-        Player.GetComponent<PlayerControl>().isCanMove = true;
-        Player.GetComponent<PlayerControl>().DetectSection();
+        pc.isCanMove = true;
+        pc.DetectSection();
         Debug.Log("Detect Section");
     }
 
@@ -179,5 +182,17 @@ public class AreaLocateControl : MonoBehaviour {
 
         GameObject go = Instantiate(MapSceneDataManager.mapData.IrisSectionPrefab, new Vector2(0, irisHeight), Quaternion.identity);
         go.transform.SetParent(this.transform);
+    }
+
+    void StartToturial() {
+        if(GameDataManager.Data.tutorialClear) {
+            Destroy(areas[areaNumber - 1].gameObject);
+            return;
+        }
+        
+        for(int i = 0; i < areaNumber - 1; i++) { areas[i].gameObject.SetActive(false); }
+        foreach(var s in areas[areaNumber - 1].Sections) {
+            s.gameObject.AddComponent<TutorialManager>();
+        }
     }
 }
