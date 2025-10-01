@@ -319,27 +319,32 @@ public class SaveLoadManager : MonoBehaviour {
     }
     #endif
 
-    // ★★★★★ 여기서부터 '마지막 2구간'만 남기는 정규화 규칙 ★★★★★
+    // ★★★★★ 마지막 3구간만 남기기 + 확장자 제거 ★★★★★
     private static string NormalizeId(string raw) {
-        if (string.IsNullOrEmpty(raw)) return raw;
-        // 경로 구분자 통일 및 불필요한 공백/슬래시 제거
+        if (string.IsNullOrWhiteSpace(raw)) return raw;
+
+        // 슬래시 통일 + 앞/뒤 정리
         string s = raw.Replace('\\', '/').Trim().TrimEnd('/');
+
+        // (선택) Resources 접두사 잘라내기
+        const string RES1 = "Assets/Resources/";
+        const string RES2 = "Resources/";
+        if (s.StartsWith(RES1, System.StringComparison.OrdinalIgnoreCase)) s = s.Substring(RES1.Length);
+        else if (s.StartsWith(RES2, System.StringComparison.OrdinalIgnoreCase)) s = s.Substring(RES2.Length);
+
         var parts = s.Split('/');
         if (parts.Length == 0) return s;
 
-        // 마지막 세그먼트(파일명)에서 .json 제거
+        // 마지막 세그먼트에서 확장자 제거
         string last = parts[^1];
-        if (last.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
-            last = last[..^5];
+        int dot = last.LastIndexOf('.');
+        if (dot > 0) last = last.Substring(0, dot);
+        parts[^1] = last;
 
-        // 항상 마지막 2세그먼트를 사용
-        if (parts.Length >= 2) {
-            string secondLast = parts[^2];
-            return $"{secondLast}/{last}";
-        }
-
-        // 세그먼트가 1개뿐이면 경고 후 그 값 사용 (호환/디버그용)
-        Debug.LogWarning($"[SaveLoad] NormalizeId expected 2+ segments but got '{raw}'");
-        return last;
+        // 끝에서 3개 취합(부족하면 가능한 만큼)
+        int keep = 3;
+        int start = Mathf.Max(0, parts.Length - keep);
+        int len = parts.Length - start;
+        return string.Join("/", parts, start, len);
     }
 }

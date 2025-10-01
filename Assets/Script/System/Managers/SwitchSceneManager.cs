@@ -8,8 +8,7 @@ using System.Collections.Generic;
 using UnityEditor;
 #endif
 
-public class SwitchSceneManager : MonoBehaviour
-{
+public class SwitchSceneManager : MonoBehaviour {
     public static SwitchSceneManager Instance { get; private set; }
 
     public string sectionPath;

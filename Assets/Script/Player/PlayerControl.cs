@@ -251,7 +251,6 @@ public class PlayerControl : MonoBehaviour {
     }
 
     void MoveToSection(GameObject toObj, SectionData toSd) {
-        Debug.Log("MoveSection");
         cameraZoom.ZoomOutSection();
 
         var fromObj = transform.parent ? transform.parent.gameObject : null;
@@ -269,7 +268,7 @@ public class PlayerControl : MonoBehaviour {
         toSd.SetOption();
         DetectSection();
 
-        SwitchSceneManager.Instance.sectionPath = toSd.id;
+        GameDataManager.Instance.sectionPath = toSd.id;
         SwitchSceneManager.Instance.MoveScene(SceneList.Story);
     }
 

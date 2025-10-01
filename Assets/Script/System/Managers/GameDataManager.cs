@@ -12,6 +12,8 @@ public class GameDataManager : MonoBehaviour {
 
     public static GameData Data => Instance.gameData; //asset에 접근 시 사용하는 변수이름
 
+    public string sectionPath;
+
     ///Instance
     void Awake() {
         if (Instance != null && Instance != this)  {
