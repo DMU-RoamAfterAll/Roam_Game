@@ -40,6 +40,7 @@ public class EventDisplayManager : MonoBehaviour
         dialogueText = viewport.Find("Content/value").GetComponent<TextMeshProUGUI>();
         buttonPanel = viewport.Find("Content/Panel_Button").GetComponent<Transform>();
     }
+
     /// <summary>
     /// 본문 출력 메소드
     /// </summary>
@@ -151,39 +152,38 @@ public class EventDisplayManager : MonoBehaviour
     /// <returns></returns>
     private Button CreateButtons(string text, UnityAction onClickAction)
     {
-        var buttonObj = Instantiate(buttonPrefab, buttonPanel);
-        buttonObj.name = $"Btn_{text}";
-        buttonObj.SetActive(true);
+        Button tempBtn = null;
 
-        // 2) 컴포넌트 안전하게 찾기 (자식까지 탐색)
-        var button = buttonObj.GetComponentInChildren<Button>(true);
-        if (button == null)
+        for (int i = 0; i < buttonPanel.childCount; i++) //비활성화인 버튼 찾기
         {
-            Debug.LogError($"[CreateButtons] Button 컴포넌트를 찾지 못했습니다. 프리팹 계층을 확인하세요. obj={buttonObj.name}");
-            return null;
+            Transform child = buttonPanel.GetChild(i);
+            if (!child.gameObject.activeSelf)
+            {
+                tempBtn = child.GetComponent<Button>();
+                break; //비활성화 버튼이 존재한다면 저장
+            }
         }
 
-        var label = buttonObj.GetComponentInChildren<TextMeshProUGUI>(true);
-        if (label == null)
-            Debug.LogWarning($"[CreateButtons] TextMeshProUGUI 라벨이 없습니다. obj={buttonObj.name}");
-        else
-            label.text = text;
-        // GameObject buttonObj = Instantiate(buttonPrefab, buttonPanel);
-        // Button button = buttonObj.GetComponentInChildren<Button>(true);
-        // TextMeshProUGUI buttonText = buttonObj.GetComponentInChildren<TextMeshProUGUI>();
-        // buttonText.text = text;
-        // button.onClick.RemoveAllListeners();
-        button.onClick.AddListener(() =>
-        { //클릭 시 onClick 실행 후 버튼 삭제
-            onClickAction?.Invoke();
+        if (tempBtn == null) //비활성화 버튼이 없으면 생성
+        {
+            tempBtn = Instantiate(buttonPrefab, buttonPanel).GetComponent<Button>();
+        }
+
+        tempBtn.gameObject.SetActive(true);
+        TextMeshProUGUI buttonText = tempBtn.GetComponentInChildren<TextMeshProUGUI>();
+        buttonText.text = text;
+        
+        tempBtn.onClick.AddListener(() =>
+        { //클릭 시 비활성화 후 onClick 실행
             ClearButtons();
+            onClickAction?.Invoke();
         });
 
-        return button;
+        return tempBtn;
     }
 
     /// <summary>
-    /// 버튼 UI 제거 메소드
+    /// 전체 버튼 UI 정리 메소드
     /// </summary>
     private void ClearButtons()
     {
@@ -192,8 +192,10 @@ public class EventDisplayManager : MonoBehaviour
             var t = buttonPanel.GetChild(i);
             var btn = t.GetComponent<Button>();
             if (btn != null) btn.onClick.RemoveAllListeners(); //리스너 해제
-            Destroy(t.gameObject); //버튼 삭제
+            if (t.gameObject.activeSelf)
+                t.gameObject.SetActive(false); //버튼 비활성화
         }
+        Debug.Log("버튼 정리");
     }
 
     /// <summary>
