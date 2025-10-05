@@ -6,12 +6,12 @@ using System.Collections;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.Events;
+using System;
 
 public class EventDisplayManager : MonoBehaviour
 {
     //스트립트
     private SectionEventManager sectionEventManager;
-    private EnemyDataManager enemyDataManager;
 
     //경로
     private string imageFolderPath =
@@ -34,7 +34,6 @@ public class EventDisplayManager : MonoBehaviour
     {
         //참조 캐싱
         sectionEventManager = GetComponent<SectionEventManager>();
-        enemyDataManager = GetComponent<EnemyDataManager>();
         viewport = GameObject.Find("Viewport").GetComponent<Transform>();
         sceneImage = viewport.Find("Content/UI_Image/Image").GetComponent<Image>();
         dialogueText = viewport.Find("Content/value").GetComponent<TextMeshProUGUI>();
@@ -125,19 +124,36 @@ public class EventDisplayManager : MonoBehaviour
         });
     }
 
-    public void DisplayAttackTargetMenu(List<EnemySlot> aliveEnemies, System.Action<EnemySlot> onSelected)
+    /// <summary>
+    /// 전투 루프 시, 선택지 메뉴 출력 메소드
+    /// </summary>
+    /// <typeparam name="T">선택지 요소의 자료형</typeparam>
+    /// <param name="options">선택지로 출력할 옵션 목록(리스트 형식)</param>
+    /// <param name="labelSelector">문자열 추출을 위한 함수</param>
+    /// <param name="onSelected">선택 완료시 실행할 콜백함수</param>
+    public IEnumerator DisplaySelectMenu<T>(
+    List<T> options,
+    Func<T, string> labelSelector,
+    Action<T> onSelected)
     {
-        foreach (EnemySlot enemy in aliveEnemies)
-        {
-            EnemySlot targetEnemy = enemy;
+        bool picked = false;
+        T result = default;
 
-            Debug.Log(targetEnemy.InstanceName);
-            //각 선택지에 대해 버튼 생성
-            CreateButtons(targetEnemy.InstanceName, () =>
+        foreach (var option in options)
+        {
+            var label = option; //클로저 방지
+            CreateButtons(labelSelector(label), () =>
             {
-                onSelected?.Invoke(targetEnemy); //선택된 적을 콜백으로 넘김
+                if (!picked) //중복 선택 방지
+                {
+                    result = label;
+                    picked = true;
+                }
             });
         }
+
+        yield return new WaitUntil(() => picked); //선택 대기
+        onSelected?.Invoke(result);
     }
 
     //-------------------------------------------------------------------------------
@@ -172,7 +188,8 @@ public class EventDisplayManager : MonoBehaviour
         tempBtn.gameObject.SetActive(true);
         TextMeshProUGUI buttonText = tempBtn.GetComponentInChildren<TextMeshProUGUI>();
         buttonText.text = text;
-        
+
+        tempBtn.onClick.RemoveAllListeners();
         tempBtn.onClick.AddListener(() =>
         { //클릭 시 비활성화 후 onClick 실행
             ClearButtons();

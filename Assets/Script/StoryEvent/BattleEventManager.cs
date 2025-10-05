@@ -191,9 +191,6 @@ public class BattleEventManager : MonoBehaviour
             //--------- 플레이어 턴 ---------
             if (slot == null)
             {
-                bool selectionDone = false;
-                EnemySlot chosen = null;
-
                 //살아있는 적 목록 생성
                 var aliveList = turnOrder.OfType<EnemySlot>().Where(e => !e.IsDead).ToList();
                 if (aliveList.Count == 0) //살아있는 적이 없으면 즉시 종료
@@ -202,23 +199,24 @@ public class BattleEventManager : MonoBehaviour
                     yield break;
                 }
 
-                eventDisplayManager.DisplayAttackTargetMenu(aliveList, target =>
-                {
-                    chosen = target;
-                    selectionDone = true;
+                EnemySlot target = null;
 
-                    int damage = ComputePlayerDamage(target); //플레이어 데미지 계산
-                    target.hp = Mathf.Max(0, target.hp - damage); //적 체력 수정
-                    Debug.Log($"[{GetType().Name}] 유저 -> 적:{target.enemyData.name} | 데미지:{damage} (HP {target.hp}/{target.enemyData.hp})");
+                //공격할 적 선택 메뉴 출력
+                yield return eventDisplayManager.DisplaySelectMenu(
+                    aliveList,
+                    e => e.InstanceName,
+                    chosen => target = chosen
+                );
 
-                    if (AllEnemiesDead())
-                    { //모든 적이 죽었을 경우 전투 종료(승리)
-                        OnBattleFinished(true);
-                        battleEnded = true;
-                    }
-                });
-                yield return new WaitUntil(() => selectionDone || battleEnded); //사용자의 전투가 끝날때까지 대기
-                if (battleEnded) yield break; //죽었을 경우 전투 종료 처리
+                int damage = ComputePlayerDamage(target); //플레이어 데미지 계산
+                target.hp = Mathf.Max(0, target.hp - damage); //적 체력 수정
+                Debug.Log($"[{GetType().Name}] 유저 -> 적:{target.InstanceName} | 데미지:{damage} (HP {target.hp}/{target.enemyData.hp})");
+
+                if (AllEnemiesDead())
+                { //모든 적이 죽었을 경우 전투 종료(승리)
+                    OnBattleFinished(true);
+                    battleEnded = true;
+                }
             }
             //--------- 적 턴 ---------
             else
@@ -229,7 +227,7 @@ public class BattleEventManager : MonoBehaviour
                 {
                     int damage = ComputeEnemyDamage(enemy); //적 데미지 계산
                     player.hp = Mathf.Max(0, player.hp - damage); //플레이어 체력 수정
-                    Debug.Log($"[{GetType().Name}] 적:{enemy.enemyData.name} -> 유저 | 데미지:{damage} (HP {player.hp}/{player.hp})");
+                    Debug.Log($"[{GetType().Name}] 적:{enemy.InstanceName} -> 유저 | 데미지:{damage} (HP {player.hp}/{player.hp})");
 
                     if (player.hp <= 0) //유저의 체력이 0이 되었을 경우 전투 종료 (패배)
                     {
@@ -241,8 +239,7 @@ public class BattleEventManager : MonoBehaviour
 
             turnIndex = (turnIndex + 1) % turnOrder.Count; //인덱스 증가
 
-            // 연출 딜레이 (원하면 조절/삭제)
-            yield return new WaitForSeconds(0.15f);
+            yield return new WaitForSeconds(0.15f); //연출 딜레이
         }
     }
 
@@ -259,17 +256,6 @@ public class BattleEventManager : MonoBehaviour
             if (slot is EnemySlot e && !e.IsDead) return false;
         }
         return true;
-    }
-
-    //해당 메소드를 적을 골라 때리는 방식으로 변환 필요
-    private EnemySlot FindFirstAliveEnemy()
-    {
-        for (int i = 0; i < turnOrder.Count; i++)
-        {
-            var slot = turnOrder[i];
-            if (slot is EnemySlot e && !e.IsDead) return e;
-        }
-        return null;
     }
 
     /// <summary>
