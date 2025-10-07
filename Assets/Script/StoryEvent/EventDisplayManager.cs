@@ -19,7 +19,6 @@ public class EventDisplayManager : MonoBehaviour
 
     //컨텐츠 오브젝트
     public Transform viewport; //스토리 컨텐츠 부분
-    List<EnemyDataNode> currentEnemyList = new List<EnemyDataNode>(); //전투 씬 진입 시 전투할 대상 적 리스트
     public GameObject buttonPrefab; //버튼 프리팹 (인스펙터 접속)
     public Transform buttonPanel; //버튼 부모 오브젝트
     public Image sceneImage; //UI에 띄울 이미지 컴포넌트
