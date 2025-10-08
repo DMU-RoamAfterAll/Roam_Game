@@ -179,6 +179,29 @@ public class BattleEventManager : MonoBehaviour
         turnIndex = 0;
         battleEnded = false;
 
+        var menuList = new List<WeaponDataNode>{ //표시 메뉴 리스트
+            new WeaponDataNode { code = UNARMED_CODE} //맨손 삽입
+        };
+
+        List<WeaponData> ownedWeapons = null; //보유중인 무기
+        userDataManager.WeaponCheck(onResult: list => //보유중인 무기 리스트 불러오기
+        {
+            ownedWeapons = list;
+        });
+
+        if (ownedWeapons != null) //보유중인 무기가 있다면 정보 불러오기
+        {
+            var weaponCache = weaponDataManager.GetWeaponsByCodes( //중복 제거
+                ownedWeapons.Select(w => w.weaponCode).ToList()
+            );
+
+            foreach (var ow in ownedWeapons) //무기 정보 삽입
+            {
+                if(weaponCache.TryGetValue(ow.weaponCode, out var w))
+                    menuList.Add(w);
+            }   
+        }
+
         while (!battleEnded)
         {
             //텍스트 비우기
@@ -209,22 +232,7 @@ public class BattleEventManager : MonoBehaviour
                     chosen => target = chosen
                 );
 
-                List<WeaponData> ownedWeapons = null;
                 WeaponDataNode setWeapon = null;
-
-                userDataManager.WeaponCheck(onResult: list =>
-                {
-                    ownedWeapons = list;
-                });
-
-                var menuList = new List<WeaponDataNode>(); //표시 메뉴 리스트
-                if (ownedWeapons != null)
-                {
-                    menuList.AddRange(
-                        ownedWeapons.Select(ow => weaponDataManager.GetWeaponByCode(ow.weaponCode))
-                    );
-                }
-                menuList.Insert(0, new WeaponDataNode { code = UNARMED_CODE });
 
                 //무기 선택 메뉴 출력
                 yield return eventDisplayManager.DisplaySelectMenu(
@@ -269,6 +277,15 @@ public class BattleEventManager : MonoBehaviour
     }
 
     //------------- 유틸/계산 -------------
+    /// <summary>
+    /// 보유중인 무기의 정보를 불러와 캐시로 저장하는 메소드
+    /// </summary>
+    /// <returns>무기 정보 리스트</returns>
+    private Dictionary<string, WeaponDataNode> WeaponCacheCreate()
+    {
+        return null;
+    }
+
     /// <summary>
     /// 적이 전멸했는지 확인하는 메소드
     /// </summary>
