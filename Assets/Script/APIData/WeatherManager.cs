@@ -6,7 +6,8 @@ using UnityEngine.Android;
 #endif
 
 
-public class WeatherManager : MonoBehaviour {
+public class WeatherManager : MonoBehaviour
+{
     public static WeatherManager Instance { get; private set; } //씬에서 모두 접근 가능하도록 Instance화
 
     private string baseUrl;
@@ -20,8 +21,10 @@ public class WeatherManager : MonoBehaviour {
 
     private string _lastServerTime;
 
-    void Awake() {
-        if (Instance != null && Instance != this)  {
+    void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
             Destroy(this.gameObject);
             return;
         }
@@ -31,28 +34,33 @@ public class WeatherManager : MonoBehaviour {
         Instance = this;
     }
 
-    void Start() {
+    void Start()
+    {
         baseUrl = $"{GameDataManager.Data.baseUrl}:8000";
 
         RefreshWeather();
         StartCoroutine(AutoRefreshLoop());
 
-        #if UNITY_ANDROID
+#if UNITY_ANDROID
 
         if (!Permission.HasUserAuthorizedPermission(Permission.FineLocation)) Permission.RequestUserPermission(Permission.FineLocation);
         
-        #endif
+#endif
     }
 
-    IEnumerator AutoRefreshLoop() {
-        while (true) {
+    IEnumerator AutoRefreshLoop()
+    {
+        while (true)
+        {
             yield return new WaitForSecondsRealtime(AUTO_REFRESH_INTERVAL);
             RefreshWeather();
         }
     }
 
-    public void RefreshWeather() {
-        if (Time.time < _lastRequestTime + REQUEST_COOLDOWN) {
+    public void RefreshWeather()
+    {
+        if (Time.time < _lastRequestTime + REQUEST_COOLDOWN)
+        {
             return;
         }
 
@@ -60,13 +68,14 @@ public class WeatherManager : MonoBehaviour {
         StartCoroutine(LocationSend());
     }
 
-    IEnumerator LocationSend() {
-        #if UNITY_EDITOR || UNITY_STANDALONE_OSX
+    IEnumerator LocationSend()
+    {
+#if UNITY_EDITOR || UNITY_STANDALONE_OSX
 
         city = "Seoul";
         yield return StartCoroutine(GetByCity(city));
 
-        #elif UNITY_IOS || UNITY_ANDROID
+#elif UNITY_IOS || UNITY_ANDROID
 
         if(!Input.location.isEnabledByUser) {
             yield break;
@@ -90,34 +99,38 @@ public class WeatherManager : MonoBehaviour {
             yield return StartCoroutine(GetByCoords(lat, lon));
         }
 
-        #else
+#else
 
         Debug.Log("Not Support Platform")
 
-        #endif
+#endif
     }
 
-    IEnumerator GetByCity(string city) {
+    IEnumerator GetByCity(string city)
+    {
         string url = $"{baseUrl}/api/weatherAPI/?city={UnityWebRequest.EscapeURL(city)}";
         yield return StartCoroutine(GetWeather(url));
     }
 
-    IEnumerator GetByCoords(float lat, float lon) {
+    IEnumerator GetByCoords(float lat, float lon)
+    {
         string url = $"{baseUrl}/api/weatherAPI/?lat={lat}&lon={lon}";
         yield return StartCoroutine(GetWeather(url));
     }
 
-    IEnumerator GetWeather(string url) {
+    IEnumerator GetWeather(string url)
+    {
         using var www = UnityWebRequest.Get(url);
         www.SetRequestHeader("Accept", "application/json");
         yield return www.SendWebRequest();
 
         if (www.result == UnityWebRequest.Result.ConnectionError ||
-            www.result == UnityWebRequest.Result.ProtocolError) 
+            www.result == UnityWebRequest.Result.ProtocolError)
         {
             Debug.Log("Error");
         }
-        else {
+        else
+        {
             // (1) JSON 전체를 로그로 확인해 보면 확실합니다.
             Debug.Log($"Weather JSON: {www.downloadHandler.text}");
 
@@ -127,7 +140,8 @@ public class WeatherManager : MonoBehaviour {
     }
 
     [System.Serializable]
-    public class WeatherResponse {
+    public class WeatherResponse
+    {
         public string main;
         public string description;
         public float temp;
@@ -135,51 +149,69 @@ public class WeatherManager : MonoBehaviour {
     }
 
     [System.Serializable]
-    public class Weather {
+    public class Weather
+    {
         public string description;
     }
 
     [System.Serializable]
-    public class Main {
+    public class Main
+    {
         public float temp;
     }
 
-    private float percent;
+    public void HiddenEvent()
+    {
+        if (!GameDataManager.Data.tutorialClear) return;
 
-    public void HiddenEvent() {
-        if(!GameDataManager.Data.tutorialClear) return;
+        var wm = WeatherManager.Instance;
+        var resp = wm != null ? wm.resp : null;
+        var main = resp != null ? resp.main : null;
 
-        percent = 0.3f;    
-        if(SecureRng.Chance(percent)) {
-            switch (WeatherResponse.main) {
-                case "Thundersorm" :
-                    Debug.Log("폭풍이다");
-                    break;
+        float percent = 0.3f;
+        if (!SecureRng.Chance(percent)) return;
 
-                case "Drizzle" :
-                    Debug.Log("가랑비다");
-                    break;
+        switch (main)
+        {
+            case "Thundersorm":
+                Debug.Log("폭풍이다");
+                break;
 
-                case "Rain" :
-                    Debug.Log("비온다");
-                    break;
+            case "Drizzle":
+                Debug.Log("가랑비다");
+                break;
 
-                case "Snow" :
-                    Debug.Log("눈온다");
-                    break;
-                
-                case "Atmosphere" :
-                    Debug.Log("습하다");
-                    break;
+            case "Rain":
+                Debug.Log("비온다");
+                break;
 
-                case "Clear" :
-                    Debug.Log("맑다");
-                    break;
+            case "Snow":
+                Debug.Log("눈온다");
+                break;
 
-                case "Clouds" :
-                    Debug.Log("흐릿하다");
-                    break;
-            }
+            case "Mist":
+            case "Smoke":
+            case "Haze":
+            case "Dust":
+            case "Fog":
+            case "Sand":
+            case "Ash":
+            case "Squall":
+            case "Tornado":
+                Debug.Log("습하거나탁하다");
+                break;
+
+            case "Clear":
+                Debug.Log("맑다");
+                break;
+
+            case "Clouds":
+                Debug.Log("흐릿하다");
+                break;
+
+            default:
+                Debug.Log("알수없는 날씨");
+                break;
         }
     }
 }
