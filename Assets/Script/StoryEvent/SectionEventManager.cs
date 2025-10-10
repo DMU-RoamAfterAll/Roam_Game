@@ -96,7 +96,7 @@ public class SectionEventManager : MonoBehaviour
 {
     public string jsonFileName = ""; //불러올 Json파일 이름, 외부에서 받아옴
     private string jsonFolderPath =
-    "StoryGameData/SectionData/StoryEvent/MainSection/MainTutorialSection"; //Json폴더가 담긴 파일의 경로
+    "StoryGameData/SectionData/SectionEvent/MainSection/MainTutorialSection"; //Json폴더가 담긴 파일의 경로
     private Dictionary<string, object> sectionData = new Dictionary<string, object>(); //파싱된 Json데이터
     private BattleEventManager battleEventManager;
     private EventDisplayManager eventDisplayManager;

@@ -2,9 +2,6 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
-using UnityEditor;
-using System;
-using Unity.VisualScripting;
 
 // ------------------------------------------------------
 // 런타임 슬롯(이번 전투에서만 HP 추적). 스탯은 enemy json 기준으로 사용.
@@ -48,9 +45,11 @@ public class PlayerStats
 
 public class BattleEventManager : MonoBehaviour
 {
+    private UserDataManager userDataManager;
     private SectionEventManager sectionEventManager;
     private EventDisplayManager eventDisplayManager;
     private EnemyDataManager enemyDataManager;
+    private WeaponDataManager weaponDataManager;
     public Dictionary<string, EnemyDataNode> enemyData = new Dictionary<string, EnemyDataNode>();
 
     public PlayerStats player;
@@ -59,14 +58,16 @@ public class BattleEventManager : MonoBehaviour
     private string nextOnWin; //승리 후 이동할 노드 키
     private string nextOnLose; //패배 후 이동할 노드 키
 
-    private List<object> turnOrder; //전투 턴 순서(플레이어= null, 적 = EnemySlot)
-    private int turnIndex;
-    private bool battleEnded = false;
-    private Coroutine battleRoutine;
+    private List<object> turnOrder; //전투 턴 순서를 표기한 리스트 (플레이어= null, 적 = EnemySlot)
+    private int turnIndex; //전투 턴 인덱스
+    private bool battleEnded = false; //배틀 종료 플래그
+    private Coroutine battleRoutine; //전투 루프 코루틴
+    private const string UNARMED_CODE = "__UNARMED__"; //'맨손' 메뉴 출력을 위한 특수 코드
 
     private void Awake()
     {
         //참조 캐싱
+        userDataManager = GetComponent<UserDataManager>();
         sectionEventManager = GetComponent<SectionEventManager>();
         eventDisplayManager = GetComponent<EventDisplayManager>();
         enemyDataManager = GetComponent<EnemyDataManager>();
@@ -178,6 +179,29 @@ public class BattleEventManager : MonoBehaviour
         turnIndex = 0;
         battleEnded = false;
 
+        var menuList = new List<WeaponDataNode>{ //표시 메뉴 리스트
+            new WeaponDataNode { code = UNARMED_CODE} //맨손 삽입
+        };
+
+        List<WeaponData> ownedWeapons = null; //보유중인 무기
+        userDataManager.WeaponCheck(onResult: list => //보유중인 무기 리스트 불러오기
+        {
+            ownedWeapons = list;
+        });
+
+        if (ownedWeapons != null) //보유중인 무기가 있다면 정보 불러오기
+        {
+            var weaponCache = weaponDataManager.GetWeaponsByCodes( //중복 제거
+                ownedWeapons.Select(w => w.weaponCode).ToList()
+            );
+
+            foreach (var ow in ownedWeapons) //무기 정보 삽입
+            {
+                if(weaponCache.TryGetValue(ow.weaponCode, out var w))
+                    menuList.Add(w);
+            }   
+        }
+
         while (!battleEnded)
         {
             //텍스트 비우기
@@ -191,9 +215,6 @@ public class BattleEventManager : MonoBehaviour
             //--------- 플레이어 턴 ---------
             if (slot == null)
             {
-                bool selectionDone = false;
-                EnemySlot chosen = null;
-
                 //살아있는 적 목록 생성
                 var aliveList = turnOrder.OfType<EnemySlot>().Where(e => !e.IsDead).ToList();
                 if (aliveList.Count == 0) //살아있는 적이 없으면 즉시 종료
@@ -202,23 +223,33 @@ public class BattleEventManager : MonoBehaviour
                     yield break;
                 }
 
-                eventDisplayManager.DisplayAttackTargetMenu(aliveList, target =>
-                {
-                    chosen = target;
-                    selectionDone = true;
+                EnemySlot target = null;
 
-                    int damage = ComputePlayerDamage(target); //플레이어 데미지 계산
-                    target.hp = Mathf.Max(0, target.hp - damage); //적 체력 수정
-                    Debug.Log($"[{GetType().Name}] 유저 -> 적:{target.enemyData.name} | 데미지:{damage} (HP {target.hp}/{target.enemyData.hp})");
+                //공격할 적 선택 메뉴 출력
+                yield return eventDisplayManager.DisplaySelectMenu(
+                    aliveList,
+                    e => e.InstanceName,
+                    chosen => target = chosen
+                );
 
-                    if (AllEnemiesDead())
-                    { //모든 적이 죽었을 경우 전투 종료(승리)
-                        OnBattleFinished(true);
-                        battleEnded = true;
-                    }
-                });
-                yield return new WaitUntil(() => selectionDone || battleEnded); //사용자의 전투가 끝날때까지 대기
-                if (battleEnded) yield break; //죽었을 경우 전투 종료 처리
+                WeaponDataNode setWeapon = null;
+
+                //무기 선택 메뉴 출력
+                yield return eventDisplayManager.DisplaySelectMenu(
+                    menuList,
+                    e => e.code == UNARMED_CODE ? "맨손" : e.name, //맨손과 구분하여 출력
+                    chosen => setWeapon = chosen
+                );
+
+                int damage = ComputePlayerDamage(target, setWeapon); //플레이어 데미지 계산
+                target.hp = Mathf.Max(0, target.hp - damage); //적 체력 수정
+                Debug.Log($"[{GetType().Name}] 유저 -> 적:{target.InstanceName} | 데미지:{damage} (HP {target.hp}/{target.enemyData.hp})");
+
+                if (AllEnemiesDead())
+                { //모든 적이 죽었을 경우 전투 종료(승리)
+                    OnBattleFinished(true);
+                    battleEnded = true;
+                }
             }
             //--------- 적 턴 ---------
             else
@@ -229,7 +260,7 @@ public class BattleEventManager : MonoBehaviour
                 {
                     int damage = ComputeEnemyDamage(enemy); //적 데미지 계산
                     player.hp = Mathf.Max(0, player.hp - damage); //플레이어 체력 수정
-                    Debug.Log($"[{GetType().Name}] 적:{enemy.enemyData.name} -> 유저 | 데미지:{damage} (HP {player.hp}/{player.hp})");
+                    Debug.Log($"[{GetType().Name}] 적:{enemy.InstanceName} -> 유저 | 데미지:{damage} (HP {player.hp}/{player.hp})");
 
                     if (player.hp <= 0) //유저의 체력이 0이 되었을 경우 전투 종료 (패배)
                     {
@@ -241,12 +272,20 @@ public class BattleEventManager : MonoBehaviour
 
             turnIndex = (turnIndex + 1) % turnOrder.Count; //인덱스 증가
 
-            // 연출 딜레이 (원하면 조절/삭제)
-            yield return new WaitForSeconds(0.15f);
+            yield return new WaitForSeconds(0.15f); //연출 딜레이
         }
     }
 
     //------------- 유틸/계산 -------------
+    /// <summary>
+    /// 보유중인 무기의 정보를 불러와 캐시로 저장하는 메소드
+    /// </summary>
+    /// <returns>무기 정보 리스트</returns>
+    private Dictionary<string, WeaponDataNode> WeaponCacheCreate()
+    {
+        return null;
+    }
+
     /// <summary>
     /// 적이 전멸했는지 확인하는 메소드
     /// </summary>
@@ -261,25 +300,18 @@ public class BattleEventManager : MonoBehaviour
         return true;
     }
 
-    //해당 메소드를 적을 골라 때리는 방식으로 변환 필요
-    private EnemySlot FindFirstAliveEnemy()
-    {
-        for (int i = 0; i < turnOrder.Count; i++)
-        {
-            var slot = turnOrder[i];
-            if (slot is EnemySlot e && !e.IsDead) return e;
-        }
-        return null;
-    }
-
     /// <summary>
     /// 플레이어 데미지 계산 메소드
     /// </summary>
     /// <param name="target">타겟 슬롯</param>
     /// <returns>데미지 값</returns>
-    private int ComputePlayerDamage(EnemySlot target)
+    private int ComputePlayerDamage(EnemySlot target, WeaponDataNode weapon)
     {
-        return player.atk;
+        int damage = player.atk;
+        if (weapon.code != UNARMED_CODE && weapon.code != null)
+            damage =+ weapon.damage;
+        
+        return damage;
     }
 
     /// <summary>
