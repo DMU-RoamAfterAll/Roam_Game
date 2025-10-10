@@ -73,7 +73,7 @@ public class SwitchSceneManager : MonoBehaviour {
         DisableEnterBtnUIInScene(baseSceneName);
 
         // 4) (옵션) Boot 언로드
-        if(unloadBootAfterEnterBase) {
+        if (unloadBootAfterEnterBase) {
             var unload = SceneManager.UnloadSceneAsync(boot);
             while (unload != null && !unload.isDone) yield return null;
         }
@@ -203,23 +203,31 @@ public class SwitchSceneManager : MonoBehaviour {
                 break;
             }
         }
-    }   
+    }
 
-    #if UNITY_EDITOR
-    [MenuItem("Tools/Scenes/GoTo MapScene")]
     public static void GoToMapScene() {
         Instance?.MoveScene(SceneList.Map);
 
-        var pc = MapSceneDataManager.Instance.Player.GetComponent<PlayerControl>();
+        // (선택) 스토리 종료 처리: 현재 섹션 클리어, 튜토리얼 완료, 저장
+        var msdm = MapSceneDataManager.Instance;
+        var player = msdm != null ? msdm.Player : null;
+        var pc = player ? player.GetComponent<PlayerControl>() : null;
 
-        if(pc == null) { Debug.LogError("[Menu] PlayerControl not found."); return; }
-        if(pc.sectionData == null) { Debug.LogError("[Menu] pc.sectionData is null"); return; }
+        if (pc != null && pc.sectionData != null) {
+            pc.sectionData.isCleared = true;
 
-        pc.sectionData.isCleared = true;
+            var tuto = pc.sectionData.GetComponent<TutorialManager>();
+            if (tuto != null) tuto.CompleteSection();
+        }
 
-        var tuto = pc.sectionData.GetComponent<TutorialManager>();
-        if(tuto != null) tuto.CompleteSection();
         SaveLoadManager.Instance?.SaveNow();
+
+        WeatherManager.Instance.HiddenEvent();
     }
+
+    #if UNITY_EDITOR
+    // 🔧 에디터 메뉴는 에디터 전용으로 유지
+    [MenuItem("Tools/Scenes/GoTo MapScene")]
+    private static void GoToMapSceneMenu() => GoToMapScene();
     #endif
 }

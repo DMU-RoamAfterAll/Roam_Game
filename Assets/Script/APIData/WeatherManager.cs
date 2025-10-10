@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.Networking;
-using TMPro;
 using System.Collections;
 #if UNITY_ANDROID
 using UnityEngine.Android;
@@ -13,10 +12,13 @@ public class WeatherManager : MonoBehaviour {
     private string baseUrl;
     public string city = "Seoul";
 
+    private const float REQUEST_COOLDOWN = 300f;
+    private const float AUTO_REFRESH_INTERVAL = 305f;
     private float _lastRequestTime = -Mathf.Infinity;
-    private const float REQUEST_COOLDOWN = 60f;
 
     public WeatherResponse resp;
+
+    private string _lastServerTime;
 
     void Awake() {
         if (Instance != null && Instance != this)  {
@@ -33,16 +35,24 @@ public class WeatherManager : MonoBehaviour {
         baseUrl = $"{GameDataManager.Data.baseUrl}:8000";
 
         RefreshWeather();
+        StartCoroutine(AutoRefreshLoop());
 
         #if UNITY_ANDROID
-        
-        if(!Permission.HasUserAuthorizedPermission(Permission.FineLocation)) Permission.RequestUserPermission(Permission.FineLocation);
+
+        if (!Permission.HasUserAuthorizedPermission(Permission.FineLocation)) Permission.RequestUserPermission(Permission.FineLocation);
         
         #endif
     }
 
+    IEnumerator AutoRefreshLoop() {
+        while (true) {
+            yield return new WaitForSecondsRealtime(AUTO_REFRESH_INTERVAL);
+            RefreshWeather();
+        }
+    }
+
     public void RefreshWeather() {
-        if(Time.time < _lastRequestTime + REQUEST_COOLDOWN) {
+        if (Time.time < _lastRequestTime + REQUEST_COOLDOWN) {
             return;
         }
 
@@ -118,6 +128,7 @@ public class WeatherManager : MonoBehaviour {
 
     [System.Serializable]
     public class WeatherResponse {
+        public string main;
         public string description;
         public float temp;
         public string city;
@@ -131,5 +142,16 @@ public class WeatherManager : MonoBehaviour {
     [System.Serializable]
     public class Main {
         public float temp;
+    }
+
+    private float percent;
+
+    public void HiddenEvent() {
+        if(!GameDataManager.Data.tutorialClear) return;
+
+        percent = 0.01f;    
+        if(SecureRng.Chance(percent)) {
+            Debug.Log("Hidden 발생! 비상! 사용자 다운! Hidden나와!");
+        }
     }
 }

@@ -30,7 +30,8 @@ public class GameDataManager : MonoBehaviour {
             return;
         }
 
-        gameData.baseUrl = "http://125.176.246.14:8081";
+        gameData.baseUrl = "http://125.176.246.14";
+        //다른 곳에서 baseUrl쓸때 포트번호는 붙혀서 쓰시기를 바랍니다
         gameData.playerName = "Potato";
         //gameData.seed = Guid.NewGuid().GetHashCode();
         gameData.seed = -1803581142;
