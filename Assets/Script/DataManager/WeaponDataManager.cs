@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 //-------------------------------------------------------------------------------
 // ** Weapon Json 데이터 클래스 구조 **
@@ -61,9 +62,9 @@ public class WeaponDataManager : MonoBehaviour
 
         Debug.Log("Reading File : weapon.json"); //파일 로드 확인 로그
     }
-    
+
     /// <summary>
-    /// 무기 코드를 사용하여 아이템 정보를 가져오는 함수
+    /// 무기 코드를 사용하여 무기 정보를 가져오는 함수
     /// </summary>
     /// <param name="code">무기 코드</param>
     /// <returns>무기 정보</returns>
@@ -73,5 +74,21 @@ public class WeaponDataManager : MonoBehaviour
             return data;
         Debug.LogWarning($"[{GetType().Name}] 무기 코드 {code}을(를) 찾을 수 없습니다.");
         return null;
+    }
+    
+    /// <summary>
+    /// 무기 코드들을 사용하여 무기 정보를 가져오는 함수
+    /// </summary>
+    /// <param name="codes">무기 코드 리스트</param>
+    /// <returns>무기 정보([코드:정보]인 딕셔너리 형태)</returns>
+    public Dictionary<string, WeaponDataNode> GetWeaponsByCodes(List<string> codes)
+    {
+        var dict = new Dictionary<string, WeaponDataNode>();
+        foreach (var code in codes.Distinct())
+        {
+            var w = GetWeaponByCode(code);
+            if (w != null) dict[code] = w;
+        }
+        return dict;
     }
 }

@@ -6,12 +6,12 @@ using System.Collections;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.Events;
+using System;
 
 public class EventDisplayManager : MonoBehaviour
 {
     //스트립트
     private SectionEventManager sectionEventManager;
-    private EnemyDataManager enemyDataManager;
 
     //경로
     private string imageFolderPath =
@@ -19,7 +19,6 @@ public class EventDisplayManager : MonoBehaviour
 
     //컨텐츠 오브젝트
     public Transform viewport; //스토리 컨텐츠 부분
-    List<EnemyDataNode> currentEnemyList = new List<EnemyDataNode>(); //전투 씬 진입 시 전투할 대상 적 리스트
     public GameObject buttonPrefab; //버튼 프리팹 (인스펙터 접속)
     public Transform buttonPanel; //버튼 부모 오브젝트
     public Image sceneImage; //UI에 띄울 이미지 컴포넌트
@@ -34,12 +33,12 @@ public class EventDisplayManager : MonoBehaviour
     {
         //참조 캐싱
         sectionEventManager = GetComponent<SectionEventManager>();
-        enemyDataManager = GetComponent<EnemyDataManager>();
         viewport = GameObject.Find("Viewport").GetComponent<Transform>();
         sceneImage = viewport.Find("Content/UI_Image/Image").GetComponent<Image>();
         dialogueText = viewport.Find("Content/value").GetComponent<TextMeshProUGUI>();
         buttonPanel = viewport.Find("Content/Panel_Button").GetComponent<Transform>();
     }
+
     /// <summary>
     /// 본문 출력 메소드
     /// </summary>
@@ -124,19 +123,36 @@ public class EventDisplayManager : MonoBehaviour
         });
     }
 
-    public void DisplayAttackTargetMenu(List<EnemySlot> aliveEnemies, System.Action<EnemySlot> onSelected)
+    /// <summary>
+    /// 전투 루프 시, 선택지 메뉴 출력 메소드
+    /// </summary>
+    /// <typeparam name="T">선택지 요소의 자료형</typeparam>
+    /// <param name="options">선택지로 출력할 옵션 목록(리스트 형식)</param>
+    /// <param name="labelSelector">문자열 추출을 위한 함수</param>
+    /// <param name="onSelected">선택 완료시 실행할 콜백함수</param>
+    public IEnumerator DisplaySelectMenu<T>(
+    List<T> options,
+    Func<T, string> labelSelector,
+    Action<T> onSelected)
     {
-        foreach (EnemySlot enemy in aliveEnemies)
-        {
-            EnemySlot targetEnemy = enemy;
+        bool picked = false;
+        T result = default;
 
-            Debug.Log(targetEnemy.InstanceName);
-            //각 선택지에 대해 버튼 생성
-            CreateButtons(targetEnemy.InstanceName, () =>
+        foreach (var option in options)
+        {
+            var label = option; //클로저 방지
+            CreateButtons(labelSelector(label), () =>
             {
-                onSelected?.Invoke(targetEnemy); //선택된 적을 콜백으로 넘김
+                if (!picked) //중복 선택 방지
+                {
+                    result = label;
+                    picked = true;
+                }
             });
         }
+
+        yield return new WaitUntil(() => picked); //선택 대기
+        onSelected?.Invoke(result);
     }
 
     //-------------------------------------------------------------------------------
@@ -151,39 +167,39 @@ public class EventDisplayManager : MonoBehaviour
     /// <returns></returns>
     private Button CreateButtons(string text, UnityAction onClickAction)
     {
-        var buttonObj = Instantiate(buttonPrefab, buttonPanel);
-        buttonObj.name = $"Btn_{text}";
-        buttonObj.SetActive(true);
+        Button tempBtn = null;
 
-        // 2) 컴포넌트 안전하게 찾기 (자식까지 탐색)
-        var button = buttonObj.GetComponentInChildren<Button>(true);
-        if (button == null)
+        for (int i = 0; i < buttonPanel.childCount; i++) //비활성화인 버튼 찾기
         {
-            Debug.LogError($"[CreateButtons] Button 컴포넌트를 찾지 못했습니다. 프리팹 계층을 확인하세요. obj={buttonObj.name}");
-            return null;
+            Transform child = buttonPanel.GetChild(i);
+            if (!child.gameObject.activeSelf)
+            {
+                tempBtn = child.GetComponent<Button>();
+                break; //비활성화 버튼이 존재한다면 저장
+            }
         }
 
-        var label = buttonObj.GetComponentInChildren<TextMeshProUGUI>(true);
-        if (label == null)
-            Debug.LogWarning($"[CreateButtons] TextMeshProUGUI 라벨이 없습니다. obj={buttonObj.name}");
-        else
-            label.text = text;
-        // GameObject buttonObj = Instantiate(buttonPrefab, buttonPanel);
-        // Button button = buttonObj.GetComponentInChildren<Button>(true);
-        // TextMeshProUGUI buttonText = buttonObj.GetComponentInChildren<TextMeshProUGUI>();
-        // buttonText.text = text;
-        // button.onClick.RemoveAllListeners();
-        button.onClick.AddListener(() =>
-        { //클릭 시 onClick 실행 후 버튼 삭제
-            onClickAction?.Invoke();
+        if (tempBtn == null) //비활성화 버튼이 없으면 생성
+        {
+            tempBtn = Instantiate(buttonPrefab, buttonPanel).GetComponent<Button>();
+        }
+
+        tempBtn.gameObject.SetActive(true);
+        TextMeshProUGUI buttonText = tempBtn.GetComponentInChildren<TextMeshProUGUI>();
+        buttonText.text = text;
+
+        tempBtn.onClick.RemoveAllListeners();
+        tempBtn.onClick.AddListener(() =>
+        { //클릭 시 비활성화 후 onClick 실행
             ClearButtons();
+            onClickAction?.Invoke();
         });
 
-        return button;
+        return tempBtn;
     }
 
     /// <summary>
-    /// 버튼 UI 제거 메소드
+    /// 전체 버튼 UI 정리 메소드
     /// </summary>
     private void ClearButtons()
     {
@@ -192,8 +208,10 @@ public class EventDisplayManager : MonoBehaviour
             var t = buttonPanel.GetChild(i);
             var btn = t.GetComponent<Button>();
             if (btn != null) btn.onClick.RemoveAllListeners(); //리스너 해제
-            Destroy(t.gameObject); //버튼 삭제
+            if (t.gameObject.activeSelf)
+                t.gameObject.SetActive(false); //버튼 비활성화
         }
+        Debug.Log("버튼 정리");
     }
 
     /// <summary>
