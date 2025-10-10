@@ -149,9 +149,37 @@ public class WeatherManager : MonoBehaviour {
     public void HiddenEvent() {
         if(!GameDataManager.Data.tutorialClear) return;
 
-        percent = 0.01f;    
+        percent = 0.3f;    
         if(SecureRng.Chance(percent)) {
-            Debug.Log("Hidden 발생! 비상! 사용자 다운! Hidden나와!");
+            switch (WeatherResponse.main) {
+                case "Thundersorm" :
+                    Debug.Log("폭풍이다");
+                    break;
+
+                case "Drizzle" :
+                    Debug.Log("가랑비다");
+                    break;
+
+                case "Rain" :
+                    Debug.Log("비온다");
+                    break;
+
+                case "Snow" :
+                    Debug.Log("눈온다");
+                    break;
+                
+                case "Atmosphere" :
+                    Debug.Log("습하다");
+                    break;
+
+                case "Clear" :
+                    Debug.Log("맑다");
+                    break;
+
+                case "Clouds" :
+                    Debug.Log("흐릿하다");
+                    break;
+            }
         }
     }
 }

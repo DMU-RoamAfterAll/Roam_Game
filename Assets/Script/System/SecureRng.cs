@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Security,Cryptography;
+using System.Security.Cryptography;
 
 public static class SecureRng {
     public static int Range(int minInclusive, int maxExclusive) 
