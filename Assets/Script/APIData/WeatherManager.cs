@@ -144,42 +144,56 @@ public class WeatherManager : MonoBehaviour {
         public float temp;
     }
 
-    private float percent;
-
     public void HiddenEvent() {
         if(!GameDataManager.Data.tutorialClear) return;
 
-        percent = 0.3f;    
-        if(SecureRng.Chance(percent)) {
-            switch (WeatherResponse.main) {
-                case "Thundersorm" :
-                    Debug.Log("폭풍이다");
-                    break;
+        var wm = WeatherManager.Instance;
+        var resp = wm != null ? wm.resp : null;
+        var main = resp != null ? resp.main : null;
 
-                case "Drizzle" :
-                    Debug.Log("가랑비다");
-                    break;
+        float percent = 0.3f;
+        if(!SecureRng.Chance(percent)) return;
 
-                case "Rain" :
-                    Debug.Log("비온다");
-                    break;
+        switch (main) {
+            case "Thundersorm" :
+                Debug.Log("폭풍이다");
+                break;
 
-                case "Snow" :
-                    Debug.Log("눈온다");
-                    break;
-                
-                case "Atmosphere" :
-                    Debug.Log("습하다");
-                    break;
+            case "Drizzle" :
+                Debug.Log("가랑비다");
+                break;
 
-                case "Clear" :
-                    Debug.Log("맑다");
-                    break;
+            case "Rain" :
+                Debug.Log("비온다");
+                break;
 
-                case "Clouds" :
-                    Debug.Log("흐릿하다");
-                    break;
-            }
+            case "Snow" :
+                Debug.Log("눈온다");
+                break;
+            
+            case "Mist":
+            case "Smoke":
+            case "Haze":
+            case "Dust":
+            case "Fog":
+            case "Sand":
+            case "Ash":
+            case "Squall":
+            case "Tornado":
+                Debug.Log("습하거나탁하다");
+                break;
+
+            case "Clear" :
+                Debug.Log("맑다");
+                break;
+
+            case "Clouds" :
+                Debug.Log("흐릿하다");
+                break;
+
+            default :
+                Debug.Log("알수없는 날씨");
+                break;
         }
     }
 }
