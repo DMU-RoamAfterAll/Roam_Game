@@ -101,10 +101,8 @@ public class SectionEventManager : MonoBehaviour
     private BattleEventManager battleEventManager;
     private EventDisplayManager eventDisplayManager;
     private SectionEventParser sectionEventParser;
-    private ItemDataManager itemDataManager;
-    private StoryFlagManager storyFlagManager;
-    private WeaponDataManager weaponDataManager;
     private UserDataManager userDataManager;
+    private DataService dataService;
 
     //디버깅용 변수
     TextNode testjson = null;
@@ -115,10 +113,8 @@ public class SectionEventManager : MonoBehaviour
         battleEventManager = GetComponent<BattleEventManager>();
         eventDisplayManager = GetComponent<EventDisplayManager>();
         sectionEventParser = GetComponent<SectionEventParser>();
-        itemDataManager = GetComponent<ItemDataManager>();
-        storyFlagManager = GetComponent<StoryFlagManager>();
-        weaponDataManager = GetComponent<WeaponDataManager>();
         userDataManager = GetComponent<UserDataManager>();
+        dataService = GetComponent<DataService>();
 
         LoadJson(jsonFileName); //Json파일 로드
     }
@@ -256,7 +252,7 @@ public class SectionEventManager : MonoBehaviour
                 if (actionItem != null && actionItem.itemCode != "" && actionItem.amount >= 0 &&
                 actionItem.itemCode is string itemCode && actionItem.amount is int amount)
                 {
-                    ItemDataNode itemData = itemDataManager.GetItemByCode(itemCode);
+                    ItemDataNode itemData = dataService.Item.GetItemByCode(itemCode);
 
                     StartCoroutine(userDataManager.ItemCheck( //api 메소드
                         onResult: list =>
@@ -293,7 +289,7 @@ public class SectionEventManager : MonoBehaviour
                 if (actionItem != null && actionItem.itemCode != "" && actionItem.amount != 0 &&
                 actionItem.itemCode is string itemCode && actionItem.amount is int amount)
                 {
-                    ItemDataNode itemData = itemDataManager.GetItemByCode(itemCode);
+                    ItemDataNode itemData = dataService.Item.GetItemByCode(itemCode);
 
                     //테스트 출력
                     Debug.Log($"\'{itemData.code}\'아이템을 {amount}개 획득했습니다.");
@@ -310,7 +306,7 @@ public class SectionEventManager : MonoBehaviour
                 if (actionItem != null && actionItem.itemCode != "" && actionItem.amount != 0 &&
                 actionItem.itemCode is string itemCode && actionItem.amount is int amount)
                 {
-                    ItemDataNode itemData = itemDataManager.GetItemByCode(itemCode);
+                    ItemDataNode itemData = dataService.Item.GetItemByCode(itemCode);
 
                     //테스트 출력
                     Debug.Log($"\'{itemData.name}\'아이템을 {amount}개 잃었습니다.");
@@ -327,7 +323,7 @@ public class SectionEventManager : MonoBehaviour
                 if (actionWeapon != null && actionWeapon.weaponCode != "" && actionWeapon.amount >= 0 &&
                 actionWeapon.weaponCode is string weaponCode && actionWeapon.amount is int amount)
                 {
-                    WeaponDataNode weaponData = weaponDataManager.GetWeaponByCode(weaponCode);
+                    WeaponDataNode weaponData = dataService.Weapon.GetWeaponByCode(weaponCode);
 
                     StartCoroutine(userDataManager.WeaponCheck( //api 메소드
                         onResult: list =>
@@ -364,7 +360,7 @@ public class SectionEventManager : MonoBehaviour
                 if (actionWeapon != null && actionWeapon.weaponCode != "" && actionWeapon.amount != 0 &&
                 actionWeapon.weaponCode is string weaponCode && actionWeapon.amount is int amount)
                 {
-                    WeaponDataNode weaponData = weaponDataManager.GetWeaponByCode(weaponCode);
+                    WeaponDataNode weaponData = dataService.Weapon.GetWeaponByCode(weaponCode);
 
                     //테스트 출력
                     Debug.Log($"\'{weaponData.code}\'무기를 {amount}개 획득했습니다.");
@@ -381,7 +377,7 @@ public class SectionEventManager : MonoBehaviour
                 if (actionWeapon != null && actionWeapon.weaponCode != "" && actionWeapon.amount != 0 &&
                 actionWeapon.weaponCode is string weaponCode && actionWeapon.amount is int amount)
                 {
-                    WeaponDataNode weaponData = weaponDataManager.GetWeaponByCode(weaponCode);
+                    WeaponDataNode weaponData = dataService.Weapon.GetWeaponByCode(weaponCode);
 
                     //테스트 출력
                     Debug.Log($"\'{weaponData.name}\'무기를 {amount}개 잃었습니다.");
@@ -398,7 +394,7 @@ public class SectionEventManager : MonoBehaviour
                 if (actionFlag != null && actionFlag.flagCode != "" &&
                 actionFlag.flagCode is string flagCode && actionFlag.flagState is bool flagState)
                 {
-                    storyFlagNode FlagData = storyFlagManager.GetFlagByCode(flagCode);
+                    storyFlagNode FlagData = dataService.StoryFlag.GetFlagByCode(flagCode);
 
                     //테스트 출력
                     Debug.Log($"\'{FlagData.name}\'플래그 상태를 {flagState}로 변경했습니다.");
@@ -415,7 +411,7 @@ public class SectionEventManager : MonoBehaviour
                 if (actionFlag != null && actionFlag.flagCode != "" &&
                 actionFlag.flagCode is string flagCode && actionFlag.flagState is bool flagState)
                 {
-                    storyFlagNode FlagData = storyFlagManager.GetFlagByCode(flagCode);
+                    storyFlagNode FlagData = dataService.StoryFlag.GetFlagByCode(flagCode);
 
                     StartCoroutine(userDataManager.FlagCheck( //api 메소드
                         onResult: list =>
@@ -457,14 +453,41 @@ public class SectionEventManager : MonoBehaviour
     {
         if (sectionData.TryGetValue(nodeKey, out object node))
         {
+            //---------------본문 출력---------------
             if (node is TextNode textNode)
             {
-                eventDisplayManager.DisplayTextNode(textNode);
+                HandleNodeActions(textNode.action); //액션 실행
+                eventDisplayManager.DisplayTextNode(textNode, () =>
+                {
+                    StartDialogue(textNode.next); //노드 출력 후 다음 노드로 이동
+                });
             }
+            //---------------선택지 출력---------------
             else if (node is MenuNode menuNode)
             {
-                eventDisplayManager.DisplayMenuNode(menuNode);
+                eventDisplayManager.DisplayMenuNode(menuNode, (MenuOption option) =>
+                {
+                    //선택지 선택 후 진행
+
+                    Debug.Log($"선택됨: {option.id}");
+
+                    if (option.action != null)
+                    {
+                        Debug.Log($"[Action 실행]");
+                        HandleNodeActions(option.action); //액션 실행
+                    }
+
+                    if (!string.IsNullOrEmpty(option.next))
+                    {
+                        StartDialogue(option.next); //선택 완료시 결과 노드로 이동
+                    }
+                    else
+                    {
+                        Debug.Log($"[{GetType().Name}] MenuNode의 next 값이 없습니다. 종료 또는 대기 처리 필요.");
+                    }
+                });
             }
+            //---------------전투씬 출력---------------
             else if (node is BattleNode battleNode)
             {
                 battleEventManager.EnterBattleTurn(battleNode);

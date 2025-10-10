@@ -33,7 +33,7 @@ public class EnemyDataManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Item 데이터 파일 로드
+    /// 적 데이터 파일 로드
     /// </summary>
     public void LoadEnemyJson()
     {

@@ -1,6 +1,5 @@
 using UnityEngine;
 using KoreanTyper;
-using System.Linq;
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine.UI;
@@ -10,9 +9,6 @@ using System;
 
 public class EventDisplayManager : MonoBehaviour
 {
-    //스트립트
-    private SectionEventManager sectionEventManager;
-
     //경로
     private string imageFolderPath =
     "StoryGameData/SectionData/SectionImage"; //게임 삽화가 담긴 파일의 경로
@@ -32,7 +28,6 @@ public class EventDisplayManager : MonoBehaviour
     private void Awake()
     {
         //참조 캐싱
-        sectionEventManager = GetComponent<SectionEventManager>();
         viewport = GameObject.Find("Viewport").GetComponent<Transform>();
         sceneImage = viewport.Find("Content/UI_Image/Image").GetComponent<Image>();
         dialogueText = viewport.Find("Content/value").GetComponent<TextMeshProUGUI>();
@@ -43,18 +38,16 @@ public class EventDisplayManager : MonoBehaviour
     /// 본문 출력 메소드
     /// </summary>
     /// <param name="node">출력할 본문 노드</param>
-    public void DisplayTextNode(TextNode node)
+    public void DisplayTextNode(TextNode node, UnityAction HandleNextNode)
     {
         ClearButtons(); //기존 버튼 제거
-
-        sectionEventManager.HandleNodeActions(node.action); //액션 실행
 
         if (!string.IsNullOrEmpty(node.next)) //본문 출력
         {
             StartTyping(string.Join("\n", node.value), () =>
             {
                 //다음으로 버튼 생성
-                CreateButtons("다음으로", () => sectionEventManager.StartDialogue(node.next));
+                CreateButtons("다음으로", HandleNextNode);
             });
         }
         else
@@ -71,36 +64,16 @@ public class EventDisplayManager : MonoBehaviour
     /// 선택지 출력 메소드
     /// </summary>
     /// <param name="node">출력할 선택지 노드</param>
-    public void DisplayMenuNode(MenuNode node)
+    /// <param name="HandleMenuSelect">선택지를 고른 뒤 실행할 콜백함수</param>
+    public void DisplayMenuNode(MenuNode node, UnityAction<MenuOption> HandleMenuSelect)
     {
-        StopTyping(); //기존 코루틴 제거
         dialogueText.text = ""; //텍스트 비우기
         ClearButtons(); //기존 버튼 제거
 
         foreach (MenuOption option in node.menuOption)
         {
             //각 선택지에 대해 버튼 생성
-            CreateButtons(option.label, () =>
-            {
-                Debug.Log($"선택됨: {option.id}");
-
-                //액션 처리
-                if (option.action != null)
-                {
-                    Debug.Log($"[Action 실행]");
-                    sectionEventManager.HandleNodeActions(option.action);
-                }
-
-                //선택지 텍스트 출력
-                if (!string.IsNullOrEmpty(option.next))
-                {
-                    sectionEventManager.StartDialogue(option.next);
-                }
-                else
-                {
-                    Debug.Log($"[{GetType().Name}] MenuNode의 next 값이 없습니다. 종료 또는 대기 처리 필요.");
-                }
-            });
+            CreateButtons(option.label, option, HandleMenuSelect);
         }
     }
 
@@ -167,35 +140,69 @@ public class EventDisplayManager : MonoBehaviour
     /// <returns></returns>
     private Button CreateButtons(string text, UnityAction onClickAction)
     {
-        Button tempBtn = null;
+        Button tempBtn = ActivateButton(); //버튼 활성화
+        SetupButton(tempBtn, text); //버튼 세팅
 
+        tempBtn.onClick.RemoveAllListeners();
+        tempBtn.onClick.AddListener(() =>
+        {
+            ClearButtons(); //클릭 시 버튼 비활
+            onClickAction?.Invoke(); //onClick 실행
+        });
+
+        return tempBtn;
+    }
+
+    /// <summary>
+    /// 추가: payload를 함께 넘기는 제네릭 오버로드
+    /// </summary>
+    private Button CreateButtons<T>(string text, T payload, UnityAction<T> onClick)
+    {
+        Button tempBtn = ActivateButton(); //버튼 활성화
+        SetupButton(tempBtn, text); //버튼 세팅
+
+        tempBtn.onClick.RemoveAllListeners();
+        tempBtn.onClick.AddListener(() =>
+        {
+            ClearButtons(); //클릭 시 버튼 비활
+            onClick?.Invoke(payload); //payload를 포함한 onClick실행
+        });
+
+        return tempBtn;
+    }
+
+    /// <summary>
+    /// 버튼 활성화 메소드
+    /// </summary>
+    /// <returns>활성화된 버튼</returns>
+    private Button ActivateButton()
+    {
+        Button tempBtn = null;
         for (int i = 0; i < buttonPanel.childCount; i++) //비활성화인 버튼 찾기
         {
-            Transform child = buttonPanel.GetChild(i);
+            var child = buttonPanel.GetChild(i);
             if (!child.gameObject.activeSelf)
             {
                 tempBtn = child.GetComponent<Button>();
                 break; //비활성화 버튼이 존재한다면 저장
             }
         }
-
         if (tempBtn == null) //비활성화 버튼이 없으면 생성
-        {
             tempBtn = Instantiate(buttonPrefab, buttonPanel).GetComponent<Button>();
-        }
 
-        tempBtn.gameObject.SetActive(true);
-        TextMeshProUGUI buttonText = tempBtn.GetComponentInChildren<TextMeshProUGUI>();
-        buttonText.text = text;
-
-        tempBtn.onClick.RemoveAllListeners();
-        tempBtn.onClick.AddListener(() =>
-        { //클릭 시 비활성화 후 onClick 실행
-            ClearButtons();
-            onClickAction?.Invoke();
-        });
-
+        tempBtn.gameObject.SetActive(true); //버튼 활성화
         return tempBtn;
+    }
+
+    /// <summary>
+    /// 버튼 오브젝트 설정 메소드
+    /// </summary>
+    /// <param name="btn">설정이 필요한 버튼</param>
+    /// <param name="text">버튼 라벨값</param>
+    private void SetupButton(Button btn, string text)
+    {
+        var buttonText = btn.GetComponentInChildren<TextMeshProUGUI>();
+        if (buttonText != null) buttonText.text = text; //버튼 라벨 설정
     }
 
     /// <summary>

@@ -48,8 +48,7 @@ public class BattleEventManager : MonoBehaviour
     private UserDataManager userDataManager;
     private SectionEventManager sectionEventManager;
     private EventDisplayManager eventDisplayManager;
-    private EnemyDataManager enemyDataManager;
-    private WeaponDataManager weaponDataManager;
+    private DataService dataService;
     public Dictionary<string, EnemyDataNode> enemyData = new Dictionary<string, EnemyDataNode>();
 
     public PlayerStats player;
@@ -59,6 +58,7 @@ public class BattleEventManager : MonoBehaviour
     private string nextOnLose; //패배 후 이동할 노드 키
 
     private List<object> turnOrder; //전투 턴 순서를 표기한 리스트 (플레이어= null, 적 = EnemySlot)
+    private List<string> enemySet = new List<string>();
     private int turnIndex; //전투 턴 인덱스
     private bool battleEnded = false; //배틀 종료 플래그
     private Coroutine battleRoutine; //전투 루프 코루틴
@@ -70,7 +70,7 @@ public class BattleEventManager : MonoBehaviour
         userDataManager = GetComponent<UserDataManager>();
         sectionEventManager = GetComponent<SectionEventManager>();
         eventDisplayManager = GetComponent<EventDisplayManager>();
-        enemyDataManager = GetComponent<EnemyDataManager>();
+        dataService = GetComponent<DataService>();
     }
 
     // ------------- 외부에서 시작하는 진입점 -------------
@@ -137,7 +137,7 @@ public class BattleEventManager : MonoBehaviour
                 var enemyCode = code; //적 코드 저장
 
                 //적 인스턴스 생성, EnemyDataNode에서 스탯을 읽고 hp만 런타임 관리
-                var tpl = enemyDataManager.GetEnemyByCode(enemyCode);
+                var tpl = dataService.Enemy.GetEnemyByCode(enemyCode);
                 if(tpl == null)
                 {
                     Debug.LogError($"[{GetType().Name}] 적 데이터를 찾을 수 없습니다: {enemyCode}");
@@ -150,7 +150,11 @@ public class BattleEventManager : MonoBehaviour
                 }
 
                 if (!spawnCount.ContainsKey(enemyCode)) //등장 횟수 세기
+                {
                     spawnCount[enemyCode] = 0;
+                    enemySet.Add(enemyCode); //첫 등장한 적은 enemySet에 코드 저장
+                }
+                    
 
                 spawnCount[enemyCode]++;
 
@@ -183,7 +187,10 @@ public class BattleEventManager : MonoBehaviour
             new WeaponDataNode { code = UNARMED_CODE} //맨손 삽입
         };
 
-        List<WeaponData> ownedWeapons = null; //보유중인 무기
+        //-------전투 진행에 필요한 정보를 불러와 캐시로 저장-------
+
+        //보유중인 무기
+        List<WeaponData> ownedWeapons = null;
         userDataManager.WeaponCheck(onResult: list => //보유중인 무기 리스트 불러오기
         {
             ownedWeapons = list;
@@ -191,16 +198,29 @@ public class BattleEventManager : MonoBehaviour
 
         if (ownedWeapons != null) //보유중인 무기가 있다면 정보 불러오기
         {
-            var weaponCache = weaponDataManager.GetWeaponsByCodes( //중복 제거
+            var weaponCache = dataService.Weapon.GetWeaponsByCodes( //중복 제거
                 ownedWeapons.Select(w => w.weaponCode).ToList()
             );
 
             foreach (var ow in ownedWeapons) //무기 정보 삽입
             {
-                if(weaponCache.TryGetValue(ow.weaponCode, out var w))
+                if (weaponCache.TryGetValue(ow.weaponCode, out var w))
                     menuList.Add(w);
-            }   
+            }
         }
+
+        //적 전투 스크립트
+        Dictionary<string, EnemyScriptNode> enemyScriptDict = new Dictionary<string, EnemyScriptNode>();
+        foreach (string enemyCode in enemySet)
+        {
+            var enemyScript = dataService.EnemyScript.GetEnemyScriptByCode(enemyCode);
+            if (enemyScript != null)
+                enemyScriptDict[enemyCode] = enemyScript;
+            else
+                Debug.LogError($"[{GetType().Name}] 적 스크립트를 찾을 수 없습니다. : {enemyCode}");
+        }
+
+        //-----------------------------------------------------
 
         while (!battleEnded)
         {
@@ -245,6 +265,8 @@ public class BattleEventManager : MonoBehaviour
                 target.hp = Mathf.Max(0, target.hp - damage); //적 체력 수정
                 Debug.Log($"[{GetType().Name}] 유저 -> 적:{target.InstanceName} | 데미지:{damage} (HP {target.hp}/{target.enemyData.hp})");
 
+                //eventDisplayManager.StartTyping();
+
                 if (AllEnemiesDead())
                 { //모든 적이 죽었을 경우 전투 종료(승리)
                     OnBattleFinished(true);
@@ -277,15 +299,6 @@ public class BattleEventManager : MonoBehaviour
     }
 
     //------------- 유틸/계산 -------------
-    /// <summary>
-    /// 보유중인 무기의 정보를 불러와 캐시로 저장하는 메소드
-    /// </summary>
-    /// <returns>무기 정보 리스트</returns>
-    private Dictionary<string, WeaponDataNode> WeaponCacheCreate()
-    {
-        return null;
-    }
-
     /// <summary>
     /// 적이 전멸했는지 확인하는 메소드
     /// </summary>
