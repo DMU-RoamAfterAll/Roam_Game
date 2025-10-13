@@ -225,9 +225,17 @@ public class SwitchSceneManager : MonoBehaviour {
         WeatherManager.Instance.HiddenEvent();
     }
 
+    public static void GoToMissionScene() {
+        Instance?.MoveScene(SceneList.Mission);
+    }
+
     #if UNITY_EDITOR
     // 🔧 에디터 메뉴는 에디터 전용으로 유지
     [MenuItem("Tools/Scenes/GoTo MapScene")]
     private static void GoToMapSceneMenu() => GoToMapScene();
+
+    [MenuItem("Tools/Scenes/GoTo MissionScene")]
+    private static void GoToMissionSceneMenu() => GoToMissionScene();
+    
     #endif
 }

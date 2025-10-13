@@ -7,7 +7,7 @@
 
   {
     "code": "t3_MapCheck",
-    "name": "죽은 남자의 집 위치 추가",
+    "name": "튜토리얼 완료 시",
     "description": "T3_Section 완료 후 지도에 죽은 남자의 집 위치 추가"
   },
 
@@ -19,7 +19,19 @@
 
   {
     "code": "m1_GetM2Map",
-    "name": "M1_Section 완료시",
+    "name": "M1_Section 완료 시",
     "description": "M1_Section 완료 후 지도에 M2_Section 위치 추가"
+  },
+
+  {
+    "code": "m2_GetIrisMap",
+    "name": "M2_Section Iris마을 위치 획득 시",
+    "description": "M2_Section 완료 후에 지도에 Iris마을 위치 추가"
+  },
+
+  {
+    "code": "m2_GetPredator",
+    "name": "폐허의 무법자",
+    "description": "M2_Section Seltect2 싸워서 얻어내기 - 힘이 곧 권리인 세계에서 승리 시"
   }
 ]

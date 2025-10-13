@@ -481,7 +481,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   city: Seoul
+  isHidden: 0
   resp:
+    main: 
     description: 
     temp: 0
     city: 
@@ -544,6 +546,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 233b4fe734de0467298f7bb81ae89996, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  useUtc: 0
+  onNewDay:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &320775154
 GameObject:
   m_ObjectHideFlags: 0

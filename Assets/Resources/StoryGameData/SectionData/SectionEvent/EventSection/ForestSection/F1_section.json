@@ -5,195 +5,305 @@
       "eventType": "Treasure"
   },
   
-  "Text_GraveyardIntro": {
-    "value": [
+  "Text1" : {
+    "value" : [
       "당신은 철도 다리에서 멀지 않은 곳에 위치한 작은 무덤터에 다다랐다.",
       "이곳은 시간이 멈춘 듯 조용했고, 땅 위에 불규칙하게 솟은 봉분들 사이로 키 큰 잡초들이 자라나 있었다.",
-      "그 사이로 바람에 흔들리는 들꽃 한 송이가 눈에 들어온다.",
+      "그 사이로 바람에 흔들리는 들꽃 한 송이가 눈에 들어온다",
       "무덤터 주변은 마치 잊힌 기억처럼 쓸쓸했고, 흙 위에는 사람과 짐승의 흔적이 겹겹이 새겨져 있었다."
     ],
-    "next": "Menu_Graveyard"
+    "next" : "Menu1"
   },
-  "Menu_Graveyard": {
-    "text": [
-      "무덤터를 마주한 당신은 신중하게 주변을 살펴본다."
-    ],
-    "value": [
+
+  "Menu1" : {
+    "menuOption": [
       {
-        "id": "Option_Investigate",
-        "label": "무덤터를 직접 조사한다",
-        "text": [
-          "당신은 봉분들 사이로 조심스레 발걸음을 옮겼다.",
-          "허리춤까지 자란 잡초들이 무릎을 간질이고, 발밑에 낡고 헤진 신발 한 짝이 눕혀져 있다.",
-          "그 앞에 선 당신은, 바람에 부드럽게 흔들리는 들꽃을 바라보았다."
-        ],
-        "action": [
-          { "Condition": "관찰력", "IfTrue": "Text_Investigate_Success", "IfFalse": "Battle_Investigate" }
-        ]
+        "id" : "Select1",
+        "label" : "무덤터를 직접 조사한다.",
+        "next" : "Result1"
       },
+
       {
-        "id": "Option_Periphery",
-        "label": "무덤 주변을 살펴본다",
-        "text": [
-          "무덤터 가장자리로 발걸음을 옮긴 당신은, 허물어진 담장 너머로 나무 십자가가 비스듬히 뉘어진 모습과 무너진 잔해들을 목격한다.",
-          "무언가 삐걱거리는 쇳소리가 바람을 타고 울려온다.",
-          "고개를 돌리자, 초입 너머로 녹슨 문짝이 덜렁이는 작은 창고가 보인다."
-        ],
-        "action": [
-          { "Condition": "은밀행동", "IfTrue": "Text_Periphery_Success", "IfFalse": "Battle_Periphery" }
-        ]
+        "id" : "Select2",
+        "label" : "무덤 주변을 살펴본다.",
+        "next" : "Result2"
       },
+
       {
-        "id": "Option_Tracks",
-        "label": "발자국을 따라가본다",
-        "text": [
-          "무덤터 가장자리의 흙 위로 들개들의 발자국이 얽혀 있었다.",
-          "당신은 비교적 또렷한 발자국 하나를 따라 봉분 너머로 걸음을 옮겼다."
-        ],
-        "action": [
-          { "Condition": "관찰력", "IfTrue": "Text_Tracks_Success", "IfFalse": "Battle_Tracks" }
-        ]
+        "id" : "Select3",
+        "label" : "발자국을 따라가본다.",
+        "next" : "Result3"
       }
-    ],
-    "next": null
+    ]
   },
 
-  "Text_Investigate_Success": {
-    "value": [
-      "들꽃이 자라는 봉분 곁에 쪼그려 앉아 주변을 살펴보던 당신은, 흙 속에 반쯤 묻힌 작고 부서진 뼈 조각을 발견한다.",
-      "뼈 표면에는 날카로운 이빨 자국이 선명하게 남아 있었고, 마치 이곳이 사냥터였던 듯한 불쾌한 기운이 느껴졌다.",
-      "바람결 사이에 낮게 깔리는 숨소리를 감지한 당신은, 즉시 주변을 경계하며 자세를 낮췄고, 그 덕에 다가오는 들개를 사전에 알아차려 충돌 없이 이탈할 수 있었다.",
-      "[ 들꽃 획득 ]"
+  "Result1" : {
+    "value" : [
+      "당신은 봉분들 사이로 조심스레 발걸음을 옮겼다.",
+      "허리춤까지 자란 잡초들이 무흪을 간질이고, 발밑에 날고 헤진 신발 한 짝이 눕혀져 있다.",
+      "그 앞에 선 당신은, 바람에 부드럽게 흔들리는 들꽃을 바라보았다."
     ],
-    "action": [
-      { "Get": ["들꽃", 1] }
-    ],
-    "next": null
+    "next" : "Menu2"
   },
 
-  "Battle_Investigate": {
-    "value": [
-      "**전투 섹션 진입**"
-    ],
-    "next": "BattleResult_Investigate"
-  },
-  "BattleResult_Investigate": {
-    "value": [],
-    "action": [
-      { "Condition": "전투승리", "IfTrue": "Text_Investigate_Win", "IfFalse": "Text_Investigate_Lose" }
-    ],
-    "next": null
-  },
-  "Text_Investigate_Win": {
-    "value": [
-      "들개는 몇 차례 몸을 떨더니, 신음 소리와 함께 뒷걸음치며 무덤 너머로 도망쳤다.",
-      "긴장을 풀고 일어난 당신은, 부서진 허리띠를 고쳐매며 들꽃을 챙겼다.",
-      "[ 들꽃 획득 ]"
-    ],
-    "action": [
-      { "Get": ["들꽃", 1] }
-    ],
-    "next": null
-  },
-  "Text_Investigate_Lose": {
-    "value": [
-      "들개의 이빨이 팔을 깊게 파고들었고, 당신은 바닥에 무너졌다.",
-      "몸을 추스르기도 전에 들개가 당신의 소지품을 덮치듯 물고 달아났고, 당신은 흐려진 시야 속에서 가볍게 맥을 놓은 채 무덤가에 쓰러졌다.",
-      "[ 아이템 랜덤 소실 ]"
-    ],
-    "action": [
-      { "Lost": ["랜덤", 1] }
-    ],
-    "next": null
+  "Menu2" : {
+    "menuOption": [
+      {
+        "id" : "Select1",
+        "label" : "자세히 관찰한다. (관찰력 보유 시)",
+        "action" : {
+          "skillCheck" : ["sk_0001", 1]
+        },
+        "next" : "Text2"
+      },
+
+      {
+        "id" : "Select2",
+        "label" : "관찰한다. (관찰력 미보유 시)",
+        "next" : "Text3"
+      }
+    ]
   },
 
-  "Text_Periphery_Success": {
-    "value": [
+  "Text2" : {
+    "value" : [
+      "들꽃이 자라는 봉분 곁에 쪼그려 앉아 주변을 살펴보던 당신은,",
+      "흙 속에 반쯤 묻힌 작고 부서진 뼈 조각을 발견했다.",
+      "뼈 표면에는 날카로운 이빨 자국이 선명하게 남아 있었고,",
+      "마치 이곳이 사냥터였던 듯한 불쾌한 기운이 느껴졌다.",
+      "바람결 사이에 낮게 깔리는 숨소리를 감지한 당신은,",
+      "즉시 주변을 경계하며 자세를 낮췄고,",
+      "그 덕에 다가오는 들개를 사전ㄴ에 알아차려 충돌 없이 이탈 할 수 있었다.",
+      "곧장 손을 뻗어 들꽃을 조심스레 채집하고, 무덤터를 조용히 빠져나왔다.",
+      "[들꼿 획득]"
+    ],
+    "action" : {
+      "getI" : ["item_1011", 1]
+    },
+    "next" : null
+  },
+
+  "Text3" : {
+    "value" : [
+      "당신은 들꽃만을 바라보며 무심코 손을 뻗었다.",
+      "그 순간, 발밑의 잡초들이 오란하게 흔들리며 무언가가 튀어나온다."
+    ],
+    "next" : "Battle1"
+  },
+
+  "Result2" : {
+    "value" : [
+      "무덤터 가장자리로 발걸음을 옮긴 당신은,",
+      "허물허진 담장 너머로 나무 십자가가 비스듬히 뉘어진 모습과 무너진 잔해들을 목격한다.",
+      "무언가 삐걱거리는 쇳소리가 바람을 타고 울려온다",
+      "고개를 돌리자, 초입 너머로 녹슨 문짝이 덜렁이는 작은 창고가 보인다."
+    ],
+    "next" : "Menu3"
+  },
+
+  "Menu3" : {
+    "menuOption": [
+      {
+        "id" : "Select1",
+        "label" : "신중히 발걸음을 내딛는다 (은밀행동 보유 시)",
+        "action" : {
+          "skillCheck" : ["sk_0002", 1]
+        },
+        "next" : "Text4"
+      },
+
+      {
+        "id" : "Select2",
+        "label" : "터벅터벅 발걸음을 내딛는다 (은밀행동 미보유 시)",
+        "next" : "Text5"
+      }
+    ]
+  },
+
+  "Text4" : {
+    "value" : [
+      "당신은 들개의 기척을 우려해 숨소리까지 죽인 채 다가간다.",
       "창고 문틈에 귀를 기울였을 때, 안쪽에선 아무 소리도 나지 않았다.",
-      "조심스럽게 문을 열고 안으로 들어선 당신은, 한 구석의 바닥 틈 사이에서 연한 향기를 품은 들꽃 다발 하나를 찾아낸다.",
-      "[ 들꽃 획득 ]"
+      "조심스럽게 문을 열고 안으로 들어선 당신은,",
+      "한 구석의 바닥 틈 사이에서 연한 향기를 품은 들꽃 다발 하나를 찾아낸다.",
+      "[들꽃 획득]"
     ],
-    "action": [
-      { "Get": ["들꽃", 1] }
-    ],
-    "next": null
-  },
-  "Battle_Periphery": {
-    "value": [
-      "**전투 섹션 진입**"
-    ],
-    "next": "BattleResult_Periphery"
-  },
-  "BattleResult_Periphery": {
-    "value": [],
-    "action": [
-      { "Condition": "전투승리", "IfTrue": "Text_Periphery_Win", "IfFalse": "Text_Periphery_Lose" }
-    ],
-    "next": null
-  },
-  "Text_Periphery_Win": {
-    "value": [
-      "들개의 몸이 바닥에 쓰러졌고, 당신은 심호흡을 하며 들꽃을 챙겼다.",
-      "[ 들꽃 획득 ]"
-    ],
-    "action": [
-      { "Get": ["들꽃", 1] }
-    ],
-    "next": null
-  },
-  "Text_Periphery_Lose": {
-    "value": [
-      "당신이 버티지 못하고 쓰러졌을 때, 그 짐승은 당신의 소지품을 입에 문 채 달아났다.",
-      "[ 아이템 랜덤 소실 ]"
-    ],
-    "action": [
-      { "Lost": ["랜덤", 1] }
-    ],
-    "next": null
+    "action" : {
+      "getI" : ["item_1011", 1]
+    },
+    "next" : null
   },
 
-  "Text_Tracks_Success": {
-    "value": [
-      "표면엔 희미하게 마모된 바느질 자국이 있었고, 이는 단순한 천이 아니라 누군가의 품에서 떨어져 나온 물건임을 암시했다.",
-      "당신은 침착하게 주변을 정리하고 조각을 챙긴 후, 이 구역을 조용히 빠져나갔다.",
-      "[ 천조각 획득 ]"
+  "Text5" : {
+    "value" : [
+      "당신은 문을 열기 전 경계를 풀고 있었다.",
+      "녹슨 문이 커다란 소리를 내며 열리고, 그 소리는 순식간에 들판을 울렸다."
     ],
-    "action": [
-      { "Get": ["천조각", 1] }
-    ],
-    "next": null
+    "next" : "Battle2"
   },
-  "Battle_Tracks": {
-    "value": [
-      "**전투 섹션 진입**"
+
+  "Result3" : {
+    "value" : [
+      "무덤터 가장자리의 흙 위로 들개들의 발자국이 얽혀 있었다.",
+      "당신은 비교적 또렸한 발자국 하나를 따라 봉분 너머로 걸음을 옮겼다."
     ],
-    "next": "BattleResult_Tracks"
+    "next" : "Menu4"
   },
-  "BattleResult_Tracks": {
-    "value": [],
-    "action": [
-      { "Condition": "전투승리", "IfTrue": "Text_Tracks_Win", "IfFalse": "Text_Tracks_Lose" }
-    ],
-    "next": null
+
+  "Menu4" : {
+    "menuOption": [
+      {
+        "id" : "Select1",
+        "label" : "자세히 관찰한다. (관찰력 보유 시)",
+        "action" : {
+          "skillCheck" : ["sk_0001", 1]
+        },
+        "next" : "Text6"
+      },
+
+      {
+        "id" : "Select2",
+        "label" : "관찰한다. (관찰력 미보유 시)",
+        "next" : "Text7"
+      }
+    ]
   },
-  "Text_Tracks_Win": {
-    "value": [
-      "숨을 몰아쉬며 천조각을 챙긴 당신은 천천히 일어났다.",
-      "[ 천조각 획득 ]"
+
+  "Text6" : {
+    "value" : [
+      "잡초 아래에 묻힌 흙이 옅게 파헤쳐져 있었고,",
+      "그 틈에서 낡은 천의 조각이 흘러나와 있었다.",
+      "표면엔 희미하게 마모된 바느질 자국이 있었고,",
+      "이는 단순한 천이 아니라 누군가의 품에서 떨어져 나온 물건임을 암시했다.",
+      "당신은 침착하게 주변을 정리하고 조각을 챙긴 후,",
+      "이 구역을 조용히 빠져나갔다.",
+      "[천조각 획득]"
     ],
-    "action": [
-      { "Get": ["천조각", 1] }
-    ],
-    "next": null
+    "action" : {
+      "getI" : ["item_1013", 1]
+    },
+    "next" : null
   },
-  "Text_Tracks_Lose": {
-    "value": [
-      "그 순간 들개가 당신의 배낭 안에서 물건을 물고 질주했다.",
-      "[ 아이템 랜덤 소실 ]"
+
+  "Text7" : {
+    "value" : [
+      "발자국 끝에서 당신은 조그만 천조각이 땅에 묻혀 있는 것을 발견한다",
+      "무심코 손을 뻗는 순간, 땅 속에서 낮은 신음이 새어나왔다."
     ],
-    "action": [
-      { "Lost": ["랜덤", 1] }
+    "next" : "Battle3"
+  },
+
+  "Battle1": {
+    "batteIntro" : [
+      "들개 한 마리가 날카로운 이빨을 드러낸 채 위협적으로 다가오며 포효한다."
     ],
-    "next": null
+    "battleOrder" : [
+      "player",
+      "foe_3001"
+    ],
+    "battleTriggers" : [
+
+    ],
+    "BattleWin" : "PostBattle1_W",
+    "BattleLose" : "PostBattle1_L",
+    
+    "PostBattle1_W" : {
+      "value" : [
+        "당신은 빠르게 자세를 낮추며 들개의 측면을 노려 반격을 가했다.",
+        "들개는 몇 차례 몸을 떨더니, 신음 소리와 함께 뒷걸음치며 무덤 너머로 도망쳤다.",
+        "긴장을 풀고 일어난 당신은, 부서진 허리띠를 고쳐매며 들꽃을 챙겼다.",
+        "[들꽃 획득]"
+      ],
+      "action" : {
+        "getI" : ["item_1011", 1]
+      },
+      "next" : null
+    },
+    "PostBattle1_L" : {
+      "value" : [
+        "들개의 이빨이 팔을 깊게 파고들었고, 당신은 바닥에 무너졌다.",
+        "몸을 추스르기도 전에 들개가 당신의 소지품을 덮치듯 물고 달아났고,",
+        "당신은 흐려진 시야 속에서 가볍게 맥을 놓은 채 무덤가에 쓰러졌다"
+      ],
+      "action" : {
+        "lostI" : ["랜덤소실", 1]
+      },
+      "next" : null
+    }
+  },
+
+  "Battle2": {
+    "batteIntro" : [
+      "당신이 움찔할 사이, 창고 반대편에서 들개 한 마리가 목을 빼고 으르렁거리며 접근한다."
+    ],
+    "battleOrder" : [
+      "player",
+      "foe_3001"
+    ],
+    "battleTriggers" : [
+
+    ],
+    "BattleWin" : "PostBattle1_W",
+    "BattleLose" : "PostBattle1_L",
+    
+    "PostBattle1_W" : {
+      "value" : [
+        "당신은 벽을 등지고 창고 안을 돌며 들개를 유인했고,",
+        "틈을 노려 손에 든 파편으로 결정타를 가했다.",
+        "들개의 몸이 바닥에 쓰러졌고, 당신은 심호흡을 하며 들꽃을 챙겼다.",
+        "[들꽃 획득]"
+      ],
+      "action" : {
+        "getI" : ["item_1011", 1]
+      },
+      "next" : null
+    },
+    "PostBattle1_L" : {
+      "value" : [
+        "들개가 미처 닫지 못한 배낭 틈으로 머리를 박고 뒤척였다.",
+        "당신이 버티지 못하고 쓰러졌을 때, 그 집승은 당신의 소지품을 입에 문 채 달아났다."
+      ],
+      "action" : {
+        "lostI" : ["랜덤소실", 1]
+      },
+      "next" : null
+    }
+  },
+
+  "Battle3": {
+    "batteIntro" : [
+      "곧이어 그 소리는 으르렁거림으로 변했고, 풀숲이 들썩이더니 들개 한 마리가 튀어나왔다."
+    ],
+    "battleOrder" : [
+      "player",
+      "foe_3001"
+    ],
+    "battleTriggers" : [
+
+    ],
+    "BattleWin" : "PostBattle1_W",
+    "BattleLose" : "PostBattle1_L",
+    
+    "PostBattle1_W" : {
+      "value" : [
+        "들개는 끝까지 발버둥 쳤지만, 당신의 반격에 무릎을 꿇었다.",
+        "숨을 몰아쉬며 천조각을 챙긴 당신은 천천히 일어났다"
+      ],
+      "action" : {
+        "getI" : ["item_1013", 1]
+      },
+      "next" : null
+    },
+    "PostBattle1_L" : {
+      "value" : [
+        "예기치 못한 공격에 당신은 균형을 잃었고,",
+        "그 순간 들개가 당신의 배낭 안에서 물건을 물고 질주했다.",
+        "멀어지는 그림자를 바라보며 당신은 무력하게 주저앉았다."
+      ],
+      "action" : {
+        "lostI" : ["랜덤소실", 1]
+      },
+      "next" : null
+    }
   }
 }

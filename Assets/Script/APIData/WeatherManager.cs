@@ -6,12 +6,12 @@ using UnityEngine.Android;
 #endif
 
 
-public class WeatherManager : MonoBehaviour
-{
+public class WeatherManager : MonoBehaviour {
     public static WeatherManager Instance { get; private set; } //씬에서 모두 접근 가능하도록 Instance화
 
     private string baseUrl;
     public string city = "Seoul";
+    public bool isHidden;
 
     private const float REQUEST_COOLDOWN = 300f;
     private const float AUTO_REFRESH_INTERVAL = 305f;
@@ -37,6 +37,7 @@ public class WeatherManager : MonoBehaviour
     void Start()
     {
         baseUrl = $"{GameDataManager.Data.baseUrl}:8000";
+        isHidden = false;
 
         RefreshWeather();
         StartCoroutine(AutoRefreshLoop());
@@ -161,7 +162,10 @@ public class WeatherManager : MonoBehaviour
     }
 
     public void HiddenEvent() {
-        if(!GameDataManager.Data.tutorialClear) return;
+        if(!GameDataManager.Data.tutorialClear && isHidden) return;
+
+        isHidden = true;
+        //false조건도 달아야 함!!!!!!
 
         var wm = WeatherManager.Instance;
         var resp = wm != null ? wm.resp : null;
@@ -211,5 +215,23 @@ public class WeatherManager : MonoBehaviour
                 Debug.Log("알수없는 날씨");
                 break;
         }
+    }
+
+    void OnEnable() {
+        SubscribeToTimeManager();
+    }
+
+    void SubscribeToTimeManager() {
+        if (TimeManager.Instance != null) TimeManager.Instance.onNewDay.AddListener(OnNewDay);
+        else StartCoroutine(SubscribeNextFrame());
+    }
+
+    System.Collections.IEnumerator SubscribeNextFrame() {
+        yield return null;
+        if (TimeManager.Instance != null) TimeManager.Instance.onNewDay.AddListener(OnNewDay);
+    }
+
+    void OnNewDay() {
+        isHidden = false;
     }
 }

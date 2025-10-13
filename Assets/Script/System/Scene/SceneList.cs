@@ -5,7 +5,8 @@ public enum SceneName {
     LoginScene,
     MapScene,
     RegisterScene,
-    StoryScene
+    StoryScene,
+    MissionScene
 }
 
 public static class SceneList {
@@ -14,4 +15,5 @@ public static class SceneList {
     public static string Map => SceneName.MapScene.ToString();
     public static string Register => SceneName.RegisterScene.ToString();
     public static string Story => SceneName.StoryScene.ToString();
+    public static string Mission => SceneName.MissionScene.ToString();
 }

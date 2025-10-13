@@ -53,7 +53,7 @@
       "foe_3001"
     ],
     "battleTriggers": [
-      "packTactics"
+    
     ],
     "BattleWin": "PostBattle1_W",
     "BattleLose": "PostBattle1_L"
