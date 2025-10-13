@@ -53,7 +53,6 @@ public class BattleEventManager : MonoBehaviour
 
     public PlayerStats player;
     private string battleImage = ""; //전투 삽화
-
     private string nextOnWin; //승리 후 이동할 노드 키
     private string nextOnLose; //패배 후 이동할 노드 키
 
@@ -264,8 +263,13 @@ public class BattleEventManager : MonoBehaviour
                 int damage = ComputePlayerDamage(target, setWeapon); //플레이어 데미지 계산
                 target.hp = Mathf.Max(0, target.hp - damage); //적 체력 수정
                 Debug.Log($"[{GetType().Name}] 유저 -> 적:{target.InstanceName} | 데미지:{damage} (HP {target.hp}/{target.enemyData.hp})");
-
-                //eventDisplayManager.StartTyping();
+                
+                yield return StartCoroutine(
+                    eventDisplayManager.DisplayScript(
+                        enemyScriptDict[target.enemyData.code].atkHit,
+                        eventDisplayManager.nextText,
+                        null)
+                );
 
                 if (AllEnemiesDead())
                 { //모든 적이 죽었을 경우 전투 종료(승리)

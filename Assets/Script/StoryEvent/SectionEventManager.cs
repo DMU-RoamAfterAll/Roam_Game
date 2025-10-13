@@ -1,5 +1,6 @@
 using UnityEngine;
 using Newtonsoft.Json.Linq;
+using System.Collections;
 using System.Collections.Generic;
 
 //-------------------------------------------------------------------------------
@@ -124,7 +125,7 @@ public class SectionEventManager : MonoBehaviour
         //Json테스트 출력
         testjson = GetTextNode("Text1");
         Debug.Log(testjson.value[0]);
-        StartDialogue("Text1");
+        StartCoroutine(StartDialogue("Text1"));
     }
 
     /// <summary>
@@ -449,7 +450,7 @@ public class SectionEventManager : MonoBehaviour
     /// 노드의 출력을 위한 메소드, 노드의 키값에 따라 알맞은 출력 메소드를 실행
     /// </summary>
     /// <param name="nodeKey">출력을 시작할 노드의 키값</param>
-    public void StartDialogue(string nodeKey)
+    public IEnumerator StartDialogue(string nodeKey)
     {
         if (sectionData.TryGetValue(nodeKey, out object node))
         {
@@ -457,10 +458,26 @@ public class SectionEventManager : MonoBehaviour
             if (node is TextNode textNode)
             {
                 HandleNodeActions(textNode.action); //액션 실행
-                eventDisplayManager.DisplayTextNode(textNode, () =>
+                if (!string.IsNullOrEmpty(textNode.next))
                 {
-                    StartDialogue(textNode.next); //노드 출력 후 다음 노드로 이동
-                });
+                    yield return StartCoroutine(
+                        eventDisplayManager.DisplayScript(
+                            textNode.value,
+                            eventDisplayManager.nextText,
+                            null)
+                    );
+                    StartCoroutine(StartDialogue(textNode.next)); //출력이 끝나면 다음 노드로
+                }
+                else
+                {
+                    yield return StartCoroutine(
+                        eventDisplayManager.DisplayScript(
+                            textNode.value,
+                            "조사 종료",
+                            null)
+                    );
+                    SwitchSceneManager.GoToMapScene(); //다음 노드가 없다면 조사를 종료하고 씬 이동
+                }
             }
             //---------------선택지 출력---------------
             else if (node is MenuNode menuNode)
@@ -479,7 +496,7 @@ public class SectionEventManager : MonoBehaviour
 
                     if (!string.IsNullOrEmpty(option.next))
                     {
-                        StartDialogue(option.next); //선택 완료시 결과 노드로 이동
+                        StartCoroutine(StartDialogue(option.next)); //선택 완료시 결과 노드로 이동
                     }
                     else
                     {

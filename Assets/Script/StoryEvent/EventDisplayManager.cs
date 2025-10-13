@@ -24,6 +24,7 @@ public class EventDisplayManager : MonoBehaviour
     public TextMeshProUGUI dialogueText; //출력될 텍스트 컴포넌트
     public float delayPerChar = 0.01f; //문장 타이핑 딜레이
     public float delayPerSentence = 0.25f; //문장간 딜레이
+    public string nextText = "다음으로";
 
     private void Awake()
     {
@@ -35,29 +36,25 @@ public class EventDisplayManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 본문 출력 메소드
+    /// 스크립트 출력 메소드
     /// </summary>
-    /// <param name="node">출력할 본문 노드</param>
-    public void DisplayTextNode(TextNode node, UnityAction HandleNextNode)
+    /// <param name="node">출력할 스크립트 노드</param>
+    /// <param name="buttonText">버튼 라벨</param>
+    /// <param name="HandleNextNode">버튼 클릭 콜백 함수</param>
+    public IEnumerator DisplayScript(List<string> textScript, string buttonText, UnityAction HandleNextNode)
     {
+        Debug.Log("스크립트 출력");
         ClearButtons(); //기존 버튼 제거
+        bool clicked = false; //버튼 클릭 트리거
 
-        if (!string.IsNullOrEmpty(node.next)) //본문 출력
+        StartTyping(string.Join("\n", textScript), () => //스크립트 출력
         {
-            StartTyping(string.Join("\n", node.value), () =>
-            {
-                //다음으로 버튼 생성
-                CreateButtons("다음으로", HandleNextNode);
-            });
-        }
-        else
-        {
-            StartTyping(string.Join("\n", node.value), () =>
-            {
-                //본문 완료 시 조사를 종료하고 맵 씬으로 이동
-                CreateButtons("조사 종료", () => SwitchSceneManager.GoToMapScene());
-            });
-        }
+            CreateButtons(buttonText, () => { clicked = true; }); //버튼 생성
+        });
+
+        yield return new WaitUntil(() => clicked); //버튼 선택 대기
+        
+        HandleNextNode?.Invoke();
     }
 
     /// <summary>
@@ -88,8 +85,8 @@ public class EventDisplayManager : MonoBehaviour
         ClearButtons(); //기존 버튼 제거
         dialogueText.text = ""; //텍스트 비우기
 
-        LoadSceneSprite("BattleImage/"+battleImage); //전투 이미지 출력
-        StartTyping(string.Join("\n", battleIntro),() =>
+        LoadSceneSprite("BattleImage/" + battleImage); //전투 이미지 출력
+        StartTyping(string.Join("\n", battleIntro), () =>
         {
             //전투 인트로 출력 후 메인 전투 루프 실행
             CreateButtons("전투 시작", onBattleStart);
@@ -131,6 +128,35 @@ public class EventDisplayManager : MonoBehaviour
     //-------------------------------------------------------------------------------
     // ** 출력 유틸용 함수 **
     //-------------------------------------------------------------------------------
+
+    /// <summary>
+    /// 삽화 이미지 로더 메소드
+    /// </summary>
+    /// <param name="imageName">확장자를 제외한 삽화 이미지 파일명 (SectionImage이후 경로 포함)</param>
+    public void LoadSceneSprite(string imageName)
+    {
+        string imagePath = $"{imageFolderPath}/{imageName}"; //이미지 주소 생성
+
+        Texture2D texture = Resources.Load<Texture2D>(imagePath);
+        if (texture == null)
+        {
+            Debug.LogWarning($"[{GetType().Name}] 이미지 경로 오류 {imagePath}");
+            return;
+        }
+
+        //삽화 이미지 랜더링
+        Sprite newSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+
+        if (newSprite != null)
+        {
+            sceneImage.sprite = newSprite; //게임 내 이미지 적용
+            Debug.Log($"이미지 변경 {imageName}");
+        }
+        else
+        {
+            Debug.LogWarning($"[{GetType().Name}] 이미지 로드 실패 {imageName}");
+        }
+    }
 
     /// <summary>
     /// 버튼 UI 생성 메소드
@@ -217,36 +243,6 @@ public class EventDisplayManager : MonoBehaviour
             if (btn != null) btn.onClick.RemoveAllListeners(); //리스너 해제
             if (t.gameObject.activeSelf)
                 t.gameObject.SetActive(false); //버튼 비활성화
-        }
-        Debug.Log("버튼 정리");
-    }
-
-    /// <summary>
-    /// 삽화 이미지 로더 메소드
-    /// </summary>
-    /// <param name="imageName">확장자를 제외한 삽화 이미지 파일명 (SectionImage이후 경로 포함)</param>
-    public void LoadSceneSprite(string imageName)
-    {
-        string imagePath = $"{imageFolderPath}/{imageName}"; //이미지 주소 생성
-
-        Texture2D texture = Resources.Load<Texture2D>(imagePath);
-        if (texture == null)
-        {
-            Debug.LogWarning($"[{GetType().Name}] 이미지 경로 오류 {imagePath}");
-            return;
-        }
-
-        //삽화 이미지 랜더링
-        Sprite newSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
-
-        if (newSprite != null)
-        {
-            sceneImage.sprite = newSprite; //게임 내 이미지 적용
-            Debug.Log($"이미지 변경 {imageName}");
-        }
-        else
-        {
-            Debug.LogWarning($"[{GetType().Name}] 이미지 로드 실패 {imageName}");
         }
     }
     
