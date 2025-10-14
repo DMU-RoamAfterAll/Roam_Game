@@ -10,14 +10,15 @@ public class EnemyScriptNode
 {
     public string code; //적 코드
     public string name; //적 이름
-    public List<string> atkHit; //맨손 공격 적중 스크립트
-    public List<string> atkHit2001; //삽 공격 적중 스크립트
-    public List<string> atkHit2002; //식칼 공격 적중 스크립트
-    public List<string> atkHit2003; //녹슨 파이프 공격 적중 스크립트
-    public List<string> atkMiss; //공격 실패 스크립트
-    public List<string> ctrHit; //반격 스크립트
-    public List<string> evdSuccess; //공격 회피 성공 스크립트
-    public List<string> evdMiss; //공격 회피 실패 스크립트
+    public List<string> atkHit; //플레이어 맨손 공격 적중 (적 회피 실패) 스크립트
+    public List<string> atkHit2001; //플레이어 삽 공격 적중 (적 회피 실패) 스크립트
+    public List<string> atkHit2002; //플레이어 식칼 공격 적중 (적 회피 실패) 스크립트
+    public List<string> atkHit2003; //플레이어 녹슨 파이프 공격 적중 (적 회피 실패) 스크립트
+    public List<string> atkMiss; //플레이어 공격 실패 (적 회피 성공) 스크립트
+    public List<string> ctrPHit; //플레이어 반격 성공 (적 공격 실패) 스크립트
+    public List<string> evdSuccess; //플레이어 회피 성공 (적 공격 실패) 스크립트
+    public List<string> evdMiss; //플레이어 회피 실패 (적 공격 성공) 스크립트
+    public List<string> ctrEHit; //플레이어 회피 실패 (적 반격 성공) 스크립트
     public List<string> battleEnd; //전투 완료 스크립트
     public List<string> battleDefeat; //전투 패배 스크립트
 }

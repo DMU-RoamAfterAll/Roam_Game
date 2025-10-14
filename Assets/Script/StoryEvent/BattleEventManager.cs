@@ -2,10 +2,12 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
+using UnityEngine.Rendering;
+using Unity.VisualScripting;
 
-// ------------------------------------------------------
+// --------------------------------------------------------------------
 // 런타임 슬롯(이번 전투에서만 HP 추적). 스탯은 enemy json 기준으로 사용.
-// ------------------------------------------------------
+// --------------------------------------------------------------------
 public class EnemySlot
 {
     public EnemyDataNode enemyData; //적 데이터, 공격력 듯 필요한 고정 스탯을 불러옴
@@ -61,7 +63,11 @@ public class BattleEventManager : MonoBehaviour
     private int turnIndex; //전투 턴 인덱스
     private bool battleEnded = false; //배틀 종료 플래그
     private Coroutine battleRoutine; //전투 루프 코루틴
+    List<WeaponData> ownedWeapons = new List<WeaponData>(); //유저가 보유중인 무기 리스트
     private const string UNARMED_CODE = "__UNARMED__"; //'맨손' 메뉴 출력을 위한 특수 코드
+    List<WeaponDataNode> menuList = new List<WeaponDataNode>(); //메뉴 표시 리스트
+    private Dictionary<string, EnemyScriptNode> enemyScriptDict =
+        new Dictionary<string, EnemyScriptNode>(); //적 전투 스크립트
 
     private void Awake()
     {
@@ -182,42 +188,9 @@ public class BattleEventManager : MonoBehaviour
         turnIndex = 0;
         battleEnded = false;
 
-        var menuList = new List<WeaponDataNode>{ //표시 메뉴 리스트
-            new WeaponDataNode { code = UNARMED_CODE} //맨손 삽입
-        };
-
-        //-------전투 진행에 필요한 정보를 불러와 캐시로 저장-------
-
-        //보유중인 무기
-        List<WeaponData> ownedWeapons = null;
-        userDataManager.WeaponCheck(onResult: list => //보유중인 무기 리스트 불러오기
-        {
-            ownedWeapons = list;
-        });
-
-        if (ownedWeapons != null) //보유중인 무기가 있다면 정보 불러오기
-        {
-            var weaponCache = dataService.Weapon.GetWeaponsByCodes( //중복 제거
-                ownedWeapons.Select(w => w.weaponCode).ToList()
-            );
-
-            foreach (var ow in ownedWeapons) //무기 정보 삽입
-            {
-                if (weaponCache.TryGetValue(ow.weaponCode, out var w))
-                    menuList.Add(w);
-            }
-        }
-
-        //적 전투 스크립트
-        Dictionary<string, EnemyScriptNode> enemyScriptDict = new Dictionary<string, EnemyScriptNode>();
-        foreach (string enemyCode in enemySet)
-        {
-            var enemyScript = dataService.EnemyScript.GetEnemyScriptByCode(enemyCode);
-            if (enemyScript != null)
-                enemyScriptDict[enemyCode] = enemyScript;
-            else
-                Debug.LogError($"[{GetType().Name}] 적 스크립트를 찾을 수 없습니다. : {enemyCode}");
-        }
+        //전투 진행에 필요한 정보를 불러와 캐시로 저장
+        OwnedWeaponCacheLoad();
+        EnemyScriptCacheLoad();
 
         //-----------------------------------------------------
 
@@ -253,6 +226,8 @@ public class BattleEventManager : MonoBehaviour
 
                 WeaponDataNode setWeapon = null;
 
+                Debug.Log(menuList);
+
                 //무기 선택 메뉴 출력
                 yield return eventDisplayManager.DisplaySelectMenu(
                     menuList,
@@ -263,10 +238,14 @@ public class BattleEventManager : MonoBehaviour
                 int damage = ComputePlayerDamage(target, setWeapon); //플레이어 데미지 계산
                 target.hp = Mathf.Max(0, target.hp - damage); //적 체력 수정
                 Debug.Log($"[{GetType().Name}] 유저 -> 적:{target.InstanceName} | 데미지:{damage} (HP {target.hp}/{target.enemyData.hp})");
-                
+
+                //플레이어 전투 결과 스크립트 제작
+                List<string> atkScriptList = PlayerBattleResultCreate(target, setWeapon, damage);
+
+                //전투 결과 스크립트 출력
                 yield return StartCoroutine(
                     eventDisplayManager.DisplayScript(
-                        enemyScriptDict[target.enemyData.code].atkHit,
+                        atkScriptList,
                         eventDisplayManager.nextText,
                         null)
                 );
@@ -301,8 +280,125 @@ public class BattleEventManager : MonoBehaviour
             yield return new WaitForSeconds(0.15f); //연출 딜레이
         }
     }
+    
+    /// <summary>
+    /// 플레이어 배틀 결과 스크립트 제작 메소드
+    /// </summary>
+    /// <param name="target"></param>
+    /// <param name="setWeapon"></param>
+    /// <param name="damage"></param>
+    /// <returns></returns>
+    private List<string> PlayerBattleResultCreate(
+        EnemySlot target,
+        WeaponDataNode setWeapon,
+        int damage)
+    {
+        //-----------플레이어의 공격 결과를 나타내는 스크립트 제작-----------
+        var attackResult = SecureRng.Weighted(new [] { //플레이어의 공격 결과 상태
+            ("atkHit", player.hitRate),
+            ("atkMiss", (float)100 - player.hitRate - target.enemyData.CounterRate),
+            ("ctrEHit", target.enemyData.CounterRate)
+        });
+        List<string> playerAttackResult = new List<string>(); //플레이어의 공격 결과 스크립트
+        List<string> weaponAtkScript; //무기에 따른 공격 성공 및 실패 스크립트 리스트
+
+        //플레이어의 공격이 성공일 시
+        if(attackResult == "atkHit")
+        {
+            //해당 공격 수준에 맞는 스크립트를 저장
+            if (setWeapon.code == "wp_2001") //삽
+            {
+                weaponAtkScript = enemyScriptDict[target.enemyData.code].atkHit2001;
+            }
+            else if (setWeapon.code == "wp_2002") //식칼
+            {
+                weaponAtkScript = enemyScriptDict[target.enemyData.code].atkHit2002;
+            }
+            else if (setWeapon.code == "wp_2003") //녹슨 파이프
+            {
+                weaponAtkScript = enemyScriptDict[target.enemyData.code].atkHit2003;
+            }
+            else //맨손 및 기타
+            {
+                weaponAtkScript = enemyScriptDict[target.enemyData.code].atkHit;
+            }
+
+            int idx = SecureRng.Range(0, weaponAtkScript.Count()); //문장 랜덤 선택
+
+            playerAttackResult.Add(weaponAtkScript[idx].Replace(target.enemyData.name,target.InstanceName));
+        }
+        
+        //-----------공격 이후 현재 상태를 나타내는 스크립트 제작-----------
+        string targetStatusScript;
+        if (target.hp == 0)
+        {
+            targetStatusScript = $"{target.InstanceName}가 쓰러졌다.";
+        }
+        else
+        {
+            targetStatusScript = $"{target.InstanceName}은(는) 아직 쓰러지지 않았다.";
+        }
+
+        //-----------플레이어 공격 스크립트 최종 출력-----------
+        List<string> atkScriptList = new List<string>
+        {
+            $"{target.InstanceName}에게 {damage}의 데미지가 들어갔다.",
+            targetStatusScript
+        };
+                
+        return atkScriptList;
+    }
 
     //------------- 유틸/계산 -------------
+
+    /// <summary>
+    /// 유저가 보유중인 무기를 로드해 캐시로 저장하는 메소드
+    /// </summary>
+    private void OwnedWeaponCacheLoad()
+    {
+        //캐시 로드 전, 기존 데이터 정리
+        menuList.Clear();
+        ownedWeapons.Clear();
+
+        menuList.Add(new WeaponDataNode { code = UNARMED_CODE }); //메뉴에 맨손 선택지 추가
+
+        userDataManager.WeaponCheck(onResult: list => //보유중인 무기 리스트 불러오기
+        {
+            Debug.Log("무기 리스트 로드 완료.");
+            ownedWeapons = list;
+            if (ownedWeapons != null) //보유중인 무기가 있다면 정보 불러오기
+            {
+                var weaponCache = dataService.Weapon.GetWeaponsByCodes( //중복 제거
+                    ownedWeapons.Select(w => w.weaponCode).ToList()
+                );
+
+                foreach (var ow in ownedWeapons) //무기 정보 삽입
+                {
+                    if (weaponCache.TryGetValue(ow.weaponCode, out var w))
+                        menuList.Add(w);
+                }
+            }
+        });
+    }
+
+    /// <summary>
+    /// 적 전투 스크립트를 로드해 캐시로 저장하는 메소드
+    /// </summary>
+    private void EnemyScriptCacheLoad()
+    {
+        //캐시 로드 전, 기존 데이터 정리
+        enemyScriptDict.Clear();
+        
+        foreach (string enemyCode in enemySet)
+        {
+            var enemyScript = dataService.EnemyScript.GetEnemyScriptByCode(enemyCode);
+            if (enemyScript != null)
+                enemyScriptDict[enemyCode] = enemyScript;
+            else
+                Debug.LogError($"[{GetType().Name}] 적 스크립트를 찾을 수 없습니다. : {enemyCode}");
+        }
+    }
+
     /// <summary>
     /// 적이 전멸했는지 확인하는 메소드
     /// </summary>
@@ -356,7 +452,7 @@ public class BattleEventManager : MonoBehaviour
             battleRoutine = null;
         }
 
-        // 여기서 당신의 노드 시스템과 연결하세요:
+        //다음 노드로 이동
         sectionEventManager.StartDialogue(win ? nextOnWin : nextOnLose);
     }
 }
