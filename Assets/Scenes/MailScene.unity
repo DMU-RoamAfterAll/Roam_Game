@@ -219,6 +219,30 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1493451555275365939, guid: e6426bdcc549b7743bfedd483459ee99, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 9714604a60d390a4f8cc35c87b87790b, type: 2}
+    - target: {fileID: 1493451555275365939, guid: e6426bdcc549b7743bfedd483459ee99, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -3244293587049979586, guid: 9714604a60d390a4f8cc35c87b87790b, type: 2}
+    - target: {fileID: 1493451555275365939, guid: e6426bdcc549b7743bfedd483459ee99, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6173087166599546974, guid: e6426bdcc549b7743bfedd483459ee99, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 9714604a60d390a4f8cc35c87b87790b, type: 2}
+    - target: {fileID: 6173087166599546974, guid: e6426bdcc549b7743bfedd483459ee99, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -3244293587049979586, guid: 9714604a60d390a4f8cc35c87b87790b, type: 2}
+    - target: {fileID: 6173087166599546974, guid: e6426bdcc549b7743bfedd483459ee99, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7572352974643907322, guid: e6426bdcc549b7743bfedd483459ee99, type: 3}
       propertyPath: m_Name
       value: UI_Mail
