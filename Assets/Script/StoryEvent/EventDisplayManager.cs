@@ -43,7 +43,6 @@ public class EventDisplayManager : MonoBehaviour
     /// <param name="HandleNextNode">버튼 클릭 콜백 함수</param>
     public IEnumerator DisplayScript(List<string> textScript, string buttonText, UnityAction HandleNextNode)
     {
-        Debug.Log("스크립트 출력");
         ClearButtons(); //기존 버튼 제거
         bool clicked = false; //버튼 클릭 트리거
 

@@ -2,11 +2,9 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
-using UnityEngine.Rendering;
-using Unity.VisualScripting;
 
 // --------------------------------------------------------------------
-// 런타임 슬롯(이번 전투에서만 HP 추적). 스탯은 enemy json 기준으로 사용.
+// 적 런타임 슬롯(이번 전투에서만 HP 추적). 스탯은 enemy json 기준으로 사용.
 // --------------------------------------------------------------------
 public class EnemySlot
 {
@@ -45,15 +43,37 @@ public class PlayerStats
     public int CounterRate = 3; //치명타 확률 (3%, 반격 시 +5 추가 데미지)
 }
 
+// --------------------------------------------------------------------
+// 플레이어 런타임 슬롯(이번 전투에서만 HP 추적). 스탯은 player api 기준으로 사용.
+// --------------------------------------------------------------------
+public class PlayerSlot
+{
+    public PlayerStats playerData; //적 데이터, 공격력 듯 필요한 고정 스탯을 불러옴
+    public int hp; //이번 전투 hp
+
+    /// <summary>
+    /// 전투 진입 시 hp를 api 기준값으로 설정하는 메소드
+    /// </summary>
+    /// <param name="data">플레이어 데이터</param>
+    public PlayerSlot(PlayerStats data)
+    {
+        playerData = data;
+        hp = data.hp;
+    }
+
+    //플레이어의 생존 여부, 변수 사용시 hp를 사용하여 자동 계산
+    public bool IsDead => hp <= 0;
+}
+
 public class BattleEventManager : MonoBehaviour
 {
     private UserDataManager userDataManager;
     private SectionEventManager sectionEventManager;
     private EventDisplayManager eventDisplayManager;
     private DataService dataService;
-    public Dictionary<string, EnemyDataNode> enemyData = new Dictionary<string, EnemyDataNode>();
 
     public PlayerStats player;
+    public PlayerSlot playerSlot;
     private string battleImage = ""; //전투 삽화
     private string nextOnWin; //승리 후 이동할 노드 키
     private string nextOnLose; //패배 후 이동할 노드 키
@@ -98,7 +118,8 @@ public class BattleEventManager : MonoBehaviour
             battleRoutine = null;
         }
 
-        turnOrder = BuildCurrentEnemyList(battleOrder); //적 리스트를 받아 슬롯으로 인스턴스화
+        playerSlot = new PlayerSlot(player); //플레이어 슬롯 생성
+        turnOrder = BuildCurrentEnemyList(battleOrder); //적 리스트를 받아 슬롯 생성
 
         if (turnOrder == null || turnOrder.Count == 0)
         { //배틀 턴이 비었다면 그대로 종료
@@ -144,7 +165,7 @@ public class BattleEventManager : MonoBehaviour
 
                 //적 인스턴스 생성, EnemyDataNode에서 스탯을 읽고 hp만 런타임 관리
                 var tpl = dataService.Enemy.GetEnemyByCode(enemyCode);
-                if(tpl == null)
+                if (tpl == null)
                 {
                     Debug.LogError($"[{GetType().Name}] 적 데이터를 찾을 수 없습니다: {enemyCode}");
                     continue;
@@ -160,7 +181,7 @@ public class BattleEventManager : MonoBehaviour
                     spawnCount[enemyCode] = 0;
                     enemySet.Add(enemyCode); //첫 등장한 적은 enemySet에 코드 저장
                 }
-                    
+
 
                 spawnCount[enemyCode]++;
 
@@ -189,6 +210,7 @@ public class BattleEventManager : MonoBehaviour
         turnIndex = 0;
         battleEnded = false;
         battleDefeated = false;
+        List<string> enemyAtkScriptsList = new List<string>();
 
         //전투 진행에 필요한 정보를 불러와 캐시로 저장
         OwnedWeaponCacheLoad();
@@ -196,15 +218,27 @@ public class BattleEventManager : MonoBehaviour
 
         //-----------------------------------------------------
 
-        while (!battleEnded || !battleDefeated)
+        while (!battleEnded && !battleDefeated)
         {
-            //텍스트 비우기
-            eventDisplayManager.dialogueText.text = "";
+            eventDisplayManager.dialogueText.text = ""; //텍스트 비우기
 
             var slot = turnOrder[turnIndex]; //현재 전투 대상 확인
             //--------- 플레이어 턴 ---------
             if (slot == null)
             {
+                //이전까지 진행되었던 적 전투 턴 스크립트 출력
+                if (enemyAtkScriptsList != null && enemyAtkScriptsList.Count() > 0)
+                {
+                    yield return StartCoroutine(
+                        eventDisplayManager.DisplayScript(
+                            enemyAtkScriptsList,
+                            eventDisplayManager.nextText,
+                            null)
+                    );
+                    enemyAtkScriptsList.Clear(); //출력 후 스크립트 비우기
+                    eventDisplayManager.dialogueText.text = ""; //텍스트 비우기
+                }
+
                 //살아있는 적 목록 생성
                 var aliveList = turnOrder.OfType<EnemySlot>().Where(e => !e.IsDead).ToList();
                 if (aliveList.Count == 0) //살아있는 적이 없으면 즉시 종료
@@ -245,7 +279,7 @@ public class BattleEventManager : MonoBehaviour
                 //전투 결과 스크립트 출력
                 yield return StartCoroutine(
                     eventDisplayManager.DisplayScript(
-                        atkScriptList,
+                        atkScriptList.Concat(conditionScriptList).ToList(),
                         eventDisplayManager.nextText,
                         null)
                 );
@@ -257,27 +291,22 @@ public class BattleEventManager : MonoBehaviour
 
                 if (!enemy.IsDead) //적이 죽었는지 확인, 죽은 적 슬롯은 스킵
                 {
-                    int damage = ComputeEnemyDamage(enemy); //적 데미지 계산
-                    player.hp = Mathf.Max(0, player.hp - damage); //플레이어 체력 수정
-                    Debug.Log($"[{GetType().Name}] 적:{enemy.InstanceName} -> 유저 | 데미지:{damage} (HP {player.hp}/{player.hp})");
+                    EnemyScriptNode enemyScriptNode = enemyScriptDict[enemy.enemyData.code]; //대상 적 스크립트 노드
 
-                    if (player.hp <= 0) //유저의 체력이 0이 되었을 경우 전투 종료 (패배)
-                    {
-                        OnBattleFinished(false);
-                        yield break;
-                    }
+                    //적 전투 결과 스크립트 제작
+                    List<string> atkScriptList = EnemyBattleResultCreate(enemy, enemyScriptNode);
+
+                    //공격 이후 현재 상태를 나타내는 스크립트 제작
+                    List<string> conditionScriptList = BattleConditionCreate(enemy, enemyScriptNode, null);
+
+                    //전투 결과 스크립트 저장 (이후 플레이어의 턴에서 출력)
+                    enemyAtkScriptsList = enemyAtkScriptsList.Concat(atkScriptList).Concat(conditionScriptList).ToList();
                 }
             }
 
-            if (!battleEnded || !battleDefeated)
-            {
-                turnIndex = (turnIndex + 1) % turnOrder.Count; //인덱스 증가
-            }
-            else // 전투 종료 체크
-            {
-                if (battleDefeated) { OnBattleFinished(false); yield break; } //플레이어 사망 (패배)
-                else { OnBattleFinished(true); yield break; } //모든 적 사망 (승리)
-            }
+            if (battleDefeated) { OnBattleFinished(false); yield break; } //플레이어 사망 (패배)
+            else if (battleDefeated) { OnBattleFinished(true); yield break; } //모든 적 사망 (승리)
+            else { turnIndex = (turnIndex + 1) % turnOrder.Count; } //게임 종료가 아니라면 인덱스 증가 
 
             yield return new WaitForSeconds(0.15f); //연출 딜레이
         }
@@ -296,8 +325,8 @@ public class BattleEventManager : MonoBehaviour
     {
         //-----------플레이어의 공격 결과를 나타내는 스크립트 제작-----------
         var attackResult = SecureRng.Weighted(new[] { //플레이어의 공격 결과 상태
-            ("atkHit", player.hitRate),
-            ("atkMiss", (float)100 - player.hitRate - target.enemyData.CounterRate),
+            ("atkHit", playerSlot.playerData.hitRate),
+            ("atkMiss", (float)100 - playerSlot.playerData.hitRate - target.enemyData.CounterRate),
             ("ctrEHit", target.enemyData.CounterRate)
         });
         List<string> playerAttackResult = new List<string>(); //플레이어의 공격 결과 스크립트
@@ -334,6 +363,16 @@ public class BattleEventManager : MonoBehaviour
                 int idx = SecureRng.Range(0, weaponAtkScript.Count()); //문장 랜덤 선택
                 playerAttackResult.Add(weaponAtkScript[idx].Replace(target.enemyData.name, target.InstanceName));
                 playerAttackResult.Add($"{target.InstanceName}에게 {damage}의 피해를 입혔다!");
+
+                //적 사망 & 생존
+                if (target.hp <= 0)
+                {
+                    playerAttackResult.Add($"{target.InstanceName}이(가) 쓰러졌다.");
+                }
+                else
+                {
+                    playerAttackResult.Add($"{target.InstanceName}은(는) 아직 쓰러지지 않았다.");
+                }
             }
             else //플레이어의 공격이 성공 -> 적 회피 성공
             {
@@ -345,8 +384,8 @@ public class BattleEventManager : MonoBehaviour
         {
             //적 데미지 계산
             int damage = ComputeEnemyDamage(target); //데미지 계산
-            player.hp = Mathf.Max(0, player.hp - damage); //적 체력 수정
-            Debug.Log($"[{GetType().Name}] 적:{target.InstanceName} -> 유저 | 데미지:{damage} (HP {player.hp}/{player.hp})");
+            playerSlot.hp = Mathf.Max(0, playerSlot.hp - damage); //적 체력 수정
+            Debug.Log($"[{GetType().Name}] 적:{target.InstanceName} -> 유저 | 데미지:{damage} (HP {playerSlot.hp}/{playerSlot.playerData.hp})");
 
             int idx = SecureRng.Range(0, enemyScriptNode.atkMiss.Count()); //문장 랜덤 선택
             playerAttackResult.Add(enemyScriptNode.ctrEHit[idx].Replace(target.enemyData.name, target.InstanceName));
@@ -357,18 +396,19 @@ public class BattleEventManager : MonoBehaviour
         {
             int idx = SecureRng.Range(0, enemyScriptNode.atkMiss.Count()); //문장 랜덤 선택
             playerAttackResult.Add(enemyScriptNode.atkMiss[idx].Replace(target.enemyData.name, target.InstanceName));
+            playerAttackResult.Add($"{target.InstanceName}이 당신의 공격을 피했다.");
         }
 
         return playerAttackResult;
     }
 
-    private List<string> PlayerBattleResultCreate(EnemySlot enemy, EnemyScriptNode enemyScriptNode)
+    private List<string> EnemyBattleResultCreate(EnemySlot enemy, EnemyScriptNode enemyScriptNode)
     {
         //-----------적의 공격 결과를 나타내는 스크립트 제작-----------
         var attackResult = SecureRng.Weighted(new[] { //적의 공격 결과 상태
             ("atkHit", enemy.enemyData.hitRate),
-            ("atkMiss", (float)100 - enemy.enemyData.hitRate - player.CounterRate),
-            ("ctrPHit", player.CounterRate)
+            ("atkMiss", (float)100 - enemy.enemyData.hitRate - playerSlot.playerData.CounterRate),
+            ("ctrPHit", playerSlot.playerData.CounterRate)
         });
         List<string> enemyAttackResult = new List<string>(); //적의 공격 결과 스크립트
 
@@ -379,8 +419,8 @@ public class BattleEventManager : MonoBehaviour
             {
                 //적 데미지 계산
                 int damage = ComputeEnemyDamage(enemy); //데미지 계산
-                player.hp = Mathf.Max(0, player.hp - damage); //플레이어 체력 수정
-                Debug.Log($"[{GetType().Name}] 적:{enemy.InstanceName} -> 유저 | 데미지:{damage} (HP {player.hp}/{player.hp})");
+                playerSlot.hp = Mathf.Max(0, playerSlot.hp - damage); //플레이어 체력 수정
+                Debug.Log($"[{GetType().Name}] 적:{enemy.InstanceName} -> 유저 | 데미지:{damage} (HP {playerSlot.hp}/{playerSlot.playerData.hp})");
 
                 int idx = SecureRng.Range(0, enemyScriptNode.evdMiss.Count()); //문장 랜덤 선택
                 enemyAttackResult.Add(enemyScriptNode.evdMiss[idx].Replace(enemy.enemyData.name, enemy.InstanceName));
@@ -402,12 +442,23 @@ public class BattleEventManager : MonoBehaviour
             int idx = SecureRng.Range(0, enemyScriptNode.ctrPHit.Count()); //문장 랜덤 선택
             enemyAttackResult.Add(enemyScriptNode.ctrPHit[idx].Replace(enemy.enemyData.name, enemy.InstanceName));
             enemyAttackResult.Add($"{enemy.InstanceName}에게 {damage}의 피해를 입혔다!");
+
+            //적 사망 & 생존
+            if (enemy.hp <= 0)
+            {
+                enemyAttackResult.Add($"{enemy.InstanceName}이(가) 쓰러졌다.");
+            }
+            else
+            {
+                enemyAttackResult.Add($"{enemy.InstanceName}은(는) 아직 쓰러지지 않았다.");
+            }
         }
         //적의 공격이 실패일 시
         if (attackResult == "atkMiss")
         {
             int idx = SecureRng.Range(0, enemyScriptNode.evdSuccess.Count()); //문장 랜덤 선택
             enemyAttackResult.Add(enemyScriptNode.evdSuccess[idx].Replace(enemy.enemyData.name, enemy.InstanceName));
+            enemyAttackResult.Add($"당신은 {enemy.InstanceName}의 공격을 피했다.");
         }
 
         return enemyAttackResult;
@@ -421,7 +472,7 @@ public class BattleEventManager : MonoBehaviour
         List<string> conditionScriptList = new List<string>();
 
         //플레이어 전투 패배
-        if (player.hp <= 0)
+        if (playerSlot.hp <= 0)
         {
             battleDefeated = true; //전투 패배 트리거 설정
             int idx = SecureRng.Range(0, enemyScriptNode.battleDefeat.Count()); //문장 랜덤 선택
@@ -430,25 +481,16 @@ public class BattleEventManager : MonoBehaviour
         else
         {
             //플레이어 전투 승리
-            if (AllEnemiesDead() && player.hp <= 0)
+            if (AllEnemiesDead() && playerSlot.hp <= 0)
             {
                 battleEnded = true; //전투 승리 트리거 설정
                 int idx = SecureRng.Range(0, enemyScriptNode.battleEnd.Count()); //문장 랜덤 선택
                 conditionScriptList.Add(enemyScriptNode.battleEnd[idx]);
-            }
-
-            //적 사망 & 생존
-            if (enemy.hp <= 0)
-            {
-                conditionScriptList.Add($"{enemy.InstanceName}이(가) 쓰러졌다.");
-            }
-            else
-            {
-                conditionScriptList.Add($"{enemy.InstanceName}은(는) 아직 쓰러지지 않았다.");
+                conditionScriptList.Add("당신은 전투에서 승리했다.");
             }
 
             //무기 상태 확인
-            if(setweapon != null)
+            if (setweapon != null && setweapon.code != UNARMED_CODE)
             {
                 if (setweapon.durability == 1) //내구도가 1일 시 내구도 경고
                 {
@@ -505,7 +547,7 @@ public class BattleEventManager : MonoBehaviour
     {
         //캐시 로드 전, 기존 데이터 정리
         enemyScriptDict.Clear();
-        
+
         foreach (string enemyCode in enemySet)
         {
             var enemyScript = dataService.EnemyScript.GetEnemyScriptByCode(enemyCode);
@@ -537,10 +579,10 @@ public class BattleEventManager : MonoBehaviour
     /// <returns>데미지 값</returns>
     private int ComputePlayerDamage(EnemySlot target, WeaponDataNode weapon)
     {
-        int damage = player.atk;
+        int damage = playerSlot.playerData.atk;
         if (weapon != null && weapon.code != UNARMED_CODE && weapon.code != null)
-            damage =+ weapon.damage;
-        
+            damage = +weapon.damage;
+
         return damage;
     }
 
