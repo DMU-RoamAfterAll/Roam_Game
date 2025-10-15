@@ -147,7 +147,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      toggleunder_0: 5675314592550768805
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
