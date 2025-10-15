@@ -2,7 +2,8 @@
   "SectionInfo": {
     "id" : "100",
     "rate" : "S",
-    "eventType" : "Origin",
+    "eventType" : "벙커",
+    "content": "설명",
 
     "x" : 0,
     "y"  : -12

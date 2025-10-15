@@ -26,6 +26,8 @@ public class MapSceneDataManager : MonoBehaviour {
     public CameraZoom cameraZoom;
     public PlayerControl pc;
 
+    public bool isPopUpOn;
+
     void Awake() {
         if (Instance != null && Instance != this) {
             Destroy(this.gameObject);
@@ -63,6 +65,7 @@ public class MapSceneDataManager : MonoBehaviour {
         // enterBtnUI는 Start 코루틴에서 한 프레임 늦게 끌 것 (다른 스크립트가 켜는 것보다 나중에)
         // playerLocate 등 가벼운 값은 지금 세팅
         playerLocate = "origin";
+        isPopUpOn = false;
     }
 
     // ★ 한 프레임 늦춰서 UI 토글/원격 카운트 등 처리

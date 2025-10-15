@@ -33,7 +33,7 @@ public class CameraZoom : MonoBehaviour {
 
     void Zoom() {
         float scroll = Input.GetAxis("Mouse ScrollWheel");
-        if(scroll != 0) {
+        if(scroll != 0 && !MapSceneDataManager.Instance.isPopUpOn) {
             float currentSize = _camera.orthographicSize;
             if(scroll > 0) {
                 _camera.orthographicSize -= 1f;

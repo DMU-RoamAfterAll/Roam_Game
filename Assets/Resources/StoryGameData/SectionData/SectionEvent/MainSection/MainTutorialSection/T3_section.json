@@ -2,7 +2,8 @@
   "SectionInfo": {
     "id" : "103",
     "rate" : "T",
-    "eventType" : "Tutorial",
+    "eventType" : "튜토리얼",
+    "content": "설명",
 
     "x" : 0,
     "y"  : -1

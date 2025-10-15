@@ -11,6 +11,7 @@ public class EventJsonData {
     public string id;
     public string rate;
     public string eventType;
+    public string content;
 }
 
 [System.Serializable]
@@ -18,6 +19,7 @@ public class MainEventJsonData {
     public string id;
     public string rate;
     public string eventType;
+    public string content;
     public float x;
     public float y;
 }
@@ -27,6 +29,7 @@ public class SectionInfo {
     public string id;
     public string rate;
     public string eventType;
+    public string content;
     public float x;
     public float y;
 }
@@ -137,6 +140,7 @@ public class RandomSectionSpawner : MonoBehaviour {
             section.id              = $"StoryGameData/SectionData/SectionEvent/MainSection/Main{areaAsset.areaName}/{mainJsons[i].name}.json";
             section.rate            = string.IsNullOrEmpty(info.rate) ? 'N' : info.rate[0];
             section.eventType       = info.eventType;
+            section.content         = info.content;
             section.isVisited       = false;
             section.isCleared       = false;
             section.isPlayerOn      = false;
@@ -173,6 +177,7 @@ public class RandomSectionSpawner : MonoBehaviour {
             section.id              = $"StoryGameData/SectionData/SectionEvent/EventSection/{areaAsset.areaName}/{eventJsons[i].name}.json";
             section.rate            = string.IsNullOrEmpty(info.rate) ? 'N' : info.rate[0];
             section.eventType       = info.eventType;
+            section.content         = info.content;
             section.isVisited       = false;
             section.isCleared       = false;
             section.isPlayerOn      = false;

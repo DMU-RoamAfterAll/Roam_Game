@@ -2,7 +2,8 @@
   "SectionInfo": {
     "id" : "103",
     "rate" : "S",
-    "eventType" : "Main",
+    "eventType" : "스토리",
+    "content": "설명",
 
     "x" : 0,
     "y"  : 0

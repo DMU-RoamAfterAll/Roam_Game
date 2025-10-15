@@ -4,8 +4,9 @@ using TMPro;
 public class SectionData : MonoBehaviour {
     public List<LinkSection> linkSections;
     public string id; //Section의 고유 id값
-    public char rate; //Section의 등급 
+    public char rate; //Section의 등급
     public string eventType; //Section의 이벤트 종류
+    public string content;
     public bool isVisited; //Player가 와 본 Section인지
     public bool isCleared; //Player가 이미 통과한 Section인지
     public bool isPlayerOn; //Player가 현재 이 Section에 위치하고 있는지

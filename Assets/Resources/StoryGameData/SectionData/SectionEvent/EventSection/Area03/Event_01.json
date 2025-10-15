@@ -2,6 +2,7 @@
     "SectionInfo": {
         "id" : "01",
         "rate": "B",
-        "eventType": "Treasure"
+        "eventType": "임무",
+        "content": "설명"
     }
 }

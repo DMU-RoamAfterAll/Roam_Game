@@ -149,6 +149,8 @@ public class AreaLocateControl : MonoBehaviour {
         }
 
         OnAreaMoveFinished?.Invoke();
+        EventManager.RaiseAreaMoveFinished();
+        
 
         this.gameObject.AddComponent<LinkSectionSpawner>();
 

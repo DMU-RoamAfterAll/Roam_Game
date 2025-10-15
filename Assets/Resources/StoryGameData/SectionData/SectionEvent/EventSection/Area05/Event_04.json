@@ -2,6 +2,7 @@
     "SectionInfo": {
         "id" : "04",
         "rate": "D",
-        "eventType": "Story"
+        "eventType": "Story",
+        "content": "설명"
     }
 }
