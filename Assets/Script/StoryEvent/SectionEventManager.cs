@@ -122,6 +122,8 @@ public class SectionEventManager : MonoBehaviour
 
     private void Start()
     {
+        eventDisplayManager.dialogueText.text = string.Empty; //시작시 텍스트 비우기
+
         //Json테스트 출력
         testjson = GetTextNode("Text1");
         Debug.Log(testjson.value[0]);

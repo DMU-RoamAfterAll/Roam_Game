@@ -49,7 +49,7 @@ public class EventDisplayManager : MonoBehaviour
         StartTyping(string.Join("\n", textScript), () => //스크립트 출력
         {
             CreateButtons(buttonText, () => { clicked = true; }); //버튼 생성
-        });
+        }, true);
 
         yield return new WaitUntil(() => clicked); //버튼 선택 대기
         
@@ -63,7 +63,6 @@ public class EventDisplayManager : MonoBehaviour
     /// <param name="HandleMenuSelect">선택지를 고른 뒤 실행할 콜백함수</param>
     public void DisplayMenuNode(MenuNode node, UnityAction<MenuOption> HandleMenuSelect)
     {
-        dialogueText.text = ""; //텍스트 비우기
         ClearButtons(); //기존 버튼 제거
 
         foreach (MenuOption option in node.menuOption)
@@ -82,14 +81,14 @@ public class EventDisplayManager : MonoBehaviour
     public void DisplayBattleIntro(List<string> battleIntro, string battleImage, UnityAction onBattleStart)
     {
         ClearButtons(); //기존 버튼 제거
-        dialogueText.text = ""; //텍스트 비우기
+        dialogueText.text = string.Empty; //텍스트 비우기
 
         LoadSceneSprite("BattleImage/" + battleImage); //전투 이미지 출력
         StartTyping(string.Join("\n", battleIntro), () =>
         {
             //전투 인트로 출력 후 메인 전투 루프 실행
             CreateButtons("전투 시작", onBattleStart);
-        });
+        }, true);
     }
 
     /// <summary>
@@ -155,6 +154,8 @@ public class EventDisplayManager : MonoBehaviour
         {
             Debug.LogWarning($"[{GetType().Name}] 이미지 로드 실패 {imageName}");
         }
+
+        dialogueText.text = string.Empty; //삽화가 바뀌면 내용 리셋
     }
 
     /// <summary>
@@ -250,13 +251,18 @@ public class EventDisplayManager : MonoBehaviour
     /// </summary>
     /// <param name="fullText">타이핑 효과를 넣고 싶은 텍스트 전문</param>
     /// <param name="onComplete">타이핑 완료시 실행할 이벤트</param>
-    private void StartTyping(string fullText, System.Action onComplete = null)
+    private void StartTyping(string fullText, System.Action onComplete = null, bool append = false)
     {
         //이전 코루틴이 실행 중이면 중단
         StopTyping();
 
+        string baseText = string.Empty;
+        string appendText = fullText;
+
+        if (append && dialogueText.text != string.Empty) { baseText = dialogueText.text + '\n'; }
+
         //새 코루틴 실행
-        typingCoroutine = StartCoroutine(TypeTextCoroutine(fullText, () =>
+        typingCoroutine = StartCoroutine(TypeTextCoroutine(baseText, appendText, () =>
         {
             typingCoroutine = null; //타이핑이 끝나면 코루틴 정리
             onComplete?.Invoke(); //후처리 함수 실행
@@ -280,14 +286,14 @@ public class EventDisplayManager : MonoBehaviour
     /// </summary>
     /// <param name="fullText">타이핑 효과를 넣고 싶은 텍스트 전문</param>
     /// <param name="onComplete">타이핑 완료시 실행할 이벤트</param>
-    private IEnumerator TypeTextCoroutine(string fullText, System.Action onComplete = null)
+    private IEnumerator TypeTextCoroutine(string baseText, string appendText, System.Action onComplete = null)
     {
-        dialogueText.text = ""; //타이핑 첫 시작시 내용 초기화
-        int typingLength = fullText.GetTypingLength(); //문장 길이 측정
+        int typingLength = appendText.GetTypingLength(); //문장 길이 측정
 
-        for (int j = 0; j <= typingLength; j++) //타이핑 효과
+        for (int i = 0; i <= typingLength; i++) //타이핑 효과
         {
-            dialogueText.text = fullText.Typing(j);
+            dialogueText.text = baseText; //타이핑 반복문 동안 기존 텍스트 내용은 유지
+            dialogueText.text += appendText.Typing(i);
             if (!string.IsNullOrEmpty(dialogueText.text))
             {
                 if (dialogueText.text[dialogueText.text.Length - 1] == '\n')

@@ -64,6 +64,7 @@ public class PlayerSlot
     //플레이어의 생존 여부, 변수 사용시 hp를 사용하여 자동 계산
     public bool IsDead => hp <= 0;
 }
+// --------------------------------------------------------------------
 
 public class BattleEventManager : MonoBehaviour
 {
@@ -74,7 +75,7 @@ public class BattleEventManager : MonoBehaviour
 
     public PlayerStats player;
     public PlayerSlot playerSlot;
-    private string battleImage = ""; //전투 삽화
+    private string battleImage = string.Empty; //전투 삽화
     private string nextOnWin; //승리 후 이동할 노드 키
     private string nextOnLose; //패배 후 이동할 노드 키
 
@@ -220,8 +221,6 @@ public class BattleEventManager : MonoBehaviour
 
         while (!battleEnded && !battleDefeated)
         {
-            eventDisplayManager.dialogueText.text = ""; //텍스트 비우기
-
             var slot = turnOrder[turnIndex]; //현재 전투 대상 확인
             //--------- 플레이어 턴 ---------
             if (slot == null)
@@ -236,7 +235,6 @@ public class BattleEventManager : MonoBehaviour
                             null)
                     );
                     enemyAtkScriptsList.Clear(); //출력 후 스크립트 비우기
-                    eventDisplayManager.dialogueText.text = ""; //텍스트 비우기
                 }
 
                 //살아있는 적 목록 생성
@@ -343,24 +341,27 @@ public class BattleEventManager : MonoBehaviour
                 Debug.Log($"[{GetType().Name}] 유저 -> 적:{target.InstanceName} | 데미지:{damage} (HP {target.hp}/{target.enemyData.hp})");
 
                 //해당 공격 수준에 맞는 스크립트를 저장
+                string weaponName = "맨 손";
+                weaponAtkScript = enemyScriptNode.atkHit; //맨손 및 기타
+
                 if (setWeapon.code == "wp_2001") //삽
                 {
                     weaponAtkScript = enemyScriptNode.atkHit2001;
+                    weaponName = setWeapon.name;
                 }
                 else if (setWeapon.code == "wp_2002") //식칼
                 {
                     weaponAtkScript = enemyScriptNode.atkHit2002;
+                    weaponName = setWeapon.name;
                 }
                 else if (setWeapon.code == "wp_2003") //녹슨 파이프
                 {
                     weaponAtkScript = enemyScriptNode.atkHit2003;
-                }
-                else //맨손 및 기타
-                {
-                    weaponAtkScript = enemyScriptNode.atkHit;
+                    weaponName = setWeapon.name;
                 }
 
                 int idx = SecureRng.Range(0, weaponAtkScript.Count()); //문장 랜덤 선택
+                playerAttackResult.Add($"당신은 {weaponName}을 사용하여 {target.InstanceName}을(를) 공격했다.");
                 playerAttackResult.Add(weaponAtkScript[idx].Replace(target.enemyData.name, target.InstanceName));
                 playerAttackResult.Add($"{target.InstanceName}에게 {damage}의 피해를 입혔다!");
 
