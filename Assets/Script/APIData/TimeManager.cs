@@ -13,19 +13,43 @@ public class TimeManager : MonoBehaviour {
     const string LastDateKey = "TimeManager.lastDate";
     DateTime _lastDate;
 
+    const string FirstDateKey = "TimeManager.firstDate";
+    DateTime _firstDate;
+
+    public int DaysSinceFirstLaunch => (Now().Date - _firstDate.Date).Days;
+    public int DaysSinceLastSeen    => (Now().Date - _lastDate.Date).Days;
+
     void Awake() {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         DontDestroyOnLoad(gameObject);
         Instance = this;
 
+        var firstSaved = PlayerPrefs.GetString(FirstDateKey, "");
+        if (!string.IsNullOrEmpty(firstSaved) &&
+            DateTime.TryParse(firstSaved, null, System.Globalization.DateTimeStyles.RoundtripKind, out var firstParsed)) {
+            _firstDate = firstParsed.Date;
+        }
+        else {
+            _firstDate = Now().Date;                              // 처음이면 오늘로 고정
+            PlayerPrefs.SetString(FirstDateKey, _firstDate.ToString("O"));
+            PlayerPrefs.Save();
+        }
+
         var saved = PlayerPrefs.GetString(LastDateKey, "");
         if (!string.IsNullOrEmpty(saved) &&
             DateTime.TryParse(saved, null, System.Globalization.DateTimeStyles.RoundtripKind, out var parsed)) {
-            _lastDate = parsed.Date; // ← 오타 수정
+            _lastDate = parsed.Date;
         } else {
             _lastDate = Now().Date;
         }
     }
+
+    public void ResetElapsedDays() {
+        _firstDate = Now().Date;
+        PlayerPrefs.SetString(FirstDateKey, _firstDate.ToString("O"));
+        PlayerPrefs.Save();
+    }
+
 
     void OnEnable()  { StartCoroutine(Tick()); }
     void OnDisable() { StopAllCoroutines(); }

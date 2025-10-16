@@ -20,6 +20,8 @@ public class WeatherManager : MonoBehaviour {
     public WeatherResponse resp;
 
     private string _lastServerTime;
+    
+    public string weatherCur;
 
     void Awake()
     {
@@ -175,20 +177,24 @@ public class WeatherManager : MonoBehaviour {
         if(!SecureRng.Chance(percent)) return;
 
         switch (main) {
-            case "Thundersorm" :
+            case "Thunderstorm" :
                 Debug.Log("폭풍이다");
+                weatherCur = main;
                 break;
 
             case "Drizzle" :
                 Debug.Log("가랑비다");
+                weatherCur = main;
                 break;
 
             case "Rain" :
                 Debug.Log("비온다");
+                weatherCur = main;
                 break;
 
             case "Snow" :
                 Debug.Log("눈온다");
+                weatherCur = main;
                 break;
             
             case "Mist":
@@ -201,14 +207,17 @@ public class WeatherManager : MonoBehaviour {
             case "Squall":
             case "Tornado":
                 Debug.Log("습하거나탁하다");
+                weatherCur = "Mist";
                 break;
 
             case "Clear" :
                 Debug.Log("맑다");
+                weatherCur = main;
                 break;
 
             case "Clouds" :
                 Debug.Log("흐릿하다");
+                weatherCur = main;
                 break;
 
             default :

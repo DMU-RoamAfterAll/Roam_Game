@@ -1,0 +1,36 @@
+[
+  {
+    "code": "Thunderstorm",
+    "name": "폭풍"
+  },
+
+  {
+    "code": "Drizzle",
+    "name": "가랑비"
+  },
+
+  {
+    "code": "Rain",
+    "name": "비"
+  },
+
+  {
+    "code": "Snow",
+    "name": "눈"
+  },
+
+  {
+    "code": "Mist",
+    "name": "습하고 탁함"
+  },
+
+  {
+    "code": "Clear",
+    "name": "맑음"
+  },
+
+  {
+    "code": "Clouds",
+    "name": "흐림"
+  }
+]

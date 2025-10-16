@@ -229,6 +229,11 @@ public class SwitchSceneManager : MonoBehaviour {
         Instance?.MoveScene(SceneList.Mission);
     }
 
+    public static void GoToTitileScene() {
+        SceneManager.LoadScene(SceneList.Boot);
+        
+    }
+
     #if UNITY_EDITOR
     // 🔧 에디터 메뉴는 에디터 전용으로 유지
     [MenuItem("Tools/Scenes/GoTo MapScene")]

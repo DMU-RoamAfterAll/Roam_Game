@@ -37,18 +37,24 @@ public class MissionManager : MonoBehaviour {
             headerMaskList.Add(headerObj);
 
             foreach(var section in sections) {
-                if(section.transform.parent.name != areaObj.name) continue;
+                if(section.transform.parent.name != areaObj.name || !section.GetComponent<SectionData>().isVisited) 
+                    continue;
                 GameObject sectionObj = Instantiate(bodyPrefab, areaObj.transform);
                 sectionObj.GetComponent<BodyMaskInfo>().sd = section.GetComponent<SectionData>();
             }
 
             foreach(var mSection in mainSections) {
-                if(mSection.transform.parent.name != areaObj.name) continue;
+                if(mSection.transform.parent.name != areaObj.name || !mSection.GetComponent<SectionData>().isVisited) 
+                    continue;
                 GameObject mSectionObj = Instantiate(bodyPrefab, areaObj.transform);
                 mSectionObj.GetComponent<BodyMaskInfo>().sd = mSection.GetComponent<SectionData>();
             }
         }
+    }
 
-        
+    void OnDisable() {
+        foreach (Transform child in contentObj.transform) {
+            Destroy(child.gameObject);
+        }
     }
 }

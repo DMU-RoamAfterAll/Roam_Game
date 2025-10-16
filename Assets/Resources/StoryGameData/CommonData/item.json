@@ -82,5 +82,23 @@
     "name": "플라스틱 병",
     "description": "내용물은 비었지만 형태는 멀쩡하다. 물을 담거나 다른 용도로 쓸 수 있을 것 같다.",
     "category": ["기타 자원"]
+  },
+  {
+    "code": "item_1015",
+    "name": "손전등",
+    "description": "앞을 비출 수 있다 당신은 이제 빛의 사도 되었다 크하하.",
+    "category": ["기타 자원"]
+  },
+  {
+    "code": "item_1016",
+    "name": "응급붕대",
+    "description": "부상을 치료할 수 있을 것 같다",
+    "category": ["기타 자원"]
+  },
+  {
+    "code": "item_1017",
+    "name": "구급키트",
+    "description": "심한 부상을 치료할 수 있을 것 같다",
+    "category": ["기타 자원"]
   }
 ]
