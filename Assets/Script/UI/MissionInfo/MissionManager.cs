@@ -2,9 +2,14 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 public class MissionManager : MonoBehaviour {
     [Header("Objects")]
     public GameObject contentObj;
+    public GameObject hiddenObj;
 
     public List<GameObject> areaMaskList;
     public List<GameObject> headerMaskList;
@@ -50,6 +55,41 @@ public class MissionManager : MonoBehaviour {
                 mSectionObj.GetComponent<BodyMaskInfo>().sd = mSection.GetComponent<SectionData>();
             }
         }
+
+        Debug.Log(AddHiddenSection());
+    }
+
+    const string hiddenFolderPath = "StoryGameData/SectionData/SectionEvent/HiddenSection";
+
+    public string AddHiddenSection() {
+        var wm = WeatherManager.Instance;
+        if(wm == null || !wm.isHidden) return null;
+
+        
+        var assets = Resources.LoadAll<TextAsset>(hiddenFolderPath);
+        if(assets == null || assets.Length == 0) return null;
+
+        foreach(var ta in assets) {
+            string prefix = GetnNamePrefix(ta.name);
+            if(!string.Equals(prefix, wm.weatherCur, System.StringComparison.OrdinalIgnoreCase)) continue;
+
+            #if UNITY_EDITOR
+            string assetPath = AssetDatabase.GetAssetPath(ta);
+            return assetPath;
+            #else
+            string resourcePath = $"{hiddenFolderPath}/{ta.name}";
+            return resourcePath
+            #endif
+        }
+
+        return null;
+    }
+
+    string GetnNamePrefix(string stem) {
+        int idx = stem.IndexOf('_');
+        if (idx > 0) return stem.Substring(0, idx);
+        if (idx == 0) return string.Empty;
+        return stem;
     }
 
     void OnDisable() {

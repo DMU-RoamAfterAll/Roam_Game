@@ -184,7 +184,7 @@ public class WeatherManager : MonoBehaviour {
 
             case "Drizzle" :
                 Debug.Log("가랑비다");
-                weatherCur = main;
+                weatherCur = "Rain";
                 break;
 
             case "Rain" :
