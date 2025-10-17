@@ -5,7 +5,7 @@ using System.Collections.Generic;
 // ** enemy Json 데이터 클래스 구조 **
 //-------------------------------------------------------------------------------
 [System.Serializable]
-//아이템 데이터 노드
+//적 데이터 노드
 public class EnemyDataNode
 {
     public string code; //적 코드
@@ -33,7 +33,7 @@ public class EnemyDataManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Item 데이터 파일 로드
+    /// 적 데이터 파일 로드
     /// </summary>
     public void LoadEnemyJson()
     {

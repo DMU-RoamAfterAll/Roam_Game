@@ -1,5 +1,6 @@
 using UnityEngine;
 using Newtonsoft.Json.Linq;
+using System.Collections;
 using System.Collections.Generic;
 
 //-------------------------------------------------------------------------------
@@ -101,10 +102,8 @@ public class SectionEventManager : MonoBehaviour
     private BattleEventManager battleEventManager;
     private EventDisplayManager eventDisplayManager;
     private SectionEventParser sectionEventParser;
-    private ItemDataManager itemDataManager;
-    private StoryFlagManager storyFlagManager;
-    private WeaponDataManager weaponDataManager;
     private UserDataManager userDataManager;
+    private DataService dataService;
 
     //디버깅용 변수
     TextNode testjson = null;
@@ -115,24 +114,24 @@ public class SectionEventManager : MonoBehaviour
         battleEventManager = GetComponent<BattleEventManager>();
         eventDisplayManager = GetComponent<EventDisplayManager>();
         sectionEventParser = GetComponent<SectionEventParser>();
-        itemDataManager = GetComponent<ItemDataManager>();
-        storyFlagManager = GetComponent<StoryFlagManager>();
-        weaponDataManager = GetComponent<WeaponDataManager>();
         userDataManager = GetComponent<UserDataManager>();
+        dataService = GetComponent<DataService>();
 
         LoadJson(jsonFileName); //Json파일 로드
     }
 
     private void Start()
     {
+        eventDisplayManager.dialogueText.text = string.Empty; //시작시 텍스트 비우기
+
         //Json테스트 출력
         testjson = GetTextNode("Text1");
         Debug.Log(testjson.value[0]);
-        StartDialogue("Text1");
+        StartCoroutine(StartDialogue("Text1"));
     }
 
     /// <summary>
-    /// Json Event 데이터 파일 로드
+    /// Json Event 데이터 파일 로드 및 파싱
     /// </summary>
     /// <param name="jsonFileName">Json 파일명(확장자 미포함)</param>
     public void LoadJson(string jsonFileName)
@@ -161,17 +160,7 @@ public class SectionEventManager : MonoBehaviour
                 continue;
             }
             //본문과 선택지 여부에 따라 저장
-            else if (key.StartsWith("Menu"))
-            {
-                MenuNode menu = nodeObj.ToObject<MenuNode>();
-                sectionData[key] = menu; //키가 존재하지 않으면 동적 추가
-            }
-            else if (key.StartsWith("Battle"))
-            {
-                BattleNode battle = nodeObj.ToObject<BattleNode>();
-                sectionData[key] = battle; //키가 존재하지 않으면 동적 추가
-            }
-            else if (key.StartsWith("Text") || key.StartsWith("Result") || key.StartsWith("PostBattle"))
+            if (key.StartsWith("Text") || key.StartsWith("Result") || key.StartsWith("Post"))
             {
                 // action 빼고 복제본 만들기
                 JObject nodeClone = (JObject)nodeObj.DeepClone();
@@ -184,6 +173,16 @@ public class SectionEventManager : MonoBehaviour
                     text.action = sectionEventParser.ParseActionNode((JObject)actionToken);
 
                 sectionData[key] = text; //키가 존재하지 않으면 동적 추가
+            }
+            else if (key.StartsWith("Menu"))
+            {
+                MenuNode menu = nodeObj.ToObject<MenuNode>();
+                sectionData[key] = menu; //키가 존재하지 않으면 동적 추가
+            }
+            else if (key.StartsWith("Battle"))
+            {
+                BattleNode battle = nodeObj.ToObject<BattleNode>();
+                sectionData[key] = battle; //키가 존재하지 않으면 동적 추가
             }
             else
             {
@@ -256,7 +255,7 @@ public class SectionEventManager : MonoBehaviour
                 if (actionItem != null && actionItem.itemCode != "" && actionItem.amount >= 0 &&
                 actionItem.itemCode is string itemCode && actionItem.amount is int amount)
                 {
-                    ItemDataNode itemData = itemDataManager.GetItemByCode(itemCode);
+                    ItemDataNode itemData = dataService.Item.GetItemByCode(itemCode);
 
                     StartCoroutine(userDataManager.ItemCheck( //api 메소드
                         onResult: list =>
@@ -293,7 +292,7 @@ public class SectionEventManager : MonoBehaviour
                 if (actionItem != null && actionItem.itemCode != "" && actionItem.amount != 0 &&
                 actionItem.itemCode is string itemCode && actionItem.amount is int amount)
                 {
-                    ItemDataNode itemData = itemDataManager.GetItemByCode(itemCode);
+                    ItemDataNode itemData = dataService.Item.GetItemByCode(itemCode);
 
                     //테스트 출력
                     Debug.Log($"\'{itemData.code}\'아이템을 {amount}개 획득했습니다.");
@@ -310,7 +309,7 @@ public class SectionEventManager : MonoBehaviour
                 if (actionItem != null && actionItem.itemCode != "" && actionItem.amount != 0 &&
                 actionItem.itemCode is string itemCode && actionItem.amount is int amount)
                 {
-                    ItemDataNode itemData = itemDataManager.GetItemByCode(itemCode);
+                    ItemDataNode itemData = dataService.Item.GetItemByCode(itemCode);
 
                     //테스트 출력
                     Debug.Log($"\'{itemData.name}\'아이템을 {amount}개 잃었습니다.");
@@ -327,7 +326,7 @@ public class SectionEventManager : MonoBehaviour
                 if (actionWeapon != null && actionWeapon.weaponCode != "" && actionWeapon.amount >= 0 &&
                 actionWeapon.weaponCode is string weaponCode && actionWeapon.amount is int amount)
                 {
-                    WeaponDataNode weaponData = weaponDataManager.GetWeaponByCode(weaponCode);
+                    WeaponDataNode weaponData = dataService.Weapon.GetWeaponByCode(weaponCode);
 
                     StartCoroutine(userDataManager.WeaponCheck( //api 메소드
                         onResult: list =>
@@ -364,7 +363,7 @@ public class SectionEventManager : MonoBehaviour
                 if (actionWeapon != null && actionWeapon.weaponCode != "" && actionWeapon.amount != 0 &&
                 actionWeapon.weaponCode is string weaponCode && actionWeapon.amount is int amount)
                 {
-                    WeaponDataNode weaponData = weaponDataManager.GetWeaponByCode(weaponCode);
+                    WeaponDataNode weaponData = dataService.Weapon.GetWeaponByCode(weaponCode);
 
                     //테스트 출력
                     Debug.Log($"\'{weaponData.code}\'무기를 {amount}개 획득했습니다.");
@@ -381,7 +380,7 @@ public class SectionEventManager : MonoBehaviour
                 if (actionWeapon != null && actionWeapon.weaponCode != "" && actionWeapon.amount != 0 &&
                 actionWeapon.weaponCode is string weaponCode && actionWeapon.amount is int amount)
                 {
-                    WeaponDataNode weaponData = weaponDataManager.GetWeaponByCode(weaponCode);
+                    WeaponDataNode weaponData = dataService.Weapon.GetWeaponByCode(weaponCode);
 
                     //테스트 출력
                     Debug.Log($"\'{weaponData.name}\'무기를 {amount}개 잃었습니다.");
@@ -398,7 +397,7 @@ public class SectionEventManager : MonoBehaviour
                 if (actionFlag != null && actionFlag.flagCode != "" &&
                 actionFlag.flagCode is string flagCode && actionFlag.flagState is bool flagState)
                 {
-                    storyFlagNode FlagData = storyFlagManager.GetFlagByCode(flagCode);
+                    storyFlagNode FlagData = dataService.StoryFlag.GetFlagByCode(flagCode);
 
                     //테스트 출력
                     Debug.Log($"\'{FlagData.name}\'플래그 상태를 {flagState}로 변경했습니다.");
@@ -415,7 +414,7 @@ public class SectionEventManager : MonoBehaviour
                 if (actionFlag != null && actionFlag.flagCode != "" &&
                 actionFlag.flagCode is string flagCode && actionFlag.flagState is bool flagState)
                 {
-                    storyFlagNode FlagData = storyFlagManager.GetFlagByCode(flagCode);
+                    storyFlagNode FlagData = dataService.StoryFlag.GetFlagByCode(flagCode);
 
                     StartCoroutine(userDataManager.FlagCheck( //api 메소드
                         onResult: list =>
@@ -453,18 +452,62 @@ public class SectionEventManager : MonoBehaviour
     /// 노드의 출력을 위한 메소드, 노드의 키값에 따라 알맞은 출력 메소드를 실행
     /// </summary>
     /// <param name="nodeKey">출력을 시작할 노드의 키값</param>
-    public void StartDialogue(string nodeKey)
+    public IEnumerator StartDialogue(string nodeKey)
     {
+        Debug.Log($"{nodeKey} 노드 출력 실행");
         if (sectionData.TryGetValue(nodeKey, out object node))
         {
+            //---------------본문 출력---------------
             if (node is TextNode textNode)
             {
-                eventDisplayManager.DisplayTextNode(textNode);
+                HandleNodeActions(textNode.action); //액션 실행
+                if (!string.IsNullOrEmpty(textNode.next))
+                {
+                    yield return StartCoroutine(
+                        eventDisplayManager.DisplayScript(
+                            textNode.value,
+                            eventDisplayManager.nextText,
+                            null)
+                    );
+                    StartCoroutine(StartDialogue(textNode.next)); //출력이 끝나면 다음 노드로
+                }
+                else
+                {
+                    yield return StartCoroutine(
+                        eventDisplayManager.DisplayScript(
+                            textNode.value,
+                            "조사 종료",
+                            null)
+                    );
+                    SwitchSceneManager.GoToMapScene(); //다음 노드가 없다면 조사를 종료하고 씬 이동
+                }
             }
+            //---------------선택지 출력---------------
             else if (node is MenuNode menuNode)
             {
-                eventDisplayManager.DisplayMenuNode(menuNode);
+                eventDisplayManager.DisplayMenuNode(menuNode, (MenuOption option) =>
+                {
+                    //선택지 선택 후 진행
+
+                    Debug.Log($"선택됨: {option.id}");
+
+                    if (option.action != null)
+                    {
+                        Debug.Log($"[Action 실행]");
+                        HandleNodeActions(option.action); //액션 실행
+                    }
+
+                    if (!string.IsNullOrEmpty(option.next))
+                    {
+                        StartCoroutine(StartDialogue(option.next)); //선택 완료시 결과 노드로 이동
+                    }
+                    else
+                    {
+                        Debug.Log($"[{GetType().Name}] MenuNode의 next 값이 없습니다. 종료 또는 대기 처리 필요.");
+                    }
+                });
             }
+            //---------------전투씬 출력---------------
             else if (node is BattleNode battleNode)
             {
                 battleEventManager.EnterBattleTurn(battleNode);
