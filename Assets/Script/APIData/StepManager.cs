@@ -166,7 +166,7 @@ public class StepManager : MonoBehaviour {
 
             int total = ReadTotalFromPluginSafe();
             if (total < 0) total = 0;
-            sessionLastTotal = totl;
+            sessionLastTotal = total;
             sessionSteps = 0;
 
             rawStepCount = total;

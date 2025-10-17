@@ -227,7 +227,7 @@ public class RandomSectionSpawner : MonoBehaviour {
             float distance = minDist + (float)rng.NextDouble() * (maxDist - minDist);
             Vector2 candidate = origin + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * distance;
 
-            if (Vector2.Distance(candidate, origin) > maxRadius) continue;
+            if (candidate.magnitude > maxRadius) continue;
             if (allPoints.Any(p => Vector2.Distance(candidate, p) < minDist)) continue;
             if (!allPoints.Any(p => Vector2.Distance(candidate, p) <= maxDist)) continue;
 
