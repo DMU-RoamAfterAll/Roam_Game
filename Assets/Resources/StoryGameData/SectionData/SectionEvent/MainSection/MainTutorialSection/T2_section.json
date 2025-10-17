@@ -49,7 +49,6 @@
     ],
     "battleOrder": [
       "player",
-      "foe_3001",
       "foe_3001"
     ],
     "battleTriggers": [

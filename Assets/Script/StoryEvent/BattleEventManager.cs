@@ -36,7 +36,7 @@ public class EnemySlot
 public class PlayerStats
 {
     public int hp = 100; //체력 (100)
-    public int atk = 10; //공격력 (10)
+    public int atk = 20; //공격력 (10)
     public int spd = 10; //민첩 (10)
     public int hitRate = 70; //공격 적중 확률 (70%)
     public int evasionRate = 12; //회피 확률 (12%)
@@ -82,8 +82,8 @@ public class BattleEventManager : MonoBehaviour
     private List<object> turnOrder; //전투 턴 순서를 표기한 리스트 (플레이어= null, 적 = EnemySlot)
     private List<string> enemySet = new List<string>();
     private int turnIndex; //전투 턴 인덱스
-    private bool battleEnded = false; //배틀 승리 플래그
-    private bool battleDefeated = false; //배틀 패배 플래그
+    enum BattleOutcome { None, Victory, Defeat } //전투 결과 집합
+    private BattleOutcome outcome = BattleOutcome.None; //전투 결과
     private Coroutine battleRoutine; //전투 루프 코루틴
     List<WeaponData> ownedWeapons = new List<WeaponData>(); //유저가 보유중인 무기 리스트
     private const string UNARMED_CODE = "__UNARMED__"; //'맨손' 메뉴 출력을 위한 특수 코드
@@ -209,8 +209,6 @@ public class BattleEventManager : MonoBehaviour
     private IEnumerator BattleLoop()
     {
         turnIndex = 0;
-        battleEnded = false;
-        battleDefeated = false;
         List<string> enemyAtkScriptsList = new List<string>();
 
         //전투 진행에 필요한 정보를 불러와 캐시로 저장
@@ -219,7 +217,7 @@ public class BattleEventManager : MonoBehaviour
 
         //-----------------------------------------------------
 
-        while (!battleEnded && !battleDefeated)
+        while (outcome == BattleOutcome.None)
         {
             var slot = turnOrder[turnIndex]; //현재 전투 대상 확인
             //--------- 플레이어 턴 ---------
@@ -241,12 +239,11 @@ public class BattleEventManager : MonoBehaviour
                 var aliveList = turnOrder.OfType<EnemySlot>().Where(e => !e.IsDead).ToList();
                 if (aliveList.Count == 0) //살아있는 적이 없으면 즉시 종료
                 {
-                    OnBattleFinished(true);
-                    yield break;
+                    outcome = BattleOutcome.Victory;
+                    break;
                 }
 
                 EnemySlot target = null;
-
                 //공격할 적 선택 메뉴 출력
                 yield return eventDisplayManager.DisplaySelectMenu(
                     aliveList,
@@ -265,13 +262,10 @@ public class BattleEventManager : MonoBehaviour
                     chosen => setWeapon = chosen
                 );
 
+                //공격 처리 스크립트 생성
                 EnemyScriptNode enemyScriptNode = enemyScriptDict[target.enemyData.code]; //대상 적 스크립트 노드
-
-                //플레이어 전투 결과 스크립트 제작
-                List<string> atkScriptList = PlayerBattleResultCreate(target, enemyScriptNode, setWeapon);
-
-                //공격 이후 현재 상태를 나타내는 스크립트 제작
-                List<string> conditionScriptList = BattleConditionCreate(target, enemyScriptNode, setWeapon);
+                List<string> atkScriptList = PlayerBattleResultCreate(target, enemyScriptNode, setWeapon); //플레이어 전투 결과 스크립트 제작
+                List<string> conditionScriptList = BattleConditionCreate(target, enemyScriptNode, setWeapon); //공격 이후 현재 상태를 나타내는 스크립트 제작
 
 
                 //전투 결과 스크립트 출력
@@ -281,6 +275,8 @@ public class BattleEventManager : MonoBehaviour
                         eventDisplayManager.nextText,
                         null)
                 );
+
+                if (ResolveOutcome()) break;
             }
             //--------- 적 턴 ---------
             else
@@ -293,20 +289,26 @@ public class BattleEventManager : MonoBehaviour
 
                     //적 전투 결과 스크립트 제작
                     List<string> atkScriptList = EnemyBattleResultCreate(enemy, enemyScriptNode);
-
                     //공격 이후 현재 상태를 나타내는 스크립트 제작
                     List<string> conditionScriptList = BattleConditionCreate(enemy, enemyScriptNode, null);
-
                     //전투 결과 스크립트 저장 (이후 플레이어의 턴에서 출력)
                     enemyAtkScriptsList = enemyAtkScriptsList.Concat(atkScriptList).Concat(conditionScriptList).ToList();
+
+                    if (ResolveOutcome()) break;
                 }
             }
-
-            if (battleDefeated) { OnBattleFinished(false); yield break; } //플레이어 사망 (패배)
-            else if (battleDefeated) { OnBattleFinished(true); yield break; } //모든 적 사망 (승리)
-            else { turnIndex = (turnIndex + 1) % turnOrder.Count; } //게임 종료가 아니라면 인덱스 증가 
-
-            yield return new WaitForSeconds(0.15f); //연출 딜레이
+            if (!ResolveOutcome()) {
+                turnIndex = (turnIndex + 1) % turnOrder.Count; //게임 종료가 아니라면 인덱스 증가
+                yield return new WaitForSeconds(0.15f); //연출 딜레이
+            }
+        }
+        switch (outcome)
+        {
+            case BattleOutcome.Defeat: OnBattleFinished(false); yield break;
+            case BattleOutcome.Victory: OnBattleFinished(true); yield break;
+            default:
+                Debug.LogWarning($"[{GetType().Name}] 잘못된 전투 종료 상태");
+                yield break;
         }
     }
 
@@ -365,10 +367,16 @@ public class BattleEventManager : MonoBehaviour
                 playerAttackResult.Add(weaponAtkScript[idx].Replace(target.enemyData.name, target.InstanceName));
                 playerAttackResult.Add($"{target.InstanceName}에게 {damage}의 피해를 입혔다!");
 
-                //적 사망 & 생존
                 if (target.hp <= 0)
                 {
-                    playerAttackResult.Add($"{target.InstanceName}이(가) 쓰러졌다.");
+                    // 적 사망 & 생존
+                    bool othersAlive = turnOrder
+                        .OfType<EnemySlot>()
+                        .Any(e => e != target && e != null && !e.IsDead);
+                    if (othersAlive)
+                    {
+                        playerAttackResult.Add($"{target.InstanceName}이(가) 쓰러졌다.");
+                    }
                 }
                 else
                 {
@@ -447,7 +455,11 @@ public class BattleEventManager : MonoBehaviour
             //적 사망 & 생존
             if (enemy.hp <= 0)
             {
-                enemyAttackResult.Add($"{enemy.InstanceName}이(가) 쓰러졌다.");
+                bool othersAlive = turnOrder
+                    .OfType<EnemySlot>()
+                    .Any(e => e != enemy && e != null && !e.IsDead);
+                if (othersAlive)
+                    enemyAttackResult.Add($"{enemy.InstanceName}이(가) 쓰러졌다.");
             }
             else
             {
@@ -475,16 +487,15 @@ public class BattleEventManager : MonoBehaviour
         //플레이어 전투 패배
         if (playerSlot.hp <= 0)
         {
-            battleDefeated = true; //전투 패배 트리거 설정
             int idx = SecureRng.Range(0, enemyScriptNode.battleDefeat.Count()); //문장 랜덤 선택
             conditionScriptList.Add(enemyScriptNode.battleDefeat[idx]);
+            return conditionScriptList;
         }
         else
         {
             //플레이어 전투 승리
-            if (AllEnemiesDead() && playerSlot.hp <= 0)
+            if (AllEnemiesDead())
             {
-                battleEnded = true; //전투 승리 트리거 설정
                 int idx = SecureRng.Range(0, enemyScriptNode.battleEnd.Count()); //문장 랜덤 선택
                 conditionScriptList.Add(enemyScriptNode.battleEnd[idx]);
                 conditionScriptList.Add("당신은 전투에서 승리했다.");
@@ -560,6 +571,17 @@ public class BattleEventManager : MonoBehaviour
     }
 
     /// <summary>
+    /// 전투 종료를 확인하는 메소드
+    /// </summary>
+    /// <returns>전투 종료 조건 충족 시 true 아닐 시 false</returns>
+    private bool ResolveOutcome()
+    {
+        if (playerSlot.hp <= 0) { outcome = BattleOutcome.Defeat; return true; }
+        if (AllEnemiesDead())   { outcome = BattleOutcome.Victory; return true; }
+        return false;
+    }
+
+    /// <summary>
     /// 적이 전멸했는지 확인하는 메소드
     /// </summary>
     /// <returns>하나라도 살아 있으면 false, 아니라면 true</returns>
@@ -613,6 +635,6 @@ public class BattleEventManager : MonoBehaviour
         }
 
         //다음 노드로 이동
-        sectionEventManager.StartDialogue(win ? nextOnWin : nextOnLose);
+        StartCoroutine(sectionEventManager.StartDialogue(win ? nextOnWin : nextOnLose));
     }
 }

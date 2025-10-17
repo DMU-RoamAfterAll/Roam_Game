@@ -131,7 +131,7 @@ public class SectionEventManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Json Event 데이터 파일 로드
+    /// Json Event 데이터 파일 로드 및 파싱
     /// </summary>
     /// <param name="jsonFileName">Json 파일명(확장자 미포함)</param>
     public void LoadJson(string jsonFileName)
@@ -160,17 +160,7 @@ public class SectionEventManager : MonoBehaviour
                 continue;
             }
             //본문과 선택지 여부에 따라 저장
-            else if (key.StartsWith("Menu"))
-            {
-                MenuNode menu = nodeObj.ToObject<MenuNode>();
-                sectionData[key] = menu; //키가 존재하지 않으면 동적 추가
-            }
-            else if (key.StartsWith("Battle"))
-            {
-                BattleNode battle = nodeObj.ToObject<BattleNode>();
-                sectionData[key] = battle; //키가 존재하지 않으면 동적 추가
-            }
-            else if (key.StartsWith("Text") || key.StartsWith("Result") || key.StartsWith("PostBattle"))
+            if (key.StartsWith("Text") || key.StartsWith("Result") || key.StartsWith("Post"))
             {
                 // action 빼고 복제본 만들기
                 JObject nodeClone = (JObject)nodeObj.DeepClone();
@@ -183,6 +173,16 @@ public class SectionEventManager : MonoBehaviour
                     text.action = sectionEventParser.ParseActionNode((JObject)actionToken);
 
                 sectionData[key] = text; //키가 존재하지 않으면 동적 추가
+            }
+            else if (key.StartsWith("Menu"))
+            {
+                MenuNode menu = nodeObj.ToObject<MenuNode>();
+                sectionData[key] = menu; //키가 존재하지 않으면 동적 추가
+            }
+            else if (key.StartsWith("Battle"))
+            {
+                BattleNode battle = nodeObj.ToObject<BattleNode>();
+                sectionData[key] = battle; //키가 존재하지 않으면 동적 추가
             }
             else
             {
@@ -454,6 +454,7 @@ public class SectionEventManager : MonoBehaviour
     /// <param name="nodeKey">출력을 시작할 노드의 키값</param>
     public IEnumerator StartDialogue(string nodeKey)
     {
+        Debug.Log($"{nodeKey} 노드 출력 실행");
         if (sectionData.TryGetValue(nodeKey, out object node))
         {
             //---------------본문 출력---------------
