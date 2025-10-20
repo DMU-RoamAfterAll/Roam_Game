@@ -2,6 +2,7 @@ using UnityEngine;
 using Newtonsoft.Json.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 
 //-------------------------------------------------------------------------------
 // ** Section Event Json 데이터 클래스 구조 **
@@ -16,7 +17,7 @@ public class CommonNode
 }
 
 [System.Serializable]
-//모든 노드 안에 작성 가능한 부가 기능 노드, 키값을 주어 다양한 기능을 제어 가능
+//Text와 Menu 노드 안에 작성 가능한 부가 기능 노드, 키값을 주어 다양한 기능을 제어 가능
 public class ActionNode
 {
     public string image; //삽화를 변경하기 위한 삽화 명을 작성하는 노드, 본문을 출력하기 전 삽화 변경이 이루어짐
@@ -28,6 +29,7 @@ public class ActionNode
     public List<WeaponData> lostW; //무기 유실 기능을 위한 노드, <"무기 코드", 갯수> 형식으로 작성
     public List<FlagData> flagSet; //플래그 설정을 위한 플래그 명을 작성을 위한 노드, <"플래그명", boolean>형식으로 작성
     public List<FlagData> flagCheck; //본문을 내보내기 위해 플래그를 확인을 위한 노드, <"플래그명", boolean>형식으로 작성
+    public List<ProbData> prob; //확률에 따라 다른 노드로 이동하기 위한 노드, <"노드 키값", 확률>형식으로 작성
 }
 
 [System.Serializable]
@@ -52,6 +54,14 @@ public class FlagData
 {
     public string flagCode; //플래그 코드명
     public bool flagState; //플래그 상태
+}
+
+[System.Serializable]
+//확률 이동 제어를 위한 데이터 모델
+public class ProbData
+{
+    public string next; //다음 출력을 위한 노드 키값, 선택지 확률값에 따라 해당 노드로 이동
+    public int probability; //선택지 확률
 }
 
 //-------------------------------------------------------------------------------
@@ -97,7 +107,7 @@ public class SectionEventManager : MonoBehaviour
 {
     public string jsonFileName = ""; //불러올 Json파일 이름, 외부에서 받아옴
     private string jsonFolderPath =
-    "StoryGameData/SectionData/SectionEvent/MainSection/MainTutorialSection"; //Json폴더가 담긴 파일의 경로
+    "StoryGameData/SectionData/SectionEvent/"; //Json폴더가 담긴 파일의 경로
     private Dictionary<string, object> sectionData = new Dictionary<string, object>(); //파싱된 Json데이터
     private BattleEventManager battleEventManager;
     private EventDisplayManager eventDisplayManager;
@@ -176,7 +186,28 @@ public class SectionEventManager : MonoBehaviour
             }
             else if (key.StartsWith("Menu"))
             {
-                MenuNode menu = nodeObj.ToObject<MenuNode>();
+                var optionsToken = nodeObj["menuOption"] as JArray; //메뉴 옵션 저장
+
+                // action 빼고 복제본 만들기
+                JObject nodeClone = (JObject)nodeObj.DeepClone();
+                nodeClone.Remove("action");
+
+                MenuNode menu = nodeClone.ToObject<MenuNode>();
+
+                //action 수동 파싱
+                if (optionsToken != null && menu?.menuOption != null)
+                {
+                    for (int i = 0; i < menu.menuOption.Count && i < optionsToken.Count; i++) //메뉴 옵션을 순회하며 action 파싱
+                    {
+                        if (optionsToken[i] is JObject optObj &&
+                            optObj.TryGetValue("action", out var actionTok) &&
+                            actionTok is JObject actionObj)
+                        {
+                            menu.menuOption[i].action = sectionEventParser.ParseActionNode(actionObj);
+                        }
+                    }
+                }
+                
                 sectionData[key] = menu; //키가 존재하지 않으면 동적 추가
             }
             else if (key.StartsWith("Battle"))
@@ -441,6 +472,24 @@ public class SectionEventManager : MonoBehaviour
                     );
                 }
             }
+        }
+
+        //확률 이동
+        if(actions.prob != null && actions.prob.Count > 0 && actions.prob is List<ProbData> probData)
+        {
+            List<(string, float)> randomNext = new List<(string, float)>();
+
+            foreach (ProbData actionProb in probData)
+            {
+                if (actionProb != null && actionProb.next != "" &&
+                actionProb.next is string next && actionProb.probability is int probability)
+                {
+                    randomNext.Add((next, (float)probability));
+                }
+            }
+
+            var resultNext = SecureRng.Weighted(randomNext);
+            //이후 이어서 작업
         }
     }
 

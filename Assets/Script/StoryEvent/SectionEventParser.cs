@@ -21,7 +21,8 @@ public class SectionEventParser : MonoBehaviour
             "image",
             "checkI", "getI", "lostI",
             "checkW", "getW", "lostW",
-            "flagSet", "flagCheck"
+            "flagSet", "flagCheck",
+            "prob"
         };
 
         //알 수 없는 Action값 제외
@@ -61,6 +62,9 @@ public class SectionEventParser : MonoBehaviour
 
         if (actionObj.TryGetValue("flagCheck", out var flagCheckToken))
             action.flagCheck = ParseStoryFlag(flagCheckToken);
+        
+        if (actionObj.TryGetValue("prob", out var probToken))
+            action.prob = ParseProbOption(probToken);
             
         return action;
     }
@@ -282,5 +286,18 @@ public class SectionEventParser : MonoBehaviour
             flagCode = code,
             flagState = state
         }, defaultBool: false);
+    }
+
+    /// <summary>
+    /// 확률 이동 처리 부분의 parser (ParseActionNode함수에 사용)
+    /// </summary>
+    /// <param name="token">확률 이동 처리 action 정보</param>
+    private List<ProbData> ParseProbOption(JToken token)
+    {
+        return ParsePairsInt(token, (next, probability) => new ProbData
+        {
+            next = next,
+            probability = probability
+        }, defaultInt: 50);
     }
 }

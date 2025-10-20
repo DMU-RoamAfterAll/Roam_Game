@@ -948,6 +948,7 @@ GameObject:
   - component: {fileID: 994506521}
   - component: {fileID: 994506520}
   - component: {fileID: 994506519}
+  - component: {fileID: 994506522}
   - component: {fileID: 994506518}
   - component: {fileID: 994506517}
   - component: {fileID: 994506516}
@@ -985,7 +986,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23fa315663c7fea4e868106ba9d1221e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  jsonFileName: T2_section
+  jsonFileName: HiddenSection/Clouds_section
 --- !u!114 &994506510
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -998,7 +999,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d68bcf7156763574086b09a76c1e014a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  accessToken: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjbnd2aWQiLCJpYXQiOjE3NTY5NzQ1NTYsImV4cCI6MTc1Njk3NTQ1Nn0.NnACY7Imjua8bo8LVG9f-oRgaHb6T0e8Qa7nbbVrQ2w1gA-SHc1gBeMg6EXHKk9r-0Oqa73mF2EYMbOPOsvDJA
+  accessToken: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjbnd2aWQiLCJ1c2VySWQiOjEsImlhdCI6MTc2MDk1MzEyOCwiZXhwIjoxNzYwOTYwMzI4fQ.eVcmqoPnQEmpF8EFiJVAM_ODGqZnQodYqCO-AQR4hRs
 --- !u!114 &994506512
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1065,6 +1066,7 @@ MonoBehaviour:
   enemyDataManager: {fileID: 994506521}
   enemyScriptManager: {fileID: 994506520}
   itemDataManager: {fileID: 994506519}
+  playerDataManager: {fileID: 994506522}
   storyFlagManager: {fileID: 994506518}
   weaponDataManager: {fileID: 994506517}
 --- !u!114 &994506517
@@ -1132,6 +1134,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyList: []
+--- !u!114 &994506522
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 994506504}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d13a9fb395fc6924b9182c4cd4e353d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1107440863
 PrefabInstance:
   m_ObjectHideFlags: 0
