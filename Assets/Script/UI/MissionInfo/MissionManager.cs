@@ -22,7 +22,7 @@ public class MissionManager : MonoBehaviour {
     public GameObject listPrefab;
     public GameObject headerPrefab;
     public GameObject bodyPrefab;
-    public GameObject enterBtnPrefab;
+    public GameObject hiddenBodyPrefab;
 
     void OnEnable() {
         UpdateSectionInfo();
@@ -37,8 +37,7 @@ public class MissionManager : MonoBehaviour {
         if(AddHiddenSection() != null) {
             GameObject hiddenAreaObj = Instantiate(listPrefab, contentObj.transform);
             GameObject hiddenHeaderObj = Instantiate(headerPrefab, hiddenAreaObj.transform);
-            GameObject hiddenBodyObj = Instantiate(bodyPrefab, hiddenHeaderObj.transform);
-            GameObject hiddenEnterBtn = Instantiate(enterBtnPrefab, hiddenHeaderObj.transform);
+            GameObject hiddenBodyObj = Instantiate(hiddenBodyPrefab, hiddenAreaObj.transform);
         }
         
         foreach(var area in areaObjects) {

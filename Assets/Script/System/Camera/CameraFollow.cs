@@ -14,7 +14,7 @@ public class CameraFollow : MonoBehaviour {
         target = MapSceneDataManager.Instance.Player.transform;
         
         smoothSpeed = 0.25f;
-        moveSpeed = 20f;
+        moveSpeed = 500f;
         isLockOn = true;
     }
 
@@ -83,6 +83,6 @@ public class CameraFollow : MonoBehaviour {
 
     ///카메라 이동구역 설정
     void LimitMoveArea() {
-
+        
     }
 }

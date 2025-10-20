@@ -6,7 +6,7 @@ public class CameraZoom : MonoBehaviour {
 
     public bool zoomIn;
     float minCameraSize = 5f;
-    float maxCameraSize = 30f;
+    float maxCameraSize = 35f;
     
     void Start() {
         cf = GetComponent<CameraFollow>();

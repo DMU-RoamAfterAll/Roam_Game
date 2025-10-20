@@ -1,20 +1,23 @@
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class SectionEnterBtn : MonoBehaviour {
     [Header("Task UI")]
     public TaskCompletionSource<bool> tcs;
     public Button yesBtn;
     public Button noBtn;
+    public TextMeshProUGUI costText;
 
-    public Task<bool> ShowConfirmBtn(string message) {
+    public Task<bool> ShowConfirmBtn(string message, int cost = 0) {
         gameObject.SetActive(true);
         tcs = new TaskCompletionSource<bool>();
 
         yesBtn.onClick.AddListener(OnYesClicked);
         noBtn.onClick.AddListener(OnNoClicked);
 
+        if(cost != 0) costText.text = $"이동하기 위해 {cost}보가 필요합니다.";
         return tcs.Task;
     }
 

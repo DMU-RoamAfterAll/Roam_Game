@@ -24,6 +24,7 @@ public class WeatherManager : MonoBehaviour {
 
     public event Action<string> WeatherChanged;
     public string weatherCur;
+    public string hiddenFileName;
 
     private static string NormalizeMain(string main) {
         switch(main) {
@@ -253,6 +254,8 @@ public class WeatherManager : MonoBehaviour {
                 Debug.Log("알수없는 날씨");
                 break;
         }
+
+        hiddenFileName = $"{weatherCur}_section.json";
     }
 
     void OnEnable() {

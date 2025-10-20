@@ -189,6 +189,7 @@ public class SaveLoadManager : MonoBehaviour {
         DeleteSave();              // 파일 삭제
         save = new SaveData();     // 메모리 초기화
 
+        StepManager.Instance.ResetAllSteps();
         GameDataManager.Data.tutorialClear = false;
 
         if (!resetSceneFlags) return;
@@ -265,8 +266,9 @@ public class SaveLoadManager : MonoBehaviour {
         if(save == null) return;
         save.currentSectionId = "";
         save.preSectionId = "";
-        save.visitedSectionIds = null;
-        GameObject player = MapSceneDataManager.Instance.Player;
+        // save.visitedSectionIds = null;   // X
+        save.visitedSectionIds = new List<string>(); // ← 빈 리스트로 초기화
+        var player = MapSceneDataManager.Instance.Player;
         if(player == null) return;
         save.playerPos = player.transform.position;
     }

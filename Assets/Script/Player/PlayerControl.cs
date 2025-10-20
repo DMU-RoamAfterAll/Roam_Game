@@ -242,7 +242,7 @@ public class PlayerControl : MonoBehaviour {
             Debug.Log($"[PC] Need StepCost = {cost}");
 
             // 4) Task<bool> → 코루틴 대기
-            var confirmTask = MapSceneDataManager.Instance.enterBtnUI.ShowConfirmBtn("Move To Section?");
+            var confirmTask = MapSceneDataManager.Instance.enterBtnUI.ShowConfirmBtn("Move To Section?", cost);
             yield return WaitTaskBool(confirmTask);
             bool ok = confirmTask.Result;
 

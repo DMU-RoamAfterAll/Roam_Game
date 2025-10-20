@@ -91,7 +91,7 @@ public class StepManager : MonoBehaviour {
             Debug.LogWarning("[StepManager] Counter reset detected (reboot?). Re-baselining.");
             Rebaseline(total);
             sessionLastTotal = total;
-            AvaliableStepsChanged?.Invoke(avaulableSteps);
+            AvailableStepsChanged?.Invoke(availableSteps);
         }
 
 
@@ -226,6 +226,7 @@ public class StepManager : MonoBehaviour {
         lastTotal      = currentTotal;
         rawStepCount   = currentTotal;
         Persist();
+        AvailableStepsChanged?.Invoke(availableSteps);
     }
 
     /// <summary>센서 누적이 줄었을 때(재부팅 등) 현재값으로 재기준선</summary>
@@ -262,6 +263,38 @@ public class StepManager : MonoBehaviour {
 
     private void OnApplicationQuit() {
         Persist();
+    }
+
+    public int GetTodayEarnedSteps() {
+        int total = GetCurrentTotalFallbackSafe();
+        int baseline = PlayerPrefs.GetInt(KEY_BASELINE, total);
+        return Mathf.Max(0, total - baseline);
+    }
+
+    public int GetTodayUsedSteps() {
+        int earned = GetTodayEarnedSteps();
+        return Mathf.Max(0, earned - availableSteps);
+    }
+
+    public void ResetAllSteps() {
+        int currentTotal = GetCurrentTotalFallbackSafe(); // 플랫폼별 안전한 현재 누적값
+
+        // 기준선/날짜 갱신
+        PlayerPrefs.SetInt(KEY_BASELINE, currentTotal);
+        PlayerPrefs.SetString(KEY_BASELINE_DATE, Today());
+
+        // 오늘 잔액/세션/내부 상태 초기화
+        availableSteps   = 0;
+        sessionSteps     = 0;
+        sessionLastTotal = currentTotal;
+        lastTotal        = currentTotal;
+        rawStepCount     = currentTotal;
+
+        // 저장 & UI 갱신 알림
+        Persist();
+        AvailableStepsChanged?.Invoke(availableSteps);
+
+        Debug.Log($"[StepManager] ResetAllSteps → baseline={currentTotal}, available=0, session=0");
     }
 
     // ===== 에디터 편의 기능 =====
