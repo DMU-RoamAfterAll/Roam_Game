@@ -615,6 +615,7 @@ GameObject:
   - component: {fileID: 69894928592714363}
   - component: {fileID: 7008113655083327008}
   - component: {fileID: 6808585503335645351}
+  - component: {fileID: 5493608203560157630}
   m_Layer: 5
   m_Name: Score_Weather
   m_TagString: Untagged
@@ -740,6 +741,19 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &5493608203560157630
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1745705794971917015}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c44287ed8b6943719961f11a0f57c64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  weatehrText: {fileID: 0}
 --- !u!1 &2752906011884999205
 GameObject:
   m_ObjectHideFlags: 0
@@ -1402,6 +1416,7 @@ GameObject:
   - component: {fileID: 2718527927523229079}
   - component: {fileID: 3880031711568658836}
   - component: {fileID: 4158591967832520568}
+  - component: {fileID: 4194478145764223138}
   m_Layer: 5
   m_Name: Score_Step
   m_TagString: Untagged
@@ -1527,6 +1542,19 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &4194478145764223138
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8218481109623412281}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f868a56125cf14ef09550343ea854110, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stepCountText: {fileID: 0}
 --- !u!1 &8827075935447518874
 GameObject:
   m_ObjectHideFlags: 0

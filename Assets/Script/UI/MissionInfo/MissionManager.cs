@@ -9,7 +9,6 @@ using UnityEditor;
 public class MissionManager : MonoBehaviour {
     [Header("Objects")]
     public GameObject contentObj;
-    public GameObject hiddenObj;
 
     public List<GameObject> areaMaskList;
     public List<GameObject> headerMaskList;
@@ -23,6 +22,7 @@ public class MissionManager : MonoBehaviour {
     public GameObject listPrefab;
     public GameObject headerPrefab;
     public GameObject bodyPrefab;
+    public GameObject enterBtnPrefab;
 
     void OnEnable() {
         UpdateSectionInfo();
@@ -32,6 +32,14 @@ public class MissionManager : MonoBehaviour {
         areaObjects = MapSceneDataManager.Instance.areaObjects;
         sections = MapSceneDataManager.Instance.sections;
         mainSections = MapSceneDataManager.Instance.mainSections;
+
+        Debug.Log(AddHiddenSection());
+        if(AddHiddenSection() != null) {
+            GameObject hiddenAreaObj = Instantiate(listPrefab, contentObj.transform);
+            GameObject hiddenHeaderObj = Instantiate(headerPrefab, hiddenAreaObj.transform);
+            GameObject hiddenBodyObj = Instantiate(bodyPrefab, hiddenHeaderObj.transform);
+            GameObject hiddenEnterBtn = Instantiate(enterBtnPrefab, hiddenHeaderObj.transform);
+        }
         
         foreach(var area in areaObjects) {
             GameObject areaObj = Instantiate(listPrefab, contentObj.transform);
@@ -55,8 +63,6 @@ public class MissionManager : MonoBehaviour {
                 mSectionObj.GetComponent<BodyMaskInfo>().sd = mSection.GetComponent<SectionData>();
             }
         }
-
-        Debug.Log(AddHiddenSection());
     }
 
     const string hiddenFolderPath = "StoryGameData/SectionData/SectionEvent/HiddenSection";
@@ -78,7 +84,7 @@ public class MissionManager : MonoBehaviour {
             return assetPath;
             #else
             string resourcePath = $"{hiddenFolderPath}/{ta.name}";
-            return resourcePath
+            return resourcePath;
             #endif
         }
 

@@ -96,8 +96,6 @@ public class BattleNode
 public class SectionEventManager : MonoBehaviour
 {
     public string jsonFileName = ""; //불러올 Json파일 이름, 외부에서 받아옴
-    private string jsonFolderPath =
-    "StoryGameData/SectionData/SectionEvent/MainSection/MainTutorialSection"; //Json폴더가 담긴 파일의 경로
     private Dictionary<string, object> sectionData = new Dictionary<string, object>(); //파싱된 Json데이터
     private BattleEventManager battleEventManager;
     private EventDisplayManager eventDisplayManager;
@@ -116,6 +114,8 @@ public class SectionEventManager : MonoBehaviour
         sectionEventParser = GetComponent<SectionEventParser>();
         userDataManager = GetComponent<UserDataManager>();
         dataService = GetComponent<DataService>();
+
+        jsonFileName = GameDataManager.Instance.sectionPath;
 
         LoadJson(jsonFileName); //Json파일 로드
     }
@@ -136,8 +136,7 @@ public class SectionEventManager : MonoBehaviour
     /// <param name="jsonFileName">Json 파일명(확장자 미포함)</param>
     public void LoadJson(string jsonFileName)
     {
-        string filePath = $"{jsonFolderPath}/{jsonFileName}";
-
+        string filePath = System.IO.Path.ChangeExtension(jsonFileName, null);
         TextAsset jsonFile = Resources.Load<TextAsset>(filePath); //Json 파일 로드
         if (jsonFile == null)
         {
@@ -479,7 +478,7 @@ public class SectionEventManager : MonoBehaviour
                             "조사 종료",
                             null)
                     );
-                    SwitchSceneManager.GoToMapScene(); //다음 노드가 없다면 조사를 종료하고 씬 이동
+                    SwitchSceneManager.GoToMapScene(); //다음 노드가 없다면 조사를 종료하고 씬 이동 Clear헀는지 안 했는지 팬독 기능 추가해야 함
                 }
             }
             //---------------선택지 출력---------------

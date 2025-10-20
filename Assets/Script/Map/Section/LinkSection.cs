@@ -15,8 +15,10 @@ public class LinkSection : MonoBehaviour {
         minDistance = MapSceneDataManager.mapData.initialMinDistance;
         linkSectionPrefab = MapSceneDataManager.mapData.linkSectionPrefab;
 
-        sectionData = linkedSection.GetComponent<SectionData>();
-        sectionData.linkSections.Add(this);
+        if(linkedSection) {
+            sectionData = linkedSection.GetComponent<SectionData>();
+            sectionData.linkSections.Add(this);
+        }
     }
 
     ///최대거리 밖에 있는 Section에 이동해야할 경우 임시로 VirualSection 생성

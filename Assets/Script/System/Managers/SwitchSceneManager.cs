@@ -10,9 +10,6 @@ using UnityEditor;
 
 public class SwitchSceneManager : MonoBehaviour {
     public static SwitchSceneManager Instance { get; private set; }
-
-    public string sectionPath;
-
     [Header("Base Scene (항상 유지하는 씬)")]
     [SerializeField] private string baseSceneName = SceneList.Map; // "MapScene"
 
@@ -214,7 +211,7 @@ public class SwitchSceneManager : MonoBehaviour {
         var pc = player ? player.GetComponent<PlayerControl>() : null;
 
         if (pc != null && pc.sectionData != null) {
-            pc.sectionData.isCleared = true;
+            pc.sectionData.isCleared = true; //여기서 Clear조건 판명하는 거 넣기
 
             var tuto = pc.sectionData.GetComponent<TutorialManager>();
             if (tuto != null) tuto.CompleteSection();

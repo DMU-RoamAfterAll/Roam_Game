@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Networking;
+using System;
 using System.Collections;
 #if UNITY_ANDROID
 using UnityEngine.Android;
@@ -20,8 +21,35 @@ public class WeatherManager : MonoBehaviour {
     public WeatherResponse resp;
 
     private string _lastServerTime;
-    
+
+    public event Action<string> WeatherChanged;
     public string weatherCur;
+
+    private static string NormalizeMain(string main) {
+        switch(main) {
+            case "Drizzle": return "Rain";
+            case "Mist":
+            case "Smoke":
+            case "Haze":
+            case "Dust":
+            case "Fog":
+            case "Sand":
+            case "Ash":
+            case "Squall":
+            case "Tornado": return "Mist";
+            default: return main;
+        }
+    }
+
+    private void SetWeather(string main) {
+        if (string.IsNullOrEmpty(main)) return;
+        string normalized = NormalizeMain(main);
+
+        if (weatherCur == normalized) return;
+        weatherCur = normalized;
+        WeatherChanged?.Invoke(weatherCur);
+        Debug.Log($"[WeatherManager] weatherCur -> {weatherCur}");
+    }
 
     void Awake()
     {
@@ -139,6 +167,7 @@ public class WeatherManager : MonoBehaviour {
 
             // (2) 새 스펙으로 파싱
             resp = JsonUtility.FromJson<WeatherResponse>(www.downloadHandler.text);
+            SetWeather(resp?.main);
         }
     }
 
@@ -165,8 +194,6 @@ public class WeatherManager : MonoBehaviour {
 
     public void HiddenEvent() {
         if(!GameDataManager.Data.tutorialClear && isHidden) return;
-
-        isHidden = true;
         //false조건도 달아야 함!!!!!!
 
         var wm = WeatherManager.Instance;
@@ -175,6 +202,8 @@ public class WeatherManager : MonoBehaviour {
 
         float percent = 0.3f;
         if(!SecureRng.Chance(percent)) return;
+
+        isHidden = true;
 
         switch (main) {
             case "Thunderstorm" :
@@ -242,5 +271,6 @@ public class WeatherManager : MonoBehaviour {
 
     void OnNewDay() {
         isHidden = false;
+        if (resp != null) SetWeather(resp.main);
     }
 }

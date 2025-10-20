@@ -15,6 +15,8 @@ using UnityEngine.Android; // ACTIVITY_RECOGNITION 권한
 public class StepManager : MonoBehaviour {
     public static StepManager Instance { get; private set; }
 
+    public event Action<int> AvailableStepsChanged;
+
     #if UNITY_ANDROID && !UNITY_EDITOR
     private const string PERMISSION = "android.permission.ACTIVITY_RECOGNITION";
     private AndroidJavaObject stepPlugin;
@@ -68,6 +70,8 @@ public class StepManager : MonoBehaviour {
         #endif
         // 앱 시작 시 "지난 저장 날짜 != 오늘"이면 1회 초기화
         OneShotDailyResetIfNeeded();
+
+        AvailableStepsChanged?.Invoke(availableSteps);
     }
 
     private void Update() {
@@ -87,16 +91,19 @@ public class StepManager : MonoBehaviour {
             Debug.LogWarning("[StepManager] Counter reset detected (reboot?). Re-baselining.");
             Rebaseline(total);
             sessionLastTotal = total;
+            AvaliableStepsChanged?.Invoke(avaulableSteps);
         }
 
 
         // 3) 증가분만큼 오늘 잔액 증가
         int delta = total - lastTotal;
         if (delta > 0) {
-            availableSteps += delta;
             rawStepCount    = total;
             lastTotal       = total;
+
+            availableSteps += delta;
             Persist();
+            AvailableStepsChanged?.Invoke(availableSteps);
         }
 
         // ===세션 누적 갱신 ===
@@ -198,6 +205,8 @@ public class StepManager : MonoBehaviour {
         if (availableSteps >= cost) {
             availableSteps -= cost;
             Persist();
+
+            AvailableStepsChanged?.Invoke(availableSteps);
             return true;
         }
         return false;
@@ -261,6 +270,7 @@ public class StepManager : MonoBehaviour {
     private void Add100Steps() {
         availableSteps += 100;
         Persist();
+        AvailableStepsChanged?.Invoke(availableSteps);
         Debug.Log($"[StepManager] Debug add → available={availableSteps}");
     }
 
@@ -270,6 +280,8 @@ public class StepManager : MonoBehaviour {
         ApplyDailyReset(current);
         PlayerPrefs.SetString(KEY_BASELINE_DATE, Today());
         PlayerPrefs.Save();
+
+        AvailableStepsChanged?.Invoke(availableSteps);
         Debug.Log($"[StepManager] Baseline reset → baseline={current}, available=0");
     }
 
