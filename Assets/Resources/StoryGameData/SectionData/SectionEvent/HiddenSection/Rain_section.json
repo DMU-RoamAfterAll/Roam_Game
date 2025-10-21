@@ -2,7 +2,7 @@
   "SectionInfo": {
     "id" : "",
     "rate": "W",
-    "eventType": "임무",
+    "eventType": "날씨",
     "content": "비"
   },
 
@@ -48,15 +48,9 @@
     ],
     "action" : {
       "prob" : [
-        ["Succes", 60],
-        ["Fail", 40]
-      ],
-      "Succes" : {
-        "next" : "Text2"
-      },
-      "Fail" : {
-        "next" : "Text3"
-      }
+        ["Text2", 60],
+        ["Text3", 40]
+      ]
     }
   },
 
@@ -93,7 +87,7 @@
       "문턱에서 발길을 돌린다.",
       "비와 어둠은 오늘만의 적이 아니다."
     ],
-    "next" : null
+    "next" : "End"
   },
 
   "Text4" : {
@@ -101,6 +95,6 @@
       "물결 위로 손전등 빛이 흔들린다.",
       "지상에 도착하자 빗소리가 다시 귓속을 가득 채운다."
     ],
-    "next" : null
+    "next" : "End"
   }
 }

@@ -3,7 +3,8 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.Networking;
+using System.Text;
 
 [Serializable]
 public class SaveData {
@@ -262,17 +263,6 @@ public class SaveLoadManager : MonoBehaviour {
         }
     }
 
-    public void AfterTutorialClear() {
-        if(save == null) return;
-        save.currentSectionId = "";
-        save.preSectionId = "";
-        // save.visitedSectionIds = null;   // X
-        save.visitedSectionIds = new List<string>(); // ← 빈 리스트로 초기화
-        var player = MapSceneDataManager.Instance.Player;
-        if(player == null) return;
-        save.playerPos = player.transform.position;
-    }
-
     // SaveLoadManager.cs 내부 아무 public 메서드들 아래에 추가
     public void OverwriteLocal(SaveData data, bool normalize = true)
     {
@@ -301,6 +291,60 @@ public class SaveLoadManager : MonoBehaviour {
             Debug.LogError($"[SaveLoad] OverwriteLocal failed: {e.Message}");
         }
     }
+
+    // SaveLoadManager.cs 내부 (클래스 안)
+    public void SaveNowAndUpload(string username, MonoBehaviour caller = null)
+    {
+        // 1) 로컬 세이브 즉시 반영(현재 위치/섹션 포함)
+        SaveNow();
+
+        // 2) 서버 업로드
+        if (caller != null) caller.StartCoroutine(UploadCurrentSaveToServer(username));
+        else                StartCoroutine(UploadCurrentSaveToServer(username));
+    }
+
+    /// <summary>
+    /// 현재 Save 스냅샷을 서버에 PUT 업로드
+    /// </summary>
+    public IEnumerator UploadCurrentSaveToServer(string username)
+    {
+        if (string.IsNullOrEmpty(username))
+        {
+            Debug.LogWarning("[SaveLoad] Upload skipped: username is empty");
+            yield break;
+        }
+
+        // 서버 URL (스웨거 경로에 맞춰 수정)
+        string url = $"{GameDataManager.Data.baseUrl}:8081/api/save/{UnityWebRequest.EscapeURL(username)}";
+
+        // 현재 상태 스냅샷(여기서 currentSectionId / preSectionId 정규화됨)
+        var data = TakeSnapshot();
+        string json = JsonUtility.ToJson(data);
+
+        using (var req = new UnityWebRequest(url, "PUT"))
+        {
+            req.uploadHandler   = new UploadHandlerRaw(Encoding.UTF8.GetBytes(json));
+            req.downloadHandler = new DownloadHandlerBuffer();
+            req.SetRequestHeader("Content-Type", "application/json");
+
+            // (선택) 인증 헤더
+            var token = AuthManager.Instance != null ? AuthManager.Instance.AccessToken : null;
+            if (!string.IsNullOrEmpty(token))
+                req.SetRequestHeader("Authorization", $"Bearer {token}");
+
+            yield return req.SendWebRequest();
+
+            if (req.result == UnityWebRequest.Result.Success && req.responseCode >= 200 && req.responseCode < 300)
+            {
+                Debug.Log($"[SaveLoad] Upload OK ({req.responseCode})");
+            }
+            else
+            {
+                Debug.LogWarning($"[SaveLoad] Upload FAILED code={req.responseCode}, err={req.error}");
+            }
+        }
+    }
+
 
     #if UNITY_EDITOR
     [ContextMenu("Print Saved JSON (from file)")]

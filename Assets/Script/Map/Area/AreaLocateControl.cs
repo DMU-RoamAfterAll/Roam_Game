@@ -34,10 +34,6 @@ public class AreaLocateControl : MonoBehaviour {
 
         Player = MapSceneDataManager.Instance.Player;
         pc = MapSceneDataManager.Instance.pc;
-
-        OnAreaMoveFinished += CreateRiverSection;
-        OnAreaMoveFinished += CreateIrisSection;
-        OnAreaMoveFinished += StartToturial;
     }
 
     ///구역의 규격을 알아내는 함수
@@ -148,12 +144,22 @@ public class AreaLocateControl : MonoBehaviour {
             areas[i].transform.position = ends[i];
         }
 
+        CreateRiverSection();
+        CreateIrisSection();   
+
+        var linker = GetComponent<LinkSectionSpawner>();
+        if (linker == null) linker = gameObject.AddComponent<LinkSectionSpawner>(); 
+
+        yield return null;
+
+        // ✅ 4) 이제 튜토리얼만 남기도록 비활성화
+        StartToturial();
+
+        // (선택) 다른 리스너들이 있으면 알림
         OnAreaMoveFinished?.Invoke();
         EventManager.RaiseAreaMoveFinished();
-        
 
-        this.gameObject.AddComponent<LinkSectionSpawner>();
-
+        // 기존 로직 유지: 저장/펜딩 로드/플래그 세팅
         var slm = SaveLoadManager.Instance;
         if (slm != null && slm.pendingLoadData != null) {
             Debug.Log("[AreaLocate] Applying pending save after map assembled");
@@ -162,7 +168,6 @@ public class AreaLocateControl : MonoBehaviour {
         }
 
         SaveLoadManager.Instance.SaveNow();
-   
 
         MapSceneDataManager.mapData.isMapSetUp = true;
         pc.isCanMove = true;
@@ -187,10 +192,7 @@ public class AreaLocateControl : MonoBehaviour {
     }
 
     void StartToturial() {
-        if(GameDataManager.Data.tutorialClear) {
-            Destroy(areas[areaNumber - 1].gameObject);
-            return;
-        }
+        if(GameDataManager.Data.tutorialClear) return;
         
         for(int i = 0; i < areaNumber - 1; i++) { areas[i].gameObject.SetActive(false); }
         foreach(var s in areas[areaNumber - 1].Sections) {

@@ -105,15 +105,9 @@
     ],
     "action" : {
       "prob" : [
-        ["Succes", 70],
-        ["Fail", 30]
-      ],
-      "Succes" : {
-        "next" : "Text_Result4"
-      },
-      "Fail" : {
-        "next" : "Battle1"
-      }
+        ["Text_Result4", 70],
+        ["Battle1", 30]
+      ]
     }
   },
 
@@ -127,15 +121,9 @@
             ["item_1007", 1]
           ],
           "prob" : [
-          ["Succes", 90],
-          ["Fail", 10]
-          ],
-          "Succes" : {
-            "next" : "Text_Result3"
-          },
-          "Fail" : {
-            "next" : "Battle1"
-          }
+          ["Text_Result3", 90],
+          ["Battle1", 10]
+          ]
         }
       },
       {
@@ -143,15 +131,9 @@
         "label": "목장갑 미보유 시",
         "action" : {
           "prob" : [
-            ["Succes", 60],
-            ["Fail", 40]
-          ],
-          "Succes" : {
-            "next" : "Text_Result3"
-          },
-          "Fail" : {
-            "next" : "Battle1"
-          }
+            ["Text_Result3", 60],
+            ["Battle1", 40]
+          ]
         }
       }
     ]
@@ -220,7 +202,7 @@
         "당신의 그림자가 센서 위를 스쳤다.",
         "경고음과 함께 발포. 총탄은 등을 가르며 심장을 꿰뚫었다."
       ],
-      "next" : null
+      "next" : "End"
     }
   },
 
@@ -243,6 +225,6 @@
       "그리고 생각했다.",
       "'아이리스는 정말....살아남은 자들을 위한 곳일까?'"
     ],
-    "next" : null
+    "next" : "End"
   }
 }

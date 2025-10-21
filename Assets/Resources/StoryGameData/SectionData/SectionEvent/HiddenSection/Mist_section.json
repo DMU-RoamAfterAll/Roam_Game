@@ -2,7 +2,7 @@
   "SectionInfo": {
     "id" : "01",
     "rate": "B",
-    "eventType": "임무",
+    "eventType": "날씨",
     "content": "다습"
   },
 
@@ -29,6 +29,6 @@
     "value" : [
       "피부에 들러붙는 공기를 털어내며 자리를 뜬다."
     ],
-    "next" : null
+    "next" : "End"
   }
 }

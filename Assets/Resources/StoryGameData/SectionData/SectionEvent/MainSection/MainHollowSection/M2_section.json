@@ -106,7 +106,7 @@
         ["m2_GetIrisMap", true]
       ]
     },
-    "next" : null
+    "next" : "End"
   },
 
   "Text_Result2" : {
@@ -181,7 +181,7 @@
           ["item_1010", 1]
         ]
       },
-      "next" : null
+      "next" : "End"
     },
     "PostBattle1_L" : {
       "value" : [
@@ -201,7 +201,7 @@
         "녹슨 쇠의 냄새와 어딘가에서 울리는 웃음소리뿐이었다.",
         "[GAME OVER]"
       ],
-      "next" : null
+      "next" : "End"
     }
   },
   
@@ -224,15 +224,9 @@
         "label": "은밀행동 미보유 시 (70% 성공)",
         "action" : {
           "prob" : [
-            ["Succes", 70],
-            ["Fail", 30]
-          ],
-          "Succes" : {
-            "next" : "Text_Result4"
-          },
-          "Fail" : {
-            "next" : "Battle2"
-          }
+            ["Text_Result4", 70],
+            ["Battle2", 30]
+          ]
         }
       }
     ]
@@ -269,15 +263,9 @@
         "label" : "관찰력 미보유 시 (80% 성공)",
         "action" : {
           "prob" : [
-            ["Succes", 80],
-            ["Fail", 20]
-          ],
-          "Succes" : {
-            "next" : "Text_Result5"
-          },
-          "Fail" : {
-            "next" : "Battle2"
-          }
+            ["Text_Result5", 80],
+            ["Battle2", 20]
+          ]
         }
       }
     ]
@@ -298,15 +286,9 @@
         "label" : "환풍구로 기어 나가기",
         "action" : {
           "prob" : [
-            ["Succes", 50],
-            ["Fail", 50]
-          ],
-          "Succes" : {
-            "next" : "Text_Escape"
-          },
-          "Fail" : {
-            "next" : "Battle2"
-          }
+            ["Text_End", 50],
+            ["Battle2", 50]
+          ]
         }
       },
 
@@ -315,15 +297,9 @@
         "label": "창고 창문을 깨고 탈출",
         "action" : {
           "prob" : [
-            ["Succes", 50],
-            ["Fail", 50]
-          ],
-          "Succes" : {
-            "next" : "Escape"
-          },
-          "Fail" : {
-            "next" : "Battle2"
-          }
+            ["Text_End", 50],
+            ["Battle2", 50]
+          ]
         }
       }
     ]
@@ -356,7 +332,7 @@
         "복잡한 구조 속에서 몸을 숨기고 맞서 싸웠다.",
         "결국 마지막 상대를 쓰러뜨린 뒤에야, 숨을 고를 수 있었다."
       ],
-      "next" : "Text_Escape"
+      "next" : "Text_End"
     },
     "PostBattle1_L" : {
       "value" : [
@@ -364,11 +340,11 @@
         "희미해지는 시야 속에서 붉은 경보등만이 반복해 깜빡이고 있었다.",
         "[GAME OVER]"
       ],
-      "next" : null
+      "next" : "End"
     }
   },
 
-  "Text_Escape" : {
+  "Text_End" : {
     "value" : [
       "[탈출 성공]",
       "등 뒤에서는 고함소리와 욕설이 쏟아졌고, 누군가는 발로 문을 걷어찼다.",
@@ -385,6 +361,6 @@
       ],
       "image" : "M2-1"
     },
-    "next" : null
+    "next" : "End"
   }
 }

@@ -2,7 +2,7 @@
   "SectionInfo": {
     "id" : "",
     "rate": "W",
-    "eventType": "히든 미션",
+    "eventType": "날씨",
     "content": "천둥"
   },
 
@@ -45,7 +45,7 @@
     "value" : [
       "당신은 이 자리에서 벗어나는 걸 택하였다."
     ],
-    "next" : "End"
+    "next" : "Text_End"
   },
 
   
@@ -112,7 +112,7 @@
         ["item_1006", 1]
       ]
     },
-    "next" : "End"
+    "next" : "Text_End"
   },
 
   "Text3" : {
@@ -123,15 +123,9 @@
     ],
     "action" : {
       "prob" : [
-        ["Succes", 50],
-        ["Fail", 50]
-      ],
-      "Succes" : {
-        "next" : "Text_Result2"
-      },
-      "Fail" : {
-        "next" : "Text_Result3"
-      }
+        ["Text_Result2", 50],
+        ["Text_Result3", 50]
+      ]
     }
   },
 
@@ -146,7 +140,7 @@
       "skillSet" : [
         ["sk_0004", 1]
       ],
-      "next" : "End"
+      "next" : "Text_End"
     }
   },
 
@@ -154,14 +148,10 @@
     "value" : [
       "당신은 갑작스럽게 튄 스파크를 피하지 못하였다.",
       "가방끈이 그을리고, 안 쪽 소모품 하나가 불에 그슬린 채 떨어졌다.",
-      "바람이 잠시 쉬는 듯했고, 당신의 손끝엔 회로의 흐름이 남았다.",
-      "[아이템 랜덤 소실]"
+      "바람이 잠시 쉬는 듯했고, 당신의 손끝엔 회로의 흐름이 남았다."
     ],
     "action" : {
-      "lostI" : [
-        ["랜덤소실", 1]
-      ],
-      "next" : "End"
+      "next" : "Text_End"
     }
   },
 
@@ -177,7 +167,7 @@
         ["sk_0004", 1]
       ]
     },
-    "next" : "End"
+    "next" : "Text_End"
   },
 
   "Text5" : {
@@ -187,15 +177,9 @@
     ],
     "action" : {
       "prob" : [
-          ["Succes", 40],
-          ["Fail", 60]
-        ],
-        "Succes" : {
-          "next" : "Text_Result4"
-        },
-        "Fail" : {
-          "next" : "Text_Result5"
-        }
+        ["Text_Result4", 40],
+        ["Text_Result5", 60]
+      ]
     }
   },
 
@@ -211,29 +195,23 @@
         ["sk_0004", 1]
       ]
     },
-    "next" : "End"
+    "next" : "Text_End"
   },
 
   "Text_Result5" : {
     "value" : [
       "당신은 갑작스럽게 튄 스파크를 피하지 못하였다.",
       "가방끈이 그을리고, 안 쪽 소모품 하나가 불에 그슬린 채 떨어졌다.",
-      "바람이 잠시 쉬는 듯했고, 당신의 손끝엔 회로의 흐름이 남았다.",
-      "[아이템 랜덤 소실]"
+      "바람이 잠시 쉬는 듯했고, 당신의 손끝엔 회로의 흐름이 남았다."
     ],
-    "action" : {
-      "lostI" : [
-        ["랜덤 소실", 1]
-      ]
-    },
-    "next" : "End"
+    "next" : "Text_End"
   },
 
-  "End" : {
+  "Text_End" : {
     "value" : [
       "한바탕 바람이 쓸고 지나가자, 골목은 다시 어둠으로 가라앉았다.",
       "당신은 젖은 장비를 털고 천천히 숨을 고른다."
     ],
-    "next" : null
+    "next" : "End"
   }
 }

@@ -28,7 +28,6 @@ public class WeatherManager : MonoBehaviour {
 
     private static string NormalizeMain(string main) {
         switch(main) {
-            case "Drizzle": return "Rain";
             case "Mist":
             case "Smoke":
             case "Haze":
@@ -214,7 +213,7 @@ public class WeatherManager : MonoBehaviour {
 
             case "Drizzle" :
                 Debug.Log("가랑비다");
-                weatherCur = "Rain";
+                weatherCur = main;
                 break;
 
             case "Rain" :

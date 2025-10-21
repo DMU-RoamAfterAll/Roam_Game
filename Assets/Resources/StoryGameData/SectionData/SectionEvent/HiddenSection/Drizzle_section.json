@@ -2,7 +2,7 @@
   "SectionInfo": {
     "id" : "",
     "rate": "B",
-    "eventType": "임무",
+    "eventType": "날씨",
     "content": "비"
   },
 
@@ -55,15 +55,9 @@
     ],
     "action" : {
       "prob" : [
-        ["Succes", 60],
-        ["Fail", 40]
-      ],
-      "Succes" : {
-        "next" : "Text_Result3"
-      },
-      "Fail" : {
-        "next" : "Text_Result4"
-      }
+        ["Text_Result3", 60],
+        ["Text_Result4", 40]
+      ]
     }
   },
 
@@ -107,6 +101,6 @@
       "비의 리듬은 한동안 계속될 것이다.",
       "병을 단단히 닫고 짐 속 깊이 넣는다."
     ],
-    "next" : null
+    "next" : "End"
   }
 }

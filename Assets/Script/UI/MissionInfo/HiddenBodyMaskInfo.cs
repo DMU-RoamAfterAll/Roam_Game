@@ -9,7 +9,8 @@ public class HiddenBodyMaskInfo : MonoBehaviour {
     const string hiddenFolderPath = "StoryGameData/SectionData/SectionEvent/HiddenSection/";
 
     void Start() {
-        
+        tagName.text = "날씨";
+        titleName.text = WeatherManager.Instance.weatherCur;
     }
 
     public void EnterHidden() {

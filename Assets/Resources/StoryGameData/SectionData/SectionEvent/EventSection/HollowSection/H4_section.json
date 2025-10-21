@@ -2,7 +2,7 @@
   "SectionInfo": {
     "id" : "",
     "rate": "B",
-    "eventType": "임무",
+    "eventType": "폐허",
     "content": "낡은 의료 보급소"
   },
   
@@ -44,7 +44,7 @@
         ["item_1017", 1]
       ]
     },
-    "next" : null
+    "next" : "End"
   },
 
   "Text3" : {
@@ -65,6 +65,6 @@
         ["item_1016", 1]
       ]
     },
-    "next" : null
+    "next" : "End"
   }
 }

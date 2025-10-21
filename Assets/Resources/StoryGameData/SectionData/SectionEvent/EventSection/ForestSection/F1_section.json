@@ -2,7 +2,7 @@
   "SectionInfo": {
       "id" : "",
       "rate": "B",
-      "eventType": "임무",
+      "eventType": "검은 숲",
       "content": "무덤터"
   },
   
@@ -84,7 +84,7 @@
     "action" : {
       "getI" : ["item_1011", 1]
     },
-    "next" : null
+    "next" : "End"
   },
 
   "Text3" : {
@@ -135,7 +135,7 @@
     "action" : {
       "getI" : ["item_1011", 1]
     },
-    "next" : null
+    "next" : "End"
   },
 
   "Text5" : {
@@ -186,7 +186,7 @@
     "action" : {
       "getI" : ["item_1013", 1]
     },
-    "next" : null
+    "next" : "End"
   },
 
   "Text7" : {
@@ -221,7 +221,7 @@
       "action" : {
         "getI" : ["item_1011", 1]
       },
-      "next" : null
+      "next" : "End"
     },
     "PostBattle1_L" : {
       "value" : [
@@ -229,7 +229,7 @@
         "몸을 추스르기도 전에 들개가 당신의 소지품을 덮치듯 물고 달아났고,",
         "당신은 흐려진 시야 속에서 가볍게 맥을 놓은 채 무덤가에 쓰러졌다"
       ],
-      "next" : null
+      "next" : "End"
     }
   },
 
@@ -257,14 +257,14 @@
       "action" : {
         "getI" : ["item_1011", 1]
       },
-      "next" : null
+      "next" : "End"
     },
     "PostBattle1_L" : {
       "value" : [
         "들개가 미처 닫지 못한 배낭 틈으로 머리를 박고 뒤척였다.",
         "당신이 버티지 못하고 쓰러졌을 때, 그 집승은 당신의 소지품을 입에 문 채 달아났다."
       ],
-      "next" : null
+      "next" : "End"
     }
   },
 
@@ -291,7 +291,7 @@
       "action" : {
         "getI" : ["item_1013", 1]
       },
-      "next" : null
+      "next" : "End"
     },
     "PostBattle1_L" : {
       "value" : [
@@ -299,7 +299,7 @@
         "그 순간 들개가 당신의 배낭 안에서 물건을 물고 질주했다.",
         "멀어지는 그림자를 바라보며 당신은 무력하게 주저앉았다."
       ],
-      "next" : null
+      "next" : "End"
     }
   }
 }

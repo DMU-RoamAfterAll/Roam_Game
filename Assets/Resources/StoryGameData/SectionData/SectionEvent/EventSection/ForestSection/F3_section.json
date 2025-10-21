@@ -2,7 +2,7 @@
   "SectionInfo": {
     "id" : "03",
     "rate": "B",
-    "eventType": "임무",
+    "eventType": "검은 숲",
     "content": "숲속 텐트"
   },
 
@@ -59,15 +59,9 @@
     ],
     "action" : {
         "prob" : [
-        ["Succes", 40],
-        ["Fail", 60]
-      ],
-      "Succes" : {
-        "next" : "Text2"
-      },
-      "Fail" : {
-        "next" : "Text3"
-      }
+        ["Text2", 40],
+        ["Text3", 60]
+      ]
     }
   },
 
@@ -82,7 +76,7 @@
         ["item_1007", 1]
       ]
     },
-    "next" : null
+    "next" : "End"
   },
 
   "Text3" : {
@@ -90,7 +84,7 @@
       "당신은 손을 뻗기도 전에 쥐는 목장갑을 질질 끌며 덤불 속으로 사라졌다.",
       "당신은 허탈한 한숨을 내쉬었다."
     ],
-    "next" : null
+    "next" : "End"
   },  
 
   "Text_Result2" : {
@@ -105,15 +99,9 @@
     ],
     "action" : {
       "prob" : [
-        ["Succes", 50],
-        ["Fail", 50]
-      ],
-      "Succes" : {
-        "next" : "Text4"
-      },
-      "Fail" : {
-        "next" : "Text5"
-      }
+        ["Text4", 50],
+        ["Text5", 50]
+      ]
     }
   },
 
@@ -127,7 +115,7 @@
         ["item_1007", 1]
       ]
     },
-    "next" : null
+    "next" : "End"
   },
 
   "Text5" :  {
@@ -135,7 +123,7 @@
       "덤불을 건드린 순간, 작고 빠른 쥐 한 마리가 목장갑을 낚아채듯 물고 달아났다.",
       "당신은 허겁지겁 뒤를 쫓았지만, 쥐는 이미 어둠 속으로 사라진 뒤였다."
     ],
-    "next" : null
+    "next" : "End"
   },
 
   "Text_Result3" : {
@@ -151,15 +139,9 @@
     ],
     "action" : {
       "prob" : [
-        ["Succes", 60],
-        ["Fail", 40]
-      ],
-      "Succes" : {
-        "next" : "Text6"
-      },
-      "Fail" : {
-        "next" : "Text7"
-      }
+        ["Text6", 60],
+        ["Text7", 40]
+      ]
     }
   },
 
@@ -175,7 +157,7 @@
         ["item_1008", 1]
       ]
     },
-    "next" : null
+    "next" : "End"
   },
 
   "Text7" : {
@@ -188,6 +170,6 @@
         ["item_1008", 1]
       ]
     },
-    "next" : null
+    "next" : "End"
   }
 }

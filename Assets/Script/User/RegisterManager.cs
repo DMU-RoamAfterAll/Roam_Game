@@ -159,6 +159,7 @@ public class RegisterManager : MonoBehaviour {
         if (request.result == UnityWebRequest.Result.Success)
         {
             Debug.Log("회원가입 성공");
+            GameDataManager.Data.playerName = nickname;
             registerUI.SetActive(false);
             loginUI.SetActive(true);
         }

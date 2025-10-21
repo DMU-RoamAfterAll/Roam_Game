@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
 public class SectionData : MonoBehaviour {
-    public List<LinkSection> linkSections;
+    public List<LinkSection> linkSections = new List<LinkSection>();
     public string id; //Section의 고유 id값
     public char rate; //Section의 등급
     public string eventType; //Section의 이벤트 종류
@@ -30,15 +30,20 @@ public class SectionData : MonoBehaviour {
     }
 
     ///플레이어가 Section에 있는지 없는지를 판별하는 함수
-    public void SetPlayerOnSection() {
-        isPlayerOn = !isPlayerOn;
-        
-        if(linkSections != null) {
-            foreach(var link in linkSections) {
-                Debug.Log("Is It LinkSections");
-                link.CreateVirtualSection(); //가상의 점 생성
+    public void SetPlayerOn(bool on) {
+        if (isPlayerOn == on) return;
+        isPlayerOn = on;
+
+        if (linkSections != null) {
+            foreach (var link in linkSections) {
+                link.CreateVirtualSection(); // on일 땐 생성, off일 땐 파괴(내부에서 처리)
             }
         }
+    }
+
+    // (원래 메서드는 호환용으로 남겨도 OK)
+    public void SetPlayerOnSection() {
+        SetPlayerOn(!isPlayerOn);
     }
 
     public void SetOption() {

@@ -2,7 +2,7 @@
   "SectionInfo": {
     "id" : "",
     "rate": "B",
-    "eventType": "임무",
+    "eventType": "날씨",
     "content": "흐린 날씨"
   },
 
@@ -50,7 +50,7 @@
         ["item_1013", 1]
       ]
     },
-    "next" : "End"
+    "next" : "Text_End"
   },
 
   "Text_Result2" : {
@@ -61,15 +61,9 @@
     ],
     "action" : {
       "prob" : [
-        ["Succes", 55],
-        ["Fail", 45]
-      ],
-      "Succes" : {
-        "next" : "Text2"
-      },
-      "Fail" : {
-        "next" : "Text3"
-      }
+        ["Text2", 55],
+        ["Text3", 45]
+      ]
     }
   },
 
@@ -85,7 +79,7 @@
         ["sk_0002", 1]
       ]
     },
-    "next" : "End"
+    "next" : "Text_End"
   },
 
   "Text3" : {
@@ -95,13 +89,13 @@
       "긴장 끝에 사냥감이 아니라는 결론을 내렸는지, 무리는 천천히 자리를 옮긴다.",
       "싸움은 피했지만, 얻은 것은 없다."
     ],
-    "next" : "End"
+    "next" : "Text_End"
   },
 
-  "End" : {
+  "Text_End" : {
     "value" : [
       "구름층 아래의 빛은 여전히 희뿌옇다. 당신은 호흡을 가다듬고, 다시 이동한다."
     ],
-    "next" : null
+    "next" : "End"
   }
 }

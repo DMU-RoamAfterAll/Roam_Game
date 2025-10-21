@@ -2,7 +2,7 @@
   "SectionInfo": {
     "id" : "",
     "rate": "B",
-    "eventType": "임무",
+    "eventType": "날씨",
     "content": "맑은 날씨"
   },
 
@@ -21,47 +21,17 @@
     ],
     "action" : {
       "prob" : [
-        ["Opt1", 10],
-        ["Opt2", 10],
-        ["Opt3", 10],
-        ["Opt4", 10],
-        ["Opt5", 10],
-        ["Opt6", 10],
-        ["Opt7", 10],
-        ["Opt8", 10],
-        ["Opt9", 10],
-        ["Opt10", 10]
-      ],
-      "Opt1" : {
-        "next" : "Text_Result1"
-      },
-      "Opt2" : {
-        "next" : "Text_Result2"
-      },
-      "Opt3" : {
-        "next" : "Text_Result3"
-      },
-      "Opt4" : {
-        "next" : "Text_Result4"
-      },
-      "Opt5" : {
-        "next" : "Text_Result5"
-      },
-      "Opt6" : {
-        "next" : "Text_Result6"
-      },
-      "Opt7" : {
-        "next" : "Text_Result7"
-      },
-      "Opt8" : {
-        "next" : "Text_Result8"
-      },
-      "Opt9" : {
-        "next" : "Text_Result9"
-      },
-      "Opt10" : {
-        "next" : "Text_Result10"
-      }
+        ["Text_Result1", 10],
+        ["Text_Result2", 10],
+        ["Text_Result3", 10],
+        ["Text_Result4", 10],
+        ["Text_Result5", 10],
+        ["Text_Result6", 10],
+        ["Text_Result7", 10],
+        ["Text_Result8", 10],
+        ["Text_Result9", 10],
+        ["Text_Result10", 10]
+      ]
     }
   },
 
@@ -71,7 +41,7 @@
         ["item_1001", 1]
       ]
     },
-    "next" : null
+    "next" : "End"
   },
 
   "Text_Result2" : {
@@ -80,7 +50,7 @@
         ["item_1003", 1]
       ]
     },
-    "next" : null
+    "next" : "End"
   },
 
   "Text_Result3" : {
@@ -89,7 +59,7 @@
         ["item_1006", 1]
       ]
     },
-    "next" : null
+    "next" : "End"
   },
 
   "Text_Result4" : {
@@ -98,7 +68,7 @@
         ["item_1007", 1]
       ]
     },
-    "next" : null
+    "next" : "End"
   },
 
   "Text_Result5" : {
@@ -107,7 +77,7 @@
         ["item_1008", 1]
       ]
     },
-    "next" : null
+    "next" : "End"
   },
 
   "Text_Result6" : {
@@ -116,7 +86,7 @@
         ["item_1009", 1]
       ]
     },
-    "next" : null
+    "next" : "End"
   },
 
   "Text_Result7" : {
@@ -125,7 +95,7 @@
         ["item_1012", 1]
       ]
     },
-    "next" : null
+    "next" : "End"
   },
 
   "Text_Result8" : {
@@ -134,7 +104,7 @@
         ["item_1013", 1]
       ]
     },
-    "next" : null
+    "next" : "End"
   },
 
   "Text_Result9" : {
@@ -143,7 +113,7 @@
         ["item_1015", 1]
       ]
     },
-    "next" : null
+    "next" : "End"
   },
 
   "Text_Result10" : {
@@ -153,5 +123,5 @@
       ]
     }
   },
-  "next" : null
+  "next" : "End"
 }

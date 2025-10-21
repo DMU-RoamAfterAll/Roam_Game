@@ -259,14 +259,15 @@ public class PlayerControl : MonoBehaviour {
             }
 
             // 5) 실제 섹션 이동
-            StartCoroutine(MoveToSection(targetObj, sd));
+            bool enterStory = !(sd != null && sd.isCleared);
+            StartCoroutine(MoveToSection(targetObj, sd, 0.5f, enterStory));
         }
         finally {
             _confirmBusy = false;
         }
     }
 
-    IEnumerator MoveToSection(GameObject toObj, SectionData toSd, float duration = 0.5f) {
+    IEnumerator MoveToSection(GameObject toObj, SectionData toSd, float duration = 0.5f, bool enterStory = true) {
         cameraZoom.ZoomOutSection();
         
         var fromObj = transform.parent ? transform.parent.gameObject : null;
@@ -289,13 +290,18 @@ public class PlayerControl : MonoBehaviour {
 
         yield return new WaitForSeconds(0.3f);
 
-        toSd.SetPlayerOnSection();
-        if(fromSd != null) fromSd.SetPlayerOnSection();
-        toSd.SetOption();
+        if(fromSd != null) fromSd.SetPlayerOn(false);
+        toSd.SetPlayerOn(true);
         DetectSection();
 
-        GameDataManager.Instance.sectionPath = toSd.id;
-        SwitchSceneManager.Instance.MoveScene(SceneList.Story);
+        if(enterStory) {
+            toSd.SetOption();
+            GameDataManager.Instance.sectionPath = toSd.id;
+            SwitchSceneManager.Instance.MoveScene(SceneList.Story);
+        }
+        else {
+            SaveLoadManager.Instance?.SaveNow();
+        }
     }
 
     public void DetectSection() {
@@ -317,8 +323,16 @@ public class PlayerControl : MonoBehaviour {
             bool canMove = detectedSections.Contains(section);
 
             if (!canMove) {
-                foreach (var link in GetComponents<LinkSection>()) {
-                    if (link && link.linkedSection == section.gameObject) { canMove = true; break; }
+                // ❌ 기존: foreach (var link in GetComponents<LinkSection>())
+                // ✅ 수정: 현재 섹션의 링크들로 확인
+                var cur = sectionData; // 현재 플레이어가 서 있는 섹션
+                if (cur != null && cur.linkSections != null) {
+                    foreach (var link in cur.linkSections) {
+                        if (link && link.linkedSection == section.gameObject) { 
+                            canMove = true; 
+                            break; 
+                        }
+                    }
                 }
             }
 

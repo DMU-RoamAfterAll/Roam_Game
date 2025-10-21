@@ -76,9 +76,11 @@
         "가슴도, 어깨도, 고요했다.",
         "그가 마지막 힘을 다해 말을 전하고, 조용히 세상을 떠났다는 것을 당신은 직감했다."
       ],
-      "next" :  "Text4",
-      "flagSet" : ["t3_GiveWater", true],
-      "action": { "lostI" : ["item_1001", 1]}
+      "action": { 
+        "lostI" : ["item_1001", 1],
+        "flagSet" : ["t3_GiveWater", true]
+      },
+      "next" :  "Text4"
     },
 
     "Text_Result2" :  {
@@ -113,7 +115,7 @@
         "하늘은 여전히 흐렸지만, 발걸음은 조금씩 앞으로 향하고 있었다."
       ],
       "action" : { "flagSet" : ["t3_MapCheck", true] },
-      "next" : null
+      "next" : "End"
     }
   }
 }

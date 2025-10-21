@@ -78,12 +78,12 @@
     "action" : {
       "image" : "T2-1"
     }, 
-    "next" : null
+    "next" : "End"
   },
   "PostBattle1_L" : {
     "value" : [
       "당신의 시야가 흐릿해지다, 이내 암전한다..."
     ],
-    "next" : null
+    "next" : "End"
   }
 }
