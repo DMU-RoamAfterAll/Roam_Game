@@ -1,9 +1,9 @@
 {
   "SectionInfo": {
-    "id" : "01",
+    "id" : "",
     "rate": "B",
     "eventType": "임무",
-    "content": "설명"
+    "content": "폐점포"
   },
 
   "Text1" : {
@@ -36,24 +36,24 @@
       {
         "id" : "Select1",
         "label" : "냉장고를 조사한다.",
-        "next" : "Result1"
+        "next" : "Text_Result1"
       },
 
       {
         "id" : "Select2",
-        "label" : "",
-        "next" : "Result2"
+        "label" : "도구를 찾아본다.",
+        "next" : "Text_Result2"
       },
 
       {
         "id" : "Select3",
-        "label" : "",
-        "next" : "Result3"
+        "label" : "냉장고를 무시하고 내부를 더 조사한다.",
+        "next" : "Text_Result3"
       }
     ]
   },
 
-  "Result1" : {
+  "Text_Result1" : {
     "value" : [
       "냉장고 문 틈 사이로 보이는 식수 페트병은 안쪽에서 반 쯤 기울어진 채 놓여 있고,",
       "그 아래에는 작은 벌레 무리가 꾸물거리고 있다.",
@@ -107,20 +107,22 @@
     "next" : null
   },
 
-  "Result2" : {
+  "Text_Result2" : {
     "value" : [
       "당신은 냉장고 주변을 살펴보다, 카운터 아래에서 부러진 막대기 하나를 발견한다.",
       "막대기를 집어들고 냉장고 안으로 뻗어 페트병을 밀어낸다."
     ],
-    "prob" : [
-      ["Succes", 70],
-      ["Fail", 30]
-    ],
-    "Succes" : {
-      "next" : "Text5"
-    },
-    "Fail" : {
-      "next" : "Text6"
+    "action" : {
+      "prob" : [
+        ["Succes", 70],
+        ["Fail", 30]
+      ],
+      "Succes" : {
+        "next" : "Text5"
+      },
+      "Fail" : {
+        "next" : "Text6"
+      }
     }
   },
 
@@ -145,7 +147,7 @@
     "next" : null
   },
 
-  "Result3" : {
+  "Text_Result3" : {
     "value" : [
       "당신은 냉장고를 지나쳐 편의점의 구석으로 향한다.",
       "불을 피운 자리 옆에는 작은 육포 조각이 놓여 있고, 그 위로 재와 그을음이 어지럽게 번져 있다.",

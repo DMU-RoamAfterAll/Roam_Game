@@ -1,9 +1,9 @@
 {
   "SectionInfo": {
-    "id" : "01",
+    "id" : "",
     "rate": "B",
     "eventType": "임무",
-    "content": "설명"
+    "content": "맑은 날씨"
   },
 
   "Text1" : {
@@ -19,51 +19,53 @@
     "value" : [
       "당신은 길에서 찾은 물건을 배낭에 넣는다."
     ],
-    "prob" : [
-      ["Opt1", 10],
-      ["Opt2", 10],
-      ["Opt3", 10],
-      ["Opt4", 10],
-      ["Opt5", 10],
-      ["Opt6", 10],
-      ["Opt7", 10],
-      ["Opt8", 10],
-      ["Opt9", 10],
-      ["Opt10", 10]
-    ],
-    "Opt1" : {
-      "next" : "Result1"
-    },
-    "Opt2" : {
-      "next" : "Result2"
-    },
-    "Opt3" : {
-      "next" : "Result3"
-    },
-    "Opt4" : {
-      "next" : "Result4"
-    },
-    "Opt5" : {
-      "next" : "Result5"
-    },
-    "Opt6" : {
-      "next" : "Result6"
-    },
-    "Opt7" : {
-      "next" : "Result7"
-    },
-    "Opt8" : {
-      "next" : "Result8"
-    },
-    "Opt9" : {
-      "next" : "Result9"
-    },
-    "Opt10" : {
-      "next" : "Result10"
+    "action" : {
+      "prob" : [
+        ["Opt1", 10],
+        ["Opt2", 10],
+        ["Opt3", 10],
+        ["Opt4", 10],
+        ["Opt5", 10],
+        ["Opt6", 10],
+        ["Opt7", 10],
+        ["Opt8", 10],
+        ["Opt9", 10],
+        ["Opt10", 10]
+      ],
+      "Opt1" : {
+        "next" : "Text_Result1"
+      },
+      "Opt2" : {
+        "next" : "Text_Result2"
+      },
+      "Opt3" : {
+        "next" : "Text_Result3"
+      },
+      "Opt4" : {
+        "next" : "Text_Result4"
+      },
+      "Opt5" : {
+        "next" : "Text_Result5"
+      },
+      "Opt6" : {
+        "next" : "Text_Result6"
+      },
+      "Opt7" : {
+        "next" : "Text_Result7"
+      },
+      "Opt8" : {
+        "next" : "Text_Result8"
+      },
+      "Opt9" : {
+        "next" : "Text_Result9"
+      },
+      "Opt10" : {
+        "next" : "Text_Result10"
+      }
     }
   },
 
-  "Result1" : {
+  "Text_Result1" : {
     "action" : {
       "getI" : [
         ["item_1001", 1]
@@ -72,7 +74,7 @@
     "next" : null
   },
 
-  "Result2" : {
+  "Text_Result2" : {
     "action" : {
       "getI" : [
         ["item_1003", 1]
@@ -81,7 +83,7 @@
     "next" : null
   },
 
-  "Result3" : {
+  "Text_Result3" : {
     "action" : {
       "getI" : [
         ["item_1006", 1]
@@ -90,7 +92,7 @@
     "next" : null
   },
 
-  "Result4" : {
+  "Text_Result4" : {
     "action" : {
       "getI" : [
         ["item_1007", 1]
@@ -99,7 +101,7 @@
     "next" : null
   },
 
-  "Result5" : {
+  "Text_Result5" : {
     "action" : {
       "getI" : [
         ["item_1008", 1]
@@ -108,7 +110,7 @@
     "next" : null
   },
 
-  "Result6" : {
+  "Text_Result6" : {
     "action" : {
       "getI" : [
         ["item_1009", 1]
@@ -117,7 +119,7 @@
     "next" : null
   },
 
-  "Result7" : {
+  "Text_Result7" : {
     "action" : {
       "getI" : [
         ["item_1012", 1]
@@ -126,7 +128,7 @@
     "next" : null
   },
 
-  "Result8" : {
+  "Text_Result8" : {
     "action" : {
       "getI" : [
         ["item_1013", 1]
@@ -135,7 +137,7 @@
     "next" : null
   },
 
-  "Result9" : {
+  "Text_Result9" : {
     "action" : {
       "getI" : [
         ["item_1015", 1]
@@ -144,7 +146,7 @@
     "next" : null
   },
 
-  "Result10" : {
+  "Text_Result10" : {
     "action" : {
       "getI" : [
         ["item_1016", 1]

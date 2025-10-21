@@ -1,9 +1,9 @@
 {
   "SectionInfo": {
-    "id" : "01",
+    "id" : "",
     "rate": "W",
     "eventType": "히든 미션",
-    "content": "설명"
+    "content": "천둥"
   },
 
   "Start" : {
@@ -30,7 +30,7 @@
       {
         "id" : "Select1",
         "label" : "이 자리에서 어서 벗어난다.",
-        "next" : "Result1"
+        "next" : "Text_Result1"
       },
 
       {
@@ -41,7 +41,7 @@
     ]
   },
 
-  "Result1" : {
+  "Text_Result1" : {
     "value" : [
       "당신은 이 자리에서 벗어나는 걸 택하였다."
     ],
@@ -121,19 +121,21 @@
       "맨손의 감각만으로 짧은 시간에 배전함을 정리해 나갔다.",
       "거의 다 수리했다 생각한 순간, 스파크가 튀기 시작했다."
     ],
-    "prob" : [
-      ["Succes", 50],
-      ["Fail", 50]
-    ],
-    "Succes" : {
-      "next" : "Result2"
-    },
-    "Fail" : {
-      "next" : "Result3"
+    "action" : {
+      "prob" : [
+        ["Succes", 50],
+        ["Fail", 50]
+      ],
+      "Succes" : {
+        "next" : "Text_Result2"
+      },
+      "Fail" : {
+        "next" : "Text_Result3"
+      }
     }
   },
 
-  "Result2" : {
+  "Text_Result2" : {
     "value" : [
       "당신은 갑작스럽게 튄 스파크를 간신히 피했다.",
       "집중을 놓지 않고 차분하고 신속하게 배전함을 고쳤다",
@@ -148,7 +150,7 @@
     }
   },
 
-  "Result3" : {
+  "Text_Result3" : {
     "value" : [
       "당신은 갑작스럽게 튄 스파크를 피하지 못하였다.",
       "가방끈이 그을리고, 안 쪽 소모품 하나가 불에 그슬린 채 떨어졌다.",
@@ -182,20 +184,22 @@
     "value" : [
       "당신은 무모하지만 한 번 도전해보기로 마음 먹었다.",
       "구성이 낯선 배전함을 뚫어져라 바라보는 사이, 스파크가 튀기 시작했다."
-    ]
-  },
-  "prob" : [
-    ["Succes", 40],
-    ["Fail", 60]
-  ],
-  "Succes" : {
-    "next" : "Result4"
-  },
-  "Fail" : {
-    "next" : "Result5"
+    ],
+    "action" : {
+      "prob" : [
+          ["Succes", 40],
+          ["Fail", 60]
+        ],
+        "Succes" : {
+          "next" : "Text_Result4"
+        },
+        "Fail" : {
+          "next" : "Text_Result5"
+        }
+    }
   },
 
-  "Result4" : {
+  "Text_Result4" : {
     "value" : [
       "당신은 갑작스럽게 튄 스파크를 간신히 피했다.",
       "집중을 놓지 않고 다시 한 번 배전함을 바라보았고 머리를 쥐어짜 수리했다.",
@@ -210,7 +214,7 @@
     "next" : "End"
   },
 
-  "Result5" : {
+  "Text_Result5" : {
     "value" : [
       "당신은 갑작스럽게 튄 스파크를 피하지 못하였다.",
       "가방끈이 그을리고, 안 쪽 소모품 하나가 불에 그슬린 채 떨어졌다.",

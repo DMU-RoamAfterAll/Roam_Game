@@ -1,16 +1,16 @@
 {
   "SectionInfo": {
-    "id" : "101",
+    "id" : "",
     "rate" : "S",
     "eventType" : "스토리",
-    "content": "설명",
+    "content": "폐허의 무법자, 아이리스 마을로 향할 힌트 획득 가능",
 
     "x" : 0,
     "y"  : 0
   },
   
-  "Text1": {
-    "value": [
+  "Text1" : {
+    "value" : [
       "무너진 콘크리트 계단을 따라 당신은 폐방송국 건물에 도착했다.",
       "한때 지역 방송을 송출하던 이 건물은, 지금은 안테나도 꺾이고 외벽엔 총탄 자국이 선명했다.",
       "기지국은 끊긴 지 오래지만, 여전히 누군가는 이 건물을 사용하고 있었다.",
@@ -23,14 +23,14 @@
       "적의가 없다는 걸 보이기 위함이었다.",
       "|| \"아이리스 마을로 향하고 있어. 그곳의 위치를 알아야 해.\""
     ],
-    "action": {
-      "image":"M2-1"
+    "action" : {
+      "image" : "M2-1"
     },
-    "next": "Text2"
+    "next" : "Text2"
   },
 
   "Text2" : {
-    "value": [
+    "value" : [
       "문이 삐걱이며 반쯤 열리고, 머리를 짧게 자른 여성 생존자 하나가 모습을 드러냈다.",
       "그녀는 낡은 헬멧을 쓴 채, 녹슨 쇠파이프를 어깨에 메고 있었다.",
       "그 뒤로도 허름한 옷차림의 생존자들이 몇 명 더 서 있었다. 대부분은 둔기나 막대기를 들고 있었다.",
@@ -46,38 +46,40 @@
       "등 뒤에서 누군가 가볍게 철봉을 바닥에 탁탁 두드렸다.",
       "협상이 깨지면 곧장 상황이 바뀔 거라는, 말 없는 경고였다."
     ],
-    "action": {
-      "image":"M2-2"
+    "action" : {
+      "image" : "M2-2"
     },
-    "next": "Menu1"
+    "next" : "Menu1"
   },
 
-  "Menu1": {
-    "menuOption": [
+  "Menu1" : {
+    "menuOption" : [
       {
-        "id": "Select1",
-        "label": "협상 및 거래를 시도한다",
+        "id" : "Select1",
+        "label" : "협상 및 거래를 시도한다",
         "action" : {
           "checkI" : [
-            ["item_1003", 1], ["item_1001", 1], ["item_1006", 1]
+            ["item_1003", 1], 
+            ["item_1001", 1], 
+            ["item_1006", 1]
           ]
         },
-        "next": "Result1"
+        "next" : "Text_Result1"
       },
       {
-        "id": "Select2",
-        "label": "싸워서 얻어내기 - 힘이 곧 권리인 세계",
-        "next": "Result2"
+        "id" : "Select2",
+        "label" : "싸워서 얻어내기 - 힘이 곧 권리인 세계",
+        "next" : "Text_Result2"
       },
       {
-        "id": "Select3",
-        "label": "몰래 빼돌리기 - 그림자처럼 다가서다",
-        "next": "Result3"
+        "id" : "Select3",
+        "label" : "몰래 빼돌리기 - 그림자처럼 다가서다",
+        "next" : "Text_Result3"
       }
     ]
   },
 
-  "Result1": {
+  "Text_Result1" : {
     "value" : [
       "당신은 조용히 가방을 열었다.",
       "지금까지 모아온 귀중한 자원들.",
@@ -107,7 +109,7 @@
     "next" : null
   },
 
-  "Result2": {
+  "Text_Result2" : {
     "value" : [
       "당신은 생존자 무리와 잠시 눈을 맞추다, 곧장 말했다.",
       "|| \"거래는 없다. 그 정보를 내가 가져가야겠어.\"",
@@ -119,7 +121,7 @@
     "next" : "Battle1"
   },
 
-  "Result3": {
+  "Text_Result3" : {
     "value" : [
       "폐허가 된 방송국의 뒤편은 상대적으로 조용했다.",
       "고철 더미 사이, 삐걱이는 철문 하나가 아주 살짝 열려 있었다.",
@@ -132,13 +134,13 @@
       "|| \"확신할 순 없지만, 그곳에 가면 아이리스 마을에 대한 정보를 얻을 수 있을지도 모른다.\"",
       "기록은 챙기려는 순간, 복도 쪽에서 발소리가 들렸다."
     ],
-    "action": {
-      "image":"M2-3"
+    "action" : {
+      "image" :"M2-3"
     },
-    "next": "Menu2"
+    "next" : "Menu2"
   },
 
-  "Battle1": {
+  "Battle1" : {
     "batteIntro" : [
       "그녀는 쇠파이프를 들어 어깨에 얹었고, 동시에 뒤편 창고 문에서 몇 명이 더 모습을 드러냈다.",
       "당신은 반사적으로 몸을 낮추며 전투에 대비했다."
@@ -159,8 +161,8 @@
       "value" : [
         "당신은 피로 젖은 손으로 무전기 근처를 뒤졌다.",
         "그녀가 말했던 노트는 여전히 테이블 위에 남아 있었다.",
-        "||[획득 : 아이리스 마을 위치 데이터, 폐허의 무법자]",
-        "||[추가 획득 : 쇠파이트 x 1 / 섬광탄 x 1 / 라이터 x 1]",
+        "[획득 : 아이리스 마을 위치 데이터, 폐허의 무법자]",
+        "[추가 획득 : 쇠파이트 x 1 / 섬광탄 x 1 / 라이터 x 1]",
         "하지만 이긴 대가는 작지 않았다",
         "팔에는 긁힌 자국, 배낭은 구멍이 났고",
         "무엇보다 이제 이 지역에선 완전히 '적'으로 인식되었을 것이다.",
@@ -168,13 +170,15 @@
       ],
       "action" : {
         "flagSet" : [
-          ["m2_GetIrisMap", true], ["m2_GetPredator", true]
+          ["m2_GetIrisMap", true],
+          ["m2_GetPredator", true]
         ],
         "getW" : [
           ["wp_2003", 1]
         ],
         "getI" : [
-          ["item_1009", 1], ["item_1010", 1]
+          ["item_1009", 1],
+          ["item_1010", 1]
         ]
       },
       "next" : null
@@ -202,37 +206,39 @@
   },
   
 
-  "Menu2": {
-    "menuOption": [
+  "Menu2" : {
+    "menuOption" : [
       {
-        "id": "Select1",
-        "label": "은밀행동 보유 시 (100% 성공)",
+        "id" : "Select1",
+        "label" : "은밀행동 보유 시 (100% 성공)",
         "action" : {
           "skillCheck" : [
             ["sk_0002", 1]
           ]
         },
-        "next": "Result4"
+        "next" : "Text_Result4"
       },
 
       {
         "id": "Select2",
         "label": "은밀행동 미보유 시 (70% 성공)",
-        "prob" : [
-          ["Succes", 70],
-          ["Fail", 30]
-        ],
-        "Succes" : {
-          "next" : "Result4"
-        },
-        "Fail" : {
-          "next" : "Battle2"
+        "action" : {
+          "prob" : [
+            ["Succes", 70],
+            ["Fail", 30]
+          ],
+          "Succes" : {
+            "next" : "Text_Result4"
+          },
+          "Fail" : {
+            "next" : "Battle2"
+          }
         }
       }
     ]
   },
 
-  "Result4" : {
+  "Text_Result4" : {
     "value" : [
       "당신은 장비 뒤편에 몸은 숨겼다. 문이 열리고 두 명의 생존자가 안으로 들어왔다.",
       "|| \"무전기 또 꺼졌어. 누가 던드린 거 아냐?\"",
@@ -255,27 +261,29 @@
             ["sk_0001", 1]
           ]
         },
-        "next" : "Result5"
+        "next" : "Text_Result5"
       },
 
       {
         "id" : "Select2",
         "label" : "관찰력 미보유 시 (80% 성공)",
-        "prob" : [
-          ["Succes", 80],
-          ["Fail", 20]
-        ],
-        "Succes" : {
-          "next" : "Result5"
-        },
-        "Fail" : {
-          "next" : "Battle2"
+        "action" : {
+          "prob" : [
+            ["Succes", 80],
+            ["Fail", 20]
+          ],
+          "Succes" : {
+            "next" : "Text_Result5"
+          },
+          "Fail" : {
+            "next" : "Battle2"
+          }
         }
       }
     ]
   },
 
-  "Result5" : {
+  "Text_Result5" : {
     "value" : [
       "통신실 근처의 골목에서 당신은 창고 문을 발견하고 몸을 밀어 넣는다.",
       "안쪽은 잡동사니와 오래된 장비들로 가득했고, 벽 한 쪽엔 환풍구가 열려 있었다."
@@ -286,42 +294,46 @@
  "Menu4" : {
     "menuOption": [
       {
-        "id": "Select1",
-        "label": "환풍구로 기어 나가기",
-        "prob" : [
-          ["Succes", 50],
-          ["Fail", 50]
-        ],
-        "Succes" : {
-          "next" : "Escape"
-        },
-        "Fail" : {
-          "next" : "Battle2"
+        "id" : "Select1",
+        "label" : "환풍구로 기어 나가기",
+        "action" : {
+          "prob" : [
+            ["Succes", 50],
+            ["Fail", 50]
+          ],
+          "Succes" : {
+            "next" : "Text_Escape"
+          },
+          "Fail" : {
+            "next" : "Battle2"
+          }
         }
       },
 
       {
         "id": "Select2",
         "label": "창고 창문을 깨고 탈출",
-        "prob" : [
-          ["Succes", 50],
-          ["Fail", 50]
-        ],
-        "Succes" : {
-          "next" : "Escape"
-        },
-        "Fail" : {
-          "next" : "Battle2"
+        "action" : {
+          "prob" : [
+            ["Succes", 50],
+            ["Fail", 50]
+          ],
+          "Succes" : {
+            "next" : "Escape"
+          },
+          "Fail" : {
+            "next" : "Battle2"
+          }
         }
       }
     ]
   },
 
-  "Battle2": {
+  "Battle2" : {
     "batteIntro" : [
       "발소리가 가까워졌다.",
       "거친 숨소리와 함께 무리의 시선이 당신에게 꽂혔다.",
-      "\"칩입자다! 잡아!\"",
+      "|| \"칩입자다! 잡아!\"",
       "당신은 반사적으로 몸을 낮추며 전투에 대비했다."
     ],
     "battleOrder" : [
@@ -344,7 +356,7 @@
         "복잡한 구조 속에서 몸을 숨기고 맞서 싸웠다.",
         "결국 마지막 상대를 쓰러뜨린 뒤에야, 숨을 고를 수 있었다."
       ],
-      "next" : "Escape"
+      "next" : "Text_Escape"
     },
     "PostBattle1_L" : {
       "value" : [
@@ -356,7 +368,7 @@
     }
   },
 
-  "Escape" : {
+  "Text_Escape" : {
     "value" : [
       "[탈출 성공]",
       "등 뒤에서는 고함소리와 욕설이 쏟아졌고, 누군가는 발로 문을 걷어찼다.",
@@ -371,7 +383,7 @@
       "flagSet" : [
         ["m2_GetIrisMap", true]
       ],
-      "image":"M2-1"
+      "image" : "M2-1"
     },
     "next" : null
   }

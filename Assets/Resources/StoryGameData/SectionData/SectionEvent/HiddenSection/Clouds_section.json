@@ -1,9 +1,9 @@
 {
   "SectionInfo": {
-    "id" : "01",
+    "id" : "",
     "rate": "B",
     "eventType": "임무",
-    "content": "설명"
+    "content": "흐린 날씨"
   },
 
   "Text1" : {
@@ -29,18 +29,18 @@
             ["sk_0002", 1]
           ]
         },
-        "next" : "Result1"
+        "next" : "Text_Result1"
       },
 
       {
         "id" : "Select2",
         "label" : "은밀행동 미보유 시",
-        "next" : "Result2"
+        "next" : "Text_Result2"
       }
     ]
   },
 
-  "Result1" : {
+  "Text_Result1" : {
     "value" : [
       "철판이 한 번 크게 떨리며 공기를 쪼갠다. 그 진동에 섞여 당신의 발자국 소리는 분해된다.",
       "그 사이 철판 위의 천조각을 챙겼다."
@@ -53,21 +53,23 @@
     "next" : "End"
   },
 
-  "Result2" : {
+  "Text_Result2" : {
     "value" : [
       "들개 중 한 마리가 고개를 세운다. 바람결이 한 번 바뀐다.",
       "당신은 천천히, 신중하게 움직이기 시작한다.",
       "긴장감이 맴돈다."
     ],
-    "prob" : [
-      ["Succes", 55],
-      ["Fail", 45]
-    ],
-    "Succes" : {
-      "next" : "Text2"
-    },
-    "Fail" : {
-      "next" : "Text3"
+    "action" : {
+      "prob" : [
+        ["Succes", 55],
+        ["Fail", 45]
+      ],
+      "Succes" : {
+        "next" : "Text2"
+      },
+      "Fail" : {
+        "next" : "Text3"
+      }
     }
   },
 

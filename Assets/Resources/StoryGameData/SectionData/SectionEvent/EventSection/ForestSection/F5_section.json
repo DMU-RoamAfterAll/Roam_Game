@@ -1,9 +1,9 @@
 {
   "SectionInfo": {
-    "id" : "01",
+    "id" : "",
     "rate": "B",
     "eventType": "임무",
-    "content": "설명"
+    "content": "상수도 시설"
   },
 
   "Text1" : {
@@ -25,15 +25,17 @@
       "자세히 들여다보니, 오래된 플라스틱 병 하나가 반 쯤 잠긴 채 고철 더미에 걸려 있었다.",
       "표면엔 진흙과 이끼가 엉겨 붙어 있었고, 물은 이상하리만치 고요했다."
     ],
-    "prob" : [
-      ["Succes", 50],
-      ["Fail", 50]
-    ],
-    "Succes" : {
-      "next" : "Text3"
-    },
-    "Fail" : {
-      "next" : "Text4"
+    "action" : {
+      "prob" : [
+        ["Succes", 50],
+        ["Fail", 50]
+      ],
+      "Succes" : {
+        "next" : "Text3"
+      },
+      "Fail" : {
+        "next" : "Text4"
+      }
     }
   },
 
@@ -76,18 +78,18 @@
       {
         "id" : "Select1",
         "label" : "오염된 물을 채운다",
-        "next" : "Result1"
+        "next" : "Text_Result1"
       },
 
       {
         "id" : "Select2",
         "label" : "물탱크를 무시하고 돌아선다",
-        "next" : "Result2"
+        "next" : "Text_Result2"
       }
     ]
   },
 
-  "Result1" : {
+  "Text_Result1" : {
     "value" : [
       "당신은 빈 병을 꺼내 물을 채우려 했다. 몇 모금이라도 정제할 수 있다면 유용할지도 모른다고 생각했다.",
       "그 순간, 탱크 관의 틈새에서 벌레 무리의 움직임이 시작되었다."
@@ -103,17 +105,17 @@
         "action" : {
           "skillCheck" : [
             ["sk_0001", 1]
-          ]
-        },
-        "prob" : [
-          ["Succes", 60],
-          ["Fail", 40]
-        ],
-        "Succes" : {
-          "next" : "Text6"
-        },
-        "Fail" : {
-          "next" : "Text7"
+          ],
+          "prob" : [
+            ["Succes", 60],
+            ["Fail", 40]
+          ],
+          "Succes" : {
+            "next" : "Text6"
+          },
+          "Fail" : {
+            "next" : "Text7"
+          }
         }
       },
 
@@ -146,7 +148,7 @@
     "next" : null
   },
 
-  "Result2" : {
+  "Text_Result2" : {
     "value" : [
       "당신은 코를 막고 물탱크에서 한 걸음 물러섰다.",
       "이미 악취로 가득 찬 이곳에선 더 이상 얻을 게 없다고 판단했다.",

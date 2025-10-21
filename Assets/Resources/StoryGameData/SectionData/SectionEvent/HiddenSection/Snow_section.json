@@ -1,9 +1,9 @@
 {
   "SectionInfo": {
-    "id" : "01",
+    "id" : "",
     "rate": "B",
     "eventType": "임무",
-    "content": "설명"
+    "content": "눈"
   },
 
   "Text1" : {
@@ -26,7 +26,7 @@
             ["item_1008", 1]
           ]
         },
-        "next" : "Result1"
+        "next" : "Text_Result1"
       },
 
       {
@@ -37,18 +37,18 @@
             ["sk_0003", 1]
           ]
         },
-        "next" : "Result2"
+        "next" : "Text_Result2"
       },
 
       {
         "id" : "Select3",
         "label" : "맨손으로 강제로 열어본다.",
-        "next" : "Result3"
+        "next" : "Text_Result3"
       }
     ]
   },
 
-  "Result1" : {
+  "Text_Result1" : {
     "value" : [
       "가지고 있던 공구세트를 사용하여 즉석 지렛대를 만든다.",
       "눈 더미에 비스듬히 끼워 힘을 싣자, 얼음이 갈라지기 시작했다.",
@@ -66,20 +66,22 @@
     "next" : "Text6"
   },
 
-  "Result2" : {
+  "Text_Result2" : {
     "value" : [
       "어깨를 대고 숨을 고른 뒤, 한 번에 힘을 준다.",
       "문짝이 들썩이며 얼음이 조금씩 부서진다."
     ],
-    "prob" : [
-      ["Succes", 75],
-      ["Fail", 25]
-    ],
-    "Succes" : {
-      "next" : "Text2"
-    },
-    "Fail" : {
-      "next" : "Text3"
+    "action" : {
+      "prob" : [
+        ["Succes", 75],
+        ["Fail", 25]
+      ],
+      "Succes" : {
+        "next" : "Text2"
+      },
+      "Fail" : {
+        "next" : "Text3"
+      }
     }
   },
 
@@ -106,20 +108,22 @@
     "next" : "Text6"
   },
 
-  "Result3" : {
+  "Text_Result3" : {
     "value" : [
       "손을 비벼 온기를 만들고, 눈과 얼음을 조금씩 파낸다.",
       "손끝이 저릿하지만 힘을 싣고 더욱 파내본다."
     ],
-    "prob" : [
-      ["Succes", 30],
-      ["Fail", 70]
-    ],
-    "Succes" : {
-      "next" : "Text4"
-    },
-    "Fail" : {
-      "next" : "Text5"
+    "action" : {
+      "prob" : [
+        ["Succes", 30],
+        ["Fail", 70]
+      ],
+      "Succes" : {
+        "next" : "Text4"
+      },
+      "Fail" : {
+        "next" : "Text5"
+      }
     }
   },
 

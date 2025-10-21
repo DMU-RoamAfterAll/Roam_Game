@@ -1,9 +1,9 @@
 {
   "SectionInfo": {
-    "id" : "01",
+    "id" : "",
     "rate": "B",
     "eventType": "임무",
-    "content": "설명"
+    "content": "폐건물"
   },
   
   "Text1" : {
@@ -25,24 +25,24 @@
       {
         "id" : "Select1",
         "label" : "발자국을 따라간다.",
-        "next" : "Result1"
+        "next" : "Text_Result1"
       },
 
       {
         "id" : "Select2",
         "label" : "쓰레기 더미를 조사한다.",
-        "next" : "Result2"
+        "next" : "Text_Result2"
       },
 
       {
         "id" : "Select3",
         "label" : "창문 쪽으로 이동한다.",
-        "next" : "Result3"
+        "next" : "Text_Result3"
       }
     ]
   },
 
-  "Result1" : {
+  "Text_Result1" : {
     "value" : [
       "발자국이 끊긴 지점에서, 바닥에는 미세하게 번진 핏자국이 벽 쪽으로 스며들어 있다."
     ],
@@ -92,7 +92,7 @@
     "next" : ""
   },
 
-  "Result2" : {
+  "Text_Result2" : {
     "value" : [
       "쓰레기 더미 속에는 부서진 깡통, 종이 조각, 그리고 거울 파편 몇 개가 흩어져 있다."
     ]
@@ -172,7 +172,7 @@
     "next" : null
   },
 
-  "Result3" : {
+  "Text_Result3" : {
     "value" : [
       "창문 아래에는 오래된 철제 쓰레기통이 놓여 있고,",
       "그 위에는 붉은 천조각이 바람에 휘날리고 있다."

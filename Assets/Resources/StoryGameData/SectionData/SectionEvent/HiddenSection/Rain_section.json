@@ -1,9 +1,9 @@
 {
   "SectionInfo": {
-    "id" : "01",
+    "id" : "",
     "rate": "W",
     "eventType": "임무",
-    "content": "설명"
+    "content": "비"
   },
 
   "Text1" : {
@@ -27,18 +27,18 @@
             ["item_1015", 1]
           ]
         },
-        "next" : "Result1"
+        "next" : "Text_Result1"
       },
 
       {
         "id" : "Select2",
         "label" : "그냥 떠난다.",
-        "next" : "Result2"
+        "next" : "Text_Result2"
       }
     ]
   },
 
-  "Result1" : {
+  "Text_Result1" : {
     "value" :[
       "손전등을 켜자 진흙빛 물결 사이로 길이 생긴다.",
       "넘어진 캐비닛, 뒤집힌 침대 프레임, 녹슨 트레이 카트가 빛 속에 드러난다.",
@@ -46,15 +46,17 @@
       "캐비닛을 들어 올리자 내부에서 밀봉 포장 하나가 미끄러져 나온다.",
       "물에 젖지 않은 응급품을 찾았다."
     ],
-    "prob" : [
-      ["Succes", 60],
-      ["Fail", 40]
-    ],
-    "Succes" : {
-      "next" : "Text2"
-    },
-    "Fail" : {
-      "next" : "Text3"
+    "action" : {
+      "prob" : [
+        ["Succes", 60],
+        ["Fail", 40]
+      ],
+      "Succes" : {
+        "next" : "Text2"
+      },
+      "Fail" : {
+        "next" : "Text3"
+      }
     }
   },
 
@@ -86,7 +88,7 @@
     "next" : "Text4"
   },
 
-  "Result2" : {
+  "Text_Result2" : {
     "value" : [
       "문턱에서 발길을 돌린다.",
       "비와 어둠은 오늘만의 적이 아니다."

@@ -1,9 +1,9 @@
 {
   "SectionInfo": {
-    "id" : "01",
+    "id" : "",
     "rate": "B",
     "eventType": "임무",
-    "content": "설명"
+    "content": "비"
   },
 
   "Text1" : {
@@ -32,7 +32,7 @@
             ["item_1014", 1]
           ]
         },
-        "next" : "Result1"
+        "next" : "Text_Result1"
       },
 
       {
@@ -43,41 +43,39 @@
             ["item_1013", 1]
           ]
         },
-        "next" : "Result2"
+        "next" : "Text_Result2"
       }
     ]
   },
 
-  "Result1" : {
+  "Text_Result1" : {
     "value" : [
       "병 입구를 낙수 아래에 댄다.",
       "첫 물줄기엔 먼지가 섞여 내려온다."
     ],
-    "prob" : [
-      ["Succes", 60],
-      ["Fail", 40]
-    ],
-    "Succes" : {
-      "next" : "Result3"
-    },
-    "Fail" : {
-      "next" : "Result4"
+    "action" : {
+      "prob" : [
+        ["Succes", 60],
+        ["Fail", 40]
+      ],
+      "Succes" : {
+        "next" : "Text_Result3"
+      },
+      "Fail" : {
+        "next" : "Text_Result4"
+      }
     }
   },
 
-  "Result2" : {
+  "Text_Result2" : {
     "value" : [
       "천조각을 깔아 임시 필터를 만들고 첫 물은 버린다.",
       "물줄기가 맑아진 뒤 병을 채운다."
     ],
-    "prob" : [
-      ["Succes", 100],
-      ["Fail", 0]
-    ],
-    "next" : "Result3"
+    "next" : "Text_Result3"
   },
 
-  "Result3" : {
+  "Text_Result3" : {
     "value" : [
       "물빛이 유리 속에서 투명하게 흔들린다.",
       "[아이템 획득 : 식수 x 1]"
@@ -90,7 +88,7 @@
     "next" : "Text2"
   },
 
-  "Result4" : {
+  "Text_Result4" : {
     "value" : [
       "미세한 입자들이 둥둥 떠다닌다.",
       "정화가 필요해 보인다.",

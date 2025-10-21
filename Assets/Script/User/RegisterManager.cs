@@ -31,9 +31,10 @@ public class RegisterResponse
 }
 #endregion
 
-public class RegisterManager : MonoBehaviour
-{
-    private string baseUrl = "http://125.176.246.14:8081/api/users";
+public class RegisterManager : MonoBehaviour {
+    public static RegisterManager Instance { get; private set; }
+
+    private string baseUrl;
 
     // UI 입력 창 아웃렛 접속
     [Header("Register")] 
@@ -44,8 +45,18 @@ public class RegisterManager : MonoBehaviour
     public TMP_InputField nicknameInputField;
     public TMP_InputField birthInputField;
 
+    [Header("UI Object")]
+    public GameObject registerUI;
+    public GameObject loginUI;
+
+    void Awake() {
+        if(Instance != null && Instance != this) { Destroy(gameObject); return; }
+        Instance = this;
+        DontDestroyOnLoad(this.gameObject);
+    }
+
     void Start() {
-        baseUrl = $"{GameDataManager.Data.baseUrl}/api/users";
+        baseUrl = $"{GameDataManager.Data.baseUrl}:8081/api/users";
     }
 
     // 회원가입 버튼 onclick 함수
@@ -62,7 +73,8 @@ public class RegisterManager : MonoBehaviour
     // 로그인 씬으로 되돌아가는 버튼
     public void GoLoginBtn() 
     {
-        SceneManager.LoadScene("LoginScene");
+        registerUI.SetActive(false);
+        loginUI.SetActive(true);
     }
 
     // 이메일 형식 검사 메소드
@@ -147,7 +159,8 @@ public class RegisterManager : MonoBehaviour
         if (request.result == UnityWebRequest.Result.Success)
         {
             Debug.Log("회원가입 성공");
-            SceneManager.LoadScene("LoginScene"); // 로그인 씬으로 이동
+            registerUI.SetActive(false);
+            loginUI.SetActive(true);
         }
         else // 회원가입 실패시 표시할 텍스트
         {

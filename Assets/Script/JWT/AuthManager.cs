@@ -25,13 +25,13 @@ public class AuthManager : MonoBehaviour
     [Serializable] private class RefreshRequest { public string refreshToken; }
     [Serializable] private class RefreshResponse { public string accessToken; public string refreshToken; }
 
-    void Awake()
+    void Start()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        baseUrl = "http://125.176.246.14:8081";
+        baseUrl = $"{GameDataManager.Data.baseUrl}:8081";
 
         // 앱 재실행 시 저장된 토큰 복구
         var savedAccess = PlayerPrefs.GetString(KEY_ACCESS, string.Empty);

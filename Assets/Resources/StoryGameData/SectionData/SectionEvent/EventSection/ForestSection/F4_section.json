@@ -1,9 +1,9 @@
 {
   "SectionInfo": {
-    "id" : "01",
+    "id" : "",
     "rate": "B",
     "eventType": "임무",
-    "content": "설명"
+    "content": "전파탑 기지국"
   },
   
   "Text1" : {
@@ -46,24 +46,24 @@
       {
         "id" : "Select1",
         "label" : "건전지를 뽑아본다.",
-        "next" : "Result1"
+        "next" : "Text_Result1"
       },
 
       {
         "id" : "Select2",
         "label" : "통신 장비를 자세히 조사한다.",
-        "next" : ""
+        "next" : "Text_Result2"
       },
 
       {
         "id" : "Select3",
         "label" : "기지국의 다른 구역을 살펴본다",
-        "next" : ""
+        "next" : "Text_Result3"
       }
     ]
   },
 
-  "Result1" : {
+  "Text_Result1" : {
     "value" : [
       "당신은 장비 앞에 선 채 조심스럽게 건전지를 잡았다.",
       "그러나 건전지를 완전히 뽑기 전에 기계에서 짧고 날카로운 경고음이 울렸다.",
@@ -81,18 +81,19 @@
         "action" : {
           "skillCheck" : [
             ["sk_0002", 1]
-          ] 
-        },
-        "prob" : [
-          ["Succes", 50],
-          ["Fail", 50]
-        ],
-        "Succes" : {
-          "next" : "Text3"
-        },
-        "Fail" : {
-          "next" : "Text4"
+          ],
+          "prob" : [
+            ["Succes", 50],
+            ["Fail", 50]
+          ],
+          "Succes" : {
+            "next" : "Text3"
+          },
+          "Fail" : {
+            "next" : "Text4"
+          }
         }
+
       },
 
       {
@@ -107,7 +108,8 @@
     "value" : [
       "당신은 즉시 어두운 모서리로 몸을 숨겼다.",
       "드론은 한동안 주변을 탐색하다 아무것도 찾지 못한 채 다시 장비 위로 되돌아갔다.",
-      "당신은 조심스럽게 장비로 다가가, 건전지를 완전히 뽑아냈다."
+      "당신은 조심스럽게 장비로 다가가, 건전지를 완전히 뽑아냈다.",
+      "[아이템 획득 : 건전지 x 1]"
     ],
     "action" : {
       "getI" : [
@@ -126,7 +128,7 @@
     "next" : null
   },
 
-  "Result2" : {
+  "Text_Result2" : {
     "value" : [
       "당신은 장비의 옆면을 천천히 훑는다.",
       "먼지가 쌓인 표면에는 누군가 남긴 메모지가 테이프로 붙어 있었고, 희미한 글씨가 적혀 있었다.",
@@ -144,17 +146,17 @@
         "action" : {
           "skillCheck" : [
             ["sk_0002", 1]
-          ] 
-        },
-        "prob" : [
-          ["Succes", 80],
-          ["Fail", 20]
-        ],
-        "Succes" : {
-          "next" : "Text5"
-        },
-        "Fail" : {
-          "next" : "Text6"
+          ],
+          "prob" : [
+            ["Succes", 80],
+            ["Fail", 20]
+          ],
+          "Succes" : {
+            "next" : "Text5"
+          },
+          "Fail" : {
+            "next" : "Text6"
+          }
         }
       },
 
@@ -180,19 +182,19 @@
         "id" : "Select1",
         "label" : "식칼 소지 시 (30%)",
         "action" : {
-          "getW" : [
+          "checkW" : [
             ["wp_2002", 1]
-          ] 
-        },
-        "prob" : [
-          ["Succes", 30],
-          ["Fail", 70]
-        ],
-        "Succes" : {
-          "next" : "Text7"
-        },
-        "Fail" : {
-          "next" : "Text8"
+          ],
+          "prob" : [
+            ["Succes", 30],
+            ["Fail", 70]
+          ],
+          "Succes" : {
+            "next" : "Text7"
+          },
+          "Fail" : {
+            "next" : "Text8"
+          }
         }
       },
 
@@ -235,7 +237,7 @@
     ]
   }, 
 
-  "Result3" : {
+  "Text_Result3" : {
     "value" : [
       "장비를 뒤로하고 기지국 안쪽을 돌아보던 당신은, 어둠 속에서 열린 문틈 하나를 발견했다.",
       "안쪽은 오래된 저장 공간처럼 보였고, 낡은 캐비닛이 덜컥 열린 채 방치되어 있었다.",
@@ -243,15 +245,17 @@
       "쥐들은 바닥을 휘저으며 흩어졌고, 당신은 놀라 한 발 물러섰다.",
       "그러나 그 안에는, 먼지 속에 묻혀 있던 작은 건전지 하나가 나뒹굴고 있었다."
     ],
-    "prob" : [
-      ["Succes", 50],
-      ["Fail", 50]
-    ],
-    "Succes" : {
-      "next" : "Text9"
-    },
-    "Fail" : {
-      "next" : "Text10"
+    "action" : {
+      "prob" : [
+        ["Succes", 50],
+        ["Fail", 50]
+      ],
+      "Succes" : {
+        "next" : "Text9"
+      },
+      "Fail" : {
+        "next" : "Text10"
+      }
     }
   },
 
@@ -271,8 +275,7 @@
 
   "Text10" : {
     "value" : [
-      "쥐들 중 하나가 건전지를 물고 캐미닛 뒤편으로 숨어들었고, 더 이상 찾을 수 없었다.",
-      "[아이템 획득 실패]"
+      "쥐들 중 하나가 건전지를 물고 캐미닛 뒤편으로 숨어들었고, 더 이상 찾을 수 없었다."
     ],
     "next" : null
   }

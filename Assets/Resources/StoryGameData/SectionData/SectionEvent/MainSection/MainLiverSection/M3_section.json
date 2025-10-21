@@ -1,9 +1,9 @@
 {
   "SectionInfo": {
-    "id" : "103",
+    "id" : "",
     "rate" : "S",
     "eventType" : "스토리",
-    "content": "설명",
+    "content": "알렉스의 감사, 맵의 상부 해금 가능",
 
     "x" : 0,
     "y"  : 0
@@ -24,7 +24,9 @@
       "당신이 다가가자, 갑자기 낯선 목소리가 들려왔다.",
       "|| \"멈춰. 거기서 더 가면 죽는다\""
     ],
-    "action" : { "image": "M3-1" },
+    "action" : { 
+      "image" : "M3-1" 
+    },
     "next" : "Text1-1"
   },
 
@@ -44,31 +46,33 @@
       "거긴 정말, 단지 생존자가 있는 곳일까? 아니면....",
       "그는 두 가지 방법을 제시했다."
     ],
-    "action" : { "image": "M3-2" },
+    "action" : { 
+      "image": "M3-2"
+    },
     "next" : "Menu1"
   },
 
   "Menu1" : {
-    "menuOption": [
+    "menuOption" : [
       {
-        "id": "Select1",
-        "label": "전략 차단을 통해 방어 시스템을 무력화한다",
+        "id" : "Select1",
+        "label" : "전략 차단을 통해 방어 시스템을 무력화한다",
         "action" : {
           "checkI" : [
             ["item_1008", 1]
           ]
         },
-        "next": "Result1"
+        "next": "Text_Result1"
       },
       {
         "id": "Select2",
         "label": "패턴을 분석해 돌파한다",
-        "next": "Result2"
+        "next": "Text_Result2"
       }
     ]
   },
 
-  "Result1" : {
+  "Text_Result1" : {
     "value" : [
       "당신은 가방에서 공구 세트를 꺼내 그에게 부여주었다. 알렉스의 눈이 반짝이며 커졌다.",
       "|| \"그게 있단 말이지.....그거라면....그래, 전력 회선을 직접 끊어버릴 수 있을지도 모르겠군.",
@@ -88,7 +92,7 @@
     "next" : "Menu2"
   },
 
-  "Result2" : {
+  "Text_Result2" : {
     "value" : [
       "그는 터렛과 드론의 동작을 설명하며 말했다.",
       "|| \"터렛은 7초 주기로 회전하고, 드론은 선회할 때마다 4초간 센서가 초기화 된다.",
@@ -99,15 +103,17 @@
       "|| \"좋아. 지금이야\"",
       "그 한마디에 맞춰 당신은 전력으로 몸을 던졌다."
     ],
-    "prob" : [
-      ["Succes", 70],
-      ["Fail", 30]
-    ],
-    "Succes" : {
-      "next" : "Result4"
-    },
-    "Fail" : {
-      "next" : "Battle1"
+    "action" : {
+      "prob" : [
+        ["Succes", 70],
+        ["Fail", 30]
+      ],
+      "Succes" : {
+        "next" : "Text_Result4"
+      },
+      "Fail" : {
+        "next" : "Battle1"
+      }
     }
   },
 
@@ -119,37 +125,39 @@
         "action" : {
           "checkI" : [
             ["item_1007", 1]
-          ]
-        },
-        "prob" : [
+          ],
+          "prob" : [
           ["Succes", 90],
           ["Fail", 10]
-        ],
-        "Succes" : {
-          "next" : "Result3"
-        },
-        "Fail" : {
-          "next" : "Battle1"
+          ],
+          "Succes" : {
+            "next" : "Text_Result3"
+          },
+          "Fail" : {
+            "next" : "Battle1"
+          }
         }
       },
       {
         "id": "Select2",
         "label": "목장갑 미보유 시",
-        "prob" : [
-          ["Succes", 60],
-          ["Fail", 40]
-        ],
-        "Succes" : {
-          "next" : "Result3"
-        },
-        "Fail" : {
-          "next" : "Battle1"
+        "action" : {
+          "prob" : [
+            ["Succes", 60],
+            ["Fail", 40]
+          ],
+          "Succes" : {
+            "next" : "Text_Result3"
+          },
+          "Fail" : {
+            "next" : "Battle1"
+          }
         }
       }
     ]
   },
 
-  "Result3" : {
+  "Text_Result3" : {
     "value" : [
       "회로를 조작하자, 제어판이 깜빡이며 잠시 멈췄다. 그리고 드론의 윙윙거리는 소리도 잠잠해졌다.",
       "당신은 다리 중간부까지 터렛의 회전을 피하고, 드론의 시야에서 빠져나가며 몸을 밀어냈다.",
@@ -168,7 +176,7 @@
     "next" : "Text2"
   },
 
-  "Result4" : {
+  "Text_Result4" : {
     "value" : [
       "당신은 바람처럼 움직였다. 철제 기둥의 그림자를 따라 움직이며, 터렛의 회전이 멈추는 순간을 정확히 꿰뚫고 지나갔다.",
       "드론의 시야가 초기화되는 찰나, 당신은 엎드린 채 다음 구간으로 구르듯 나아갔다.",

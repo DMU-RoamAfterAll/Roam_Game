@@ -1,9 +1,9 @@
 {
   "SectionInfo": {
-    "id" : "01",
+    "id" : "",
     "rate": "B",
     "eventType": "임무",
-    "content": "설명"
+    "content": "폐가"
   },
   
   "Text1": {
@@ -43,24 +43,24 @@
       {
         "id" : "Select1",
         "label" : "장치를 조사해본다.",
-        "next" : "Result1"
+        "next" : "Text_Result1"
       },
 
       {
         "id" : "Select2",
         "label" : "삽을 뽑아내려 한다.",
-        "next" : "Result2"
+        "next" : "Text_Result2"
       },
 
       {
         "id" : "Select3",
         "label" : "장치를 무시하고 주변을 둘러본다.",
-        "next" : "Result3"
+        "next" : "Text_Result3"
       }
     ]
   },
 
-  "Result1" : {
+  "Text_Result1" : {
     "value" : [
       "당신은 경계심을 늦추지 않은 채 장치 쪽으로 다가간다.",
       "기기의 뒤편에는 건전지 삽입구가 반쯤 열린 채 방전된 배터리를 물고 있었고,",
@@ -94,11 +94,16 @@
     "value" : [
       "당신은 가방에서 여분의 건전지를 꺼내, 장치의 뚜껑을 열고 교체를 시도한다.",
       "순간 경고음이 멎고 붉은 빛이 꺼지며, 장치 전체가 조용해진다.",
-      "이제 삽을 안전하게 뽑아낼 수 있게 되었다."
+      "이제 삽을 안전하게 뽑아낼 수 있게 되었다.",
+      "[무기 획득 : 삽 x 1]",
+      "[아이템 획득 : 건전지 x 1]"
     ],
     "action" : {
+      "getW" : [
+        ["wp_2001", 1]
+      ],
       "getI" : [
-        ["wp_2001", 1], ["item_1006", 1]
+        ["item_1006", 1]
       ]
     },
     "next" : null
@@ -113,7 +118,7 @@
     "next" : null
   },
 
-  "Result2" : {
+  "Text_Result2" : {
     "value" : [
       "당신은 흙더미 속으로 깊이 박힌 삽의 손잡이를 잡는다.",
       "손잡이는 단단히 고정되어 있고, 장치가 경고음을 높이며 반응하기 시작한다.",
@@ -132,17 +137,17 @@
         "action" : {
           "skillCheck" : [
             ["sk_0003", 1]
-          ]
-        },
-        "prob" : [
-          ["Succes", 50],
-          ["Fail", 50]
-        ],
-        "Succes" : {
-          "next" : "Text4"
-        },
-        "Fail" : {
-          "next" : "Text5"
+          ],
+          "prob" : [
+            ["Succes", 50],
+            ["Fail", 50]
+          ],
+          "Succes" : {
+            "next" : "Text4"
+          },
+          "Fail" : {
+            "next" : "Text5"
+          }
         }
       },
 
@@ -157,8 +162,13 @@
   "Text4" : {
     "value" : [
       "당신은 기계 팔과 힘겨루기를 벌이다가 끝내 삽을 잡아챈다.",
-      "[아이템 획득 : 삽 x 1]"
+      "[무기 획득 : 삽 x 1]"
     ],
+    "action" : {
+      "getW" : [
+        ["wp_2001", 1]
+      ]
+    },
     "next" : null
   },
 
@@ -171,7 +181,7 @@
     "next" : null
   },
   
-  "Result3" : {
+  "Text_Result3" : {
     "value" : [
       "당신은 삽과 장치를 외면하고 거실 안 쪽을 둘러본다.",
       "구석에는 무너진 책장과 헝클어진 커튼이 놓여 있고,",
@@ -190,17 +200,17 @@
         "action" : {
           "skillCheck" : [
             ["sk_0002", 1]
-          ]
-        },
-        "prob" : [
-          ["Succes", 60],
-          ["Fail", 40]
-        ],
-        "Succes" : {
-          "next" : "Text6"
-        },
-        "Fail" : {
-          "next" : "Text7"
+          ],
+          "prob" : [
+            ["Succes", 60],
+            ["Fail", 40]
+          ],
+          "Succes" : {
+            "next" : "Text6"
+          },
+          "Fail" : {
+            "next" : "Text7"
+          }
         }
       },
 

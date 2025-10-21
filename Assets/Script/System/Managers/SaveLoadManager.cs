@@ -273,6 +273,35 @@ public class SaveLoadManager : MonoBehaviour {
         save.playerPos = player.transform.position;
     }
 
+    // SaveLoadManager.cs 내부 아무 public 메서드들 아래에 추가
+    public void OverwriteLocal(SaveData data, bool normalize = true)
+    {
+        if (data == null) return;
+
+        if (normalize)
+        {
+            data.currentSectionId = NormalizeId(data.currentSectionId);
+            data.preSectionId     = NormalizeId(data.preSectionId);
+            if (data.visitedSectionIds != null)
+            {
+                for (int i = 0; i < data.visitedSectionIds.Count; i++)
+                    data.visitedSectionIds[i] = NormalizeId(data.visitedSectionIds[i]);
+            }
+        }
+
+        save = data;
+        try
+        {
+            var json = JsonUtility.ToJson(save, prettyPrint);
+            System.IO.File.WriteAllText(path, json);
+            Debug.Log("[SaveLoad] OverwriteLocal OK");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"[SaveLoad] OverwriteLocal failed: {e.Message}");
+        }
+    }
+
     #if UNITY_EDITOR
     [ContextMenu("Print Saved JSON (from file)")]
     private void PrintSavedJsonFromFile() {

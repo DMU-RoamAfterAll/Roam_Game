@@ -1,9 +1,9 @@
 {
   "SectionInfo": {
-    "id" : "01",
+    "id" : "",
     "rate": "B",
     "eventType": "임무",
-    "content": "설명"
+    "content": "무너진 창고"
   },
   
   "Text1" : {
@@ -46,18 +46,18 @@
             ["sk_0001", 1]
           ]
         },
-        "next" : "Result1"
+        "next" : "Text_Result1"
       },
 
       {
         "id" : "Select2",
         "label" : "관찰력 기술 미보유 시",
-        "next" : "Result2"
+        "next" : "Text_Result2"
       }
     ]
   },
 
-  "Result1" : {
+  "Text_Result1" : {
     "value" : [
       "당신은 바닥에 생긴 틈새를 빠르게 눈치채고, 배터리를 놓치기 전에 손을 밀어 넣어 낚아챈다.",
       "가까스러 배터리를 손에 넣는다.",
@@ -71,7 +71,7 @@
     "next" : "Text2"
   },
 
-  "Result2" : {
+  "Text_Result2" : {
     "value" : [
       "당신은 반사적으로 손을 뻗지만, 건전지는 이미 금속 판 아래로 굴러들어가 버린다.",
       "바닥 틈은 좁고 깊으며, 손이 닿지 않는다",
