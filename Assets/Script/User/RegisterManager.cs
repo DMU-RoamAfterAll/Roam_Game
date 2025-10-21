@@ -32,8 +32,6 @@ public class RegisterResponse
 #endregion
 
 public class RegisterManager : MonoBehaviour {
-    public static RegisterManager Instance { get; private set; }
-
     private string baseUrl;
 
     // UI 입력 창 아웃렛 접속
@@ -48,12 +46,6 @@ public class RegisterManager : MonoBehaviour {
     [Header("UI Object")]
     public GameObject registerUI;
     public GameObject loginUI;
-
-    void Awake() {
-        if(Instance != null && Instance != this) { Destroy(gameObject); return; }
-        Instance = this;
-        DontDestroyOnLoad(this.gameObject);
-    }
 
     void Start() {
         baseUrl = $"{GameDataManager.Data.baseUrl}:8081/api/users";

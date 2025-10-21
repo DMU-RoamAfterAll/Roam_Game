@@ -45,13 +45,17 @@ public class LoginManager : MonoBehaviour
     void Start() {
         baseUrl = $"{GameDataManager.Data.baseUrl}:8081/api/users";
 
-        enterUI.SetActive(false);
-        loginUI.SetActive(false);
-        registerUI.SetActive(true);
+        setUI();
 
         if (continueButton) continueButton.interactable = false; // 기본 비활성
         if (newGameButton)  newGameButton.interactable  = false; // 기본 비활성
         _hasRemoteSave = false;
+    }
+
+    public void setUI() {
+        enterUI.SetActive(false);
+        loginUI.SetActive(false);
+        registerUI.SetActive(true);
     }
 
     public void LoginBtn() {
