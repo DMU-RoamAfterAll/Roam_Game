@@ -3,6 +3,8 @@ using Newtonsoft.Json.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using UnityEngine.UI;
+using System.Linq;
 
 //-------------------------------------------------------------------------------
 // ** Section Event Json 데이터 클래스 구조 **
@@ -107,7 +109,7 @@ public class SectionEventManager : MonoBehaviour
 {
     public string jsonFileName = ""; //불러올 Json파일 이름, 외부에서 받아옴
     private string jsonFolderPath =
-    "StoryGameData/SectionData/SectionEvent/"; //Json폴더가 담긴 파일의 경로
+    "StoryGameData/SectionData/SectionEvent"; //Json폴더가 담긴 파일의 경로
     private Dictionary<string, object> sectionData = new Dictionary<string, object>(); //파싱된 Json데이터
     private BattleEventManager battleEventManager;
     private EventDisplayManager eventDisplayManager;
@@ -151,7 +153,7 @@ public class SectionEventManager : MonoBehaviour
         TextAsset jsonFile = Resources.Load<TextAsset>(filePath); //Json 파일 로드
         if (jsonFile == null)
         {
-            Debug.LogError($"[{GetType().Name}] 파일을 찾을 수 없음: {jsonFileName}.json");
+            Debug.LogError($"[{GetType().Name}] 파일을 찾을 수 없음: {filePath}.json");
             return;
         }
         //Json파일에서 텍스트 데이터를 가져와 Json객체 구조로 변경
@@ -265,12 +267,14 @@ public class SectionEventManager : MonoBehaviour
     /// 액션 노드 처리 메소드
     /// </summary>
     /// <param name="actions">대상 액션 노드</param>
-    public void HandleNodeActions(ActionNode actions)
+    public Dictionary<string, object> HandleNodeActions(ActionNode actions)
     {
         if (actions == null)
         {
-            return;
+            return null;
         }
+
+        Dictionary<string, object> result = new Dictionary<string, object>();
 
         //삽화 변경
         if (actions.image != null && actions.image != "" && actions.image is string imageName)
@@ -281,6 +285,7 @@ public class SectionEventManager : MonoBehaviour
         //아이템 체크
         if (actions.checkI != null && actions.checkI.Count > 0 && actions.checkI is List<ItemData> checkIData)
         {
+            bool checkIResult = true;
             foreach (ItemData actionItem in checkIData)
             {
                 if (actionItem != null && actionItem.itemCode != "" && actionItem.amount >= 0 &&
@@ -303,6 +308,7 @@ public class SectionEventManager : MonoBehaviour
                                     else
                                     {
                                         Debug.Log($"{itemData.name}의 수량이 필요 수량을 만족하지 않습니다. (추가 필요 수량 : {amount - it.amount})");
+                                        checkIResult = false; //하나라도 수량을 만족하지 못했을 시 false
                                         break;
                                     }
                                 }
@@ -313,6 +319,7 @@ public class SectionEventManager : MonoBehaviour
                     );
                 }
             }
+            result["checkI"] = checkIResult;
         }
 
         //아이템 획득
@@ -352,6 +359,7 @@ public class SectionEventManager : MonoBehaviour
         //무기 체크
         if (actions.checkW != null && actions.checkW.Count > 0 && actions.checkW is List<WeaponData> checkWData)
         {
+            bool checkWResult = true;
             foreach (WeaponData actionWeapon in checkWData)
             {
                 if (actionWeapon != null && actionWeapon.weaponCode != "" && actionWeapon.amount >= 0 &&
@@ -374,6 +382,7 @@ public class SectionEventManager : MonoBehaviour
                                     else
                                     {
                                         Debug.Log($"{weaponData.name}의 수량이 필요 수량을 만족하지 않습니다. (추가 필요 수량 : {amount - it.amount})");
+                                        checkWResult = false; //하나라도 수량을 만족하지 못했을 시 false
                                         break;
                                     }
                                 }
@@ -384,6 +393,7 @@ public class SectionEventManager : MonoBehaviour
                     );
                 }
             }
+            result["checkW"] = checkWResult;
         }
 
         //무기 획득
@@ -440,6 +450,7 @@ public class SectionEventManager : MonoBehaviour
         //플래그 체크
         if (actions.flagCheck != null && actions.flagCheck.Count > 0 && actions.flagCheck is List<FlagData> fCheckData)
         {
+            bool flagCheckResult = true;
             foreach (FlagData actionFlag in fCheckData)
             {
                 if (actionFlag != null && actionFlag.flagCode != "" &&
@@ -462,6 +473,7 @@ public class SectionEventManager : MonoBehaviour
                                     else
                                     {
                                         Debug.Log($"{FlagData.name}는 {flagState}를 만족하지 않습니다."); //테스트 출력
+                                        flagCheckResult = false; //하나라도 상태를 만족하지 못했을 시 false
                                         break;
                                     }
                                 }
@@ -472,10 +484,11 @@ public class SectionEventManager : MonoBehaviour
                     );
                 }
             }
+            result["flagCheck"] = flagCheckResult;
         }
 
         //확률 이동
-        if(actions.prob != null && actions.prob.Count > 0 && actions.prob is List<ProbData> probData)
+        if (actions.prob != null && actions.prob.Count > 0 && actions.prob is List<ProbData> probData)
         {
             List<(string, float)> randomNext = new List<(string, float)>();
 
@@ -487,16 +500,15 @@ public class SectionEventManager : MonoBehaviour
                     randomNext.Add((next, (float)probability));
                 }
             }
-
-            var resultNext = SecureRng.Weighted(randomNext);
-            //이후 이어서 작업
+            result["prob"] = SecureRng.Weighted(randomNext);
         }
+
+        return result;
     }
 
     //-------------------------------------------------------------------------------
     // ** 게임 내 오브젝트 출력 부분 **
     //-------------------------------------------------------------------------------
-
     /// <summary>
     /// 노드의 출력을 위한 메소드, 노드의 키값에 따라 알맞은 출력 메소드를 실행
     /// </summary>
@@ -509,26 +521,42 @@ public class SectionEventManager : MonoBehaviour
             //---------------본문 출력---------------
             if (node is TextNode textNode)
             {
-                HandleNodeActions(textNode.action); //액션 실행
-                if (!string.IsNullOrEmpty(textNode.next))
+                string nextNode = textNode.next;
+
+                var actionResult = HandleNodeActions(textNode.action); //액션 실행
+                if (actionResult.TryGetValue("prob", out var objNext) &&
+                    objNext is string next &&
+                    !string.IsNullOrEmpty(next)) //prob값이 존재한다면 적용
                 {
-                    yield return StartCoroutine(
-                        eventDisplayManager.DisplayScript(
-                            textNode.value,
-                            eventDisplayManager.nextText,
-                            null)
-                    );
-                    StartCoroutine(StartDialogue(textNode.next)); //출력이 끝나면 다음 노드로
+                    nextNode = next;
+                }
+
+                if (!string.IsNullOrEmpty(nextNode))
+                {
+                    if (nextNode.Equals("End"))
+                    {
+                        yield return StartCoroutine(
+                            eventDisplayManager.DisplayScript(
+                                textNode.value,
+                                "조사 종료",
+                                null)
+                        );
+                        SwitchSceneManager.GoToMapScene(); //다음 노드가 없다면 조사를 종료하고 씬 이동
+                    }
+                    else
+                    {
+                        yield return StartCoroutine(
+                            eventDisplayManager.DisplayScript(
+                                textNode.value,
+                                eventDisplayManager.nextText,
+                                null)
+                        );
+                        StartCoroutine(StartDialogue(nextNode)); //출력이 끝나면 다음 노드로
+                    }
                 }
                 else
                 {
-                    yield return StartCoroutine(
-                        eventDisplayManager.DisplayScript(
-                            textNode.value,
-                            "조사 종료",
-                            null)
-                    );
-                    SwitchSceneManager.GoToMapScene(); //다음 노드가 없다면 조사를 종료하고 씬 이동
+                    Debug.Log($"[{GetType().Name}] TextNode의 next 값이 없습니다. 종료 또는 대기 처리 필요.");
                 }
             }
             //---------------선택지 출력---------------
@@ -537,18 +565,24 @@ public class SectionEventManager : MonoBehaviour
                 eventDisplayManager.DisplayMenuNode(menuNode, (MenuOption option) =>
                 {
                     //선택지 선택 후 진행
-
                     Debug.Log($"선택됨: {option.id}");
+                    string nextNode = option.next;
 
                     if (option.action != null)
                     {
                         Debug.Log($"[Action 실행]");
-                        HandleNodeActions(option.action); //액션 실행
+                        var actionResult = HandleNodeActions(option.action); //액션 실행
+                        if (actionResult.TryGetValue("prob", out var objNext) &&
+                            objNext is string next &&
+                            !string.IsNullOrEmpty(next)) //prob값이 존재한다면 적용
+                        {
+                            nextNode = next;
+                        }
                     }
 
-                    if (!string.IsNullOrEmpty(option.next))
+                    if (!string.IsNullOrEmpty(nextNode))
                     {
-                        StartCoroutine(StartDialogue(option.next)); //선택 완료시 결과 노드로 이동
+                        StartCoroutine(StartDialogue(nextNode)); //선택 완료시 결과 노드로 이동
                     }
                     else
                     {
