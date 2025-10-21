@@ -168,6 +168,7 @@ public class AreaLocateControl : MonoBehaviour {
         }
 
         SaveLoadManager.Instance.SaveNow();
+        SaveLoadManager.Instance.SaveNowAndUpload(GameDataManager.Data.playerName);
 
         MapSceneDataManager.mapData.isMapSetUp = true;
         pc.isCanMove = true;

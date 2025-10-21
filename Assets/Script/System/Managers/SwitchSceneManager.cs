@@ -218,6 +218,8 @@ public class SwitchSceneManager : MonoBehaviour {
         }
 
         SaveLoadManager.Instance?.SaveNow();
+        var username = GameDataManager.Data.playerName;
+        SaveLoadManager.Instance?.SaveNowAndUpload(username);
 
         WeatherManager.Instance.HiddenEvent();
     }

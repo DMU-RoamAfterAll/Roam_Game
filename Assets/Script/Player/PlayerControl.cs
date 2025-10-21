@@ -301,6 +301,7 @@ public class PlayerControl : MonoBehaviour {
         }
         else {
             SaveLoadManager.Instance?.SaveNow();
+            SaveLoadManager.Instance?.SaveNowAndUpload(GameDataManager.Data.playerName);
         }
     }
 
