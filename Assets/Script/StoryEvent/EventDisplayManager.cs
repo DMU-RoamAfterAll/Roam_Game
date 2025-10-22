@@ -163,6 +163,7 @@ public class EventDisplayManager : MonoBehaviour
     {
         Button tempBtn = ActivateButton(); //버튼 활성화
         SetupButton(tempBtn, text); //버튼 세팅
+        tempBtn.interactable = true;
 
         tempBtn.onClick.RemoveAllListeners();
         tempBtn.onClick.AddListener(() =>
@@ -188,6 +189,7 @@ public class EventDisplayManager : MonoBehaviour
         SetupButton(tempBtn, text); //버튼 세팅
         if (isInteract) //버튼 활성화 체크
         {
+            tempBtn.interactable = true;
             tempBtn.onClick.RemoveAllListeners();
             tempBtn.onClick.AddListener(() =>
             {

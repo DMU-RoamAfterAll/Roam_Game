@@ -25,7 +25,7 @@
         "id" : "Select1",
         "label" : "은밀행동 보유 시",
         "action" : {
-          "skillCheck" : [
+          "checkS" : [
             ["sk_0002", 1]
           ]
         },
@@ -75,7 +75,7 @@
       "[스킬 획득 : 은밀행동 x 1]"
     ],
     "action" : {
-      "skillSet" : [
+      "getS" : [
         ["sk_0002", 1]
       ]
     },

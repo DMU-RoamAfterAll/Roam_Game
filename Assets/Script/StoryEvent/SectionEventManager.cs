@@ -30,6 +30,8 @@ public class ActionNode
     public List<WeaponData> checkW; //무기 수량 확인을 위한 노드, <"무기 코드", 갯수> 형식으로 작성
     public List<WeaponData> getW; //무기 획득 기능을 위한 노드, <"무기 코드", 갯수> 형식으로 작성
     public List<WeaponData> lostW; //무기 유실 기능을 위한 노드, <"무기 코드", 갯수> 형식으로 작성
+    public List<SkillData> checkS; //스킬 보유 레벨 확인을 위한 노드, <"스킬 코드", 레벨> 형식으로 작성
+    public List<SkillData> getS; //스킬 획득 기능을 위한 노드, <"스킬 코드", 레벨> 형식으로 작성
     public List<FlagData> flagSet; //플래그 설정을 위한 플래그 명을 작성을 위한 노드, <"플래그명", boolean>형식으로 작성
     public List<FlagData> flagCheck; //본문을 내보내기 위해 플래그를 확인을 위한 노드, <"플래그명", boolean>형식으로 작성
     public List<ProbData> prob; //확률에 따라 다른 노드로 이동하기 위한 노드, <"노드 키값", 확률>형식으로 작성
@@ -49,6 +51,14 @@ public class WeaponData
 {
     public string weaponCode; //무기 코드명
     public int amount; //무기 갯수
+}
+
+[System.Serializable]
+//무기 제어를 위한 데이터 모델
+public class SkillData
+{
+    public string skillCode; //스킬 코드명
+    public int level; //스킬 레벨
 }
 
 [System.Serializable]
@@ -439,6 +449,63 @@ public class SectionEventManager : MonoBehaviour
             }
         }
 
+        //스킬 체크
+        if (actions.checkS != null && actions.checkS.Count > 0 && actions.checkS is List<SkillData> checkSData)
+        {
+            bool checkSResult = true;
+            foreach (SkillData actionSkill in checkSData)
+            {
+                if (actionSkill != null && actionSkill.skillCode != "" && actionSkill.level >= 0 &&
+                actionSkill.skillCode is string skillCode && actionSkill.level is int level)
+                {
+                    SkillDataNode skillData = dataService.skill.GetSkillByCode(skillCode);
+
+                    StartCoroutine(userDataManager.SkillCheck( //api 메소드
+                        onResult: list =>
+                        {
+                            foreach (var it in list)
+                            {
+                                if (skillCode == it.skillCode)
+                                {
+                                    if (level <= it.level)
+                                    {
+                                        Debug.Log($"{skillData.name}의 레벨이 필요 레벨을 만족합니다.");
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        Debug.Log($"{skillData.name}의 레벨이 필요 레벨을 만족하지 않습니다. (추가 필요 레벨 : {level - it.level})");
+                                        checkSResult = false; //하나라도 레벨을 만족하지 못했을 시 false
+                                        break;
+                                    }
+                                }
+                            }
+                        },
+                        onError: (code, msg) => Debug.LogError($"[{GetType().Name}] 스킬 불러오기 실패: {code}/{msg}")
+                        )
+                    );
+                }
+            }
+            result["checkS"] = checkSResult;
+        }
+
+        //스킬 획득
+        if (actions.getS != null && actions.getS.Count > 0 && actions.getS is List<SkillData> getSData)
+        {
+            foreach (SkillData actionSkill in getSData)
+            {
+                if (actionSkill != null && actionSkill.skillCode != "" && actionSkill.level != 0 &&
+                actionSkill.skillCode is string skillCode && actionSkill.level is int level)
+                {
+                    SkillDataNode skillData = dataService.skill.GetSkillByCode(skillCode);
+
+                    //테스트 출력
+                    Debug.Log($"\'{skillData.code}\'스킬의 레벨이 {level}만큼 올랐습니다.");
+                    StartCoroutine(userDataManager.GetSkill(skillData.code, level)); //api 메소드
+                }
+            }
+        }
+
         //플래그 설정
         if (actions.flagSet != null && actions.flagSet.Count > 0 && actions.flagSet is List<FlagData> fSetData)
         {
@@ -558,7 +625,7 @@ public class SectionEventManager : MonoBehaviour
 
                 if (!string.IsNullOrEmpty(nextNode))
                 {
-                    if (nextNode.Equals("End"))
+                    if (nextNode.Equals("EndS") && nextNode.Equals("EndF"))
                     {
                         yield return StartCoroutine(
                             eventDisplayManager.DisplayScript(

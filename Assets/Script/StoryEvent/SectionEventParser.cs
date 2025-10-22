@@ -21,6 +21,7 @@ public class SectionEventParser : MonoBehaviour
             "image",
             "checkI", "getI", "lostI",
             "checkW", "getW", "lostW",
+            "checkS", "getS",
             "flagSet", "flagCheck",
             "prob"
         };
@@ -56,6 +57,12 @@ public class SectionEventParser : MonoBehaviour
 
         if (actionObj.TryGetValue("lostW", out var lostWToken))
             action.lostW = ParseWeaponData(lostWToken);
+        
+        if (actionObj.TryGetValue("checkS", out var checkSToken))
+            action.checkS = ParseSkillData(checkSToken);
+
+        if (actionObj.TryGetValue("getS", out var getSToken))
+            action.getS = ParseSkillData(getSToken);
 
         if (actionObj.TryGetValue("flagSet", out var flagSetToken))
             action.flagSet = ParseStoryFlag(flagSetToken);
@@ -272,6 +279,19 @@ public class SectionEventParser : MonoBehaviour
         {
             weaponCode = code,
             amount = amount
+        }, defaultInt: 1);
+    }
+
+    /// <summary>
+    /// 스킬 처리 부분의 parser (ParseActionNode함수에 사용)
+    /// </summary>
+    /// <param name="token">스킬 처리 action 정보</param>
+    private List<SkillData> ParseSkillData(JToken token)
+    {
+        return ParsePairsInt(token, (code, amount) => new SkillData
+        {
+            skillCode = code,
+            level = amount
         }, defaultInt: 1);
     }
 

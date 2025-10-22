@@ -11,6 +11,7 @@ public class DataService : MonoBehaviour
     [SerializeField] private ItemDataManager itemDataManager;
     [SerializeField] private PlayerDataManager playerDataManager;
     [SerializeField] private StoryFlagManager storyFlagManager;
+    [SerializeField] private SkillDataManager skillDataManager;
     [SerializeField] private WeaponDataManager weaponDataManager;
 
     public EnemyDataManager Enemy => enemyDataManager;
@@ -18,5 +19,6 @@ public class DataService : MonoBehaviour
     public ItemDataManager Item => itemDataManager;
     public PlayerDataManager player => playerDataManager;
     public StoryFlagManager StoryFlag => storyFlagManager;
+    public SkillDataManager skill => skillDataManager;
     public WeaponDataManager Weapon => weaponDataManager;
 }
