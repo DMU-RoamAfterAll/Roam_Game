@@ -6,7 +6,7 @@ using System.Linq;
 // ** Weapon Json 데이터 클래스 구조 **
 //-------------------------------------------------------------------------------
 [System.Serializable]
-//아이템 데이터 노드
+//무기 데이터 노드
 public class WeaponDataNode
 {
     public string code; //무기 코드
