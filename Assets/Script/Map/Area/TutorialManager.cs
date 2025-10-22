@@ -6,19 +6,15 @@ public class TutorialManager : MonoBehaviour {
     public GameObject nextGo;
     public GameObject prevGo;
     public SectionData sd;
-    public CircleCollider2D col2D;
 
     public Transform p;
     void Start() {
         sd = GetComponent<SectionData>();
-        col2D = GetComponent<CircleCollider2D>();
 
         p = transform.parent;
         int idx = transform.GetSiblingIndex();
         nextGo = (idx < p.childCount - 1) ? p.GetChild(idx + 1).gameObject : null;
         prevGo = (idx > 0) ? p.GetChild(idx - 1).gameObject : null;
-
-        if (prevGo != null) col2D.enabled = false;
     }
 
     public void CompleteSection() {
@@ -53,17 +49,5 @@ public class TutorialManager : MonoBehaviour {
             // 6) 주변 감지/색상 갱신 (이제 근처 섹션들이 이동 가능으로 뜸)
             pc.DetectSection();
         }
-        else {
-            // 다음 튜토리얼 섹션 열기
-            nextGo.GetComponent<CircleCollider2D>().enabled = true;
-        }
-    }
-
-    /// <summary>CircleCollider2D의 "월드 반경" 계산 (스케일 포함)</summary>
-    private static float GetWorldRadius(CircleCollider2D col) {
-        if (!col) return 0f;
-        var scale = col.transform.lossyScale;
-        float maxAxis = Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.y));
-        return col.radius * maxAxis;
     }
 }

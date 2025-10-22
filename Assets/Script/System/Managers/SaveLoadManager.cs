@@ -187,6 +187,8 @@ public class SaveLoadManager : MonoBehaviour {
     }
 
     public void NewGameClear(bool resetSceneFlags = true) {
+        GameDataManager.Instance?.NewSeed();
+
         DeleteSave();              // 파일 삭제
         save = new SaveData();     // 메모리 초기화
 
@@ -243,6 +245,8 @@ public class SaveLoadManager : MonoBehaviour {
 
     public void LoadData() {
         if(TryLoad(out var data)) {
+            GameDataManager.Instance?.ContinueSeed(data.originSeed);
+            
             Debug.Log($"[SaveLoad] user = {data.playerName}, seed = {data.originSeed}");
             Debug.Log($"[SaveLoad] pos = {data.playerPos}");
 

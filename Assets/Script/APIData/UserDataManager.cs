@@ -260,16 +260,20 @@ public class UserDataManager : MonoBehaviour
     /// <param name="flagCode">플래그 코드</param>
     /// <param name="flagState">플래그 상태(true or false)</param>
     /// <returns></returns>
-    public IEnumerator FlagSet(string flagCode, bool flagState)
+    public IEnumerator FlagSet(string flagCode, bool flagState) 
     {
         string url =
-            $"{apiUrl}/api/choices" +
+            $"{apiUrl}/api/flags" +
             $"?username={UnityWebRequest.EscapeURL(username)}" +
-            $"&choiceCode={UnityWebRequest.EscapeURL(flagCode)}" +
-            $"&condition={flagState}";
+            $"&flagCode={UnityWebRequest.EscapeURL(flagCode)}" +
+            $"&flagState={(flagState ? "true" : "false")}";
 
-        using (var req = UnityWebRequest.PostWwwForm(url, ""))
-            yield return SendApi(req);
+        using (var req = new UnityWebRequest(url, UnityWebRequest.kHttpVerbPUT))
+        {
+            // PUT은 업로드핸들러가 필요해서 빈 바디를 붙여줌
+            req.uploadHandler = new UploadHandlerRaw(new byte[0]);
+            yield return SendApi(req); // Authorization 헤더 등은 SendApi에서 처리
+        }
     }
 
     /// <summary>

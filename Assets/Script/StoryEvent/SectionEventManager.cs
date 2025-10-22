@@ -622,7 +622,7 @@ public class SectionEventManager : MonoBehaviour
 
                 if (!string.IsNullOrEmpty(nextNode))
                 {
-                    if (nextNode.Equals("EndS") && nextNode.Equals("EndF"))
+                    if (nextNode.Equals("EndS") || nextNode.Equals("EndF"))
                     {
                         yield return StartCoroutine(
                             eventDisplayManager.DisplayScript(

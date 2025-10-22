@@ -33,8 +33,16 @@ public class GameDataManager : MonoBehaviour {
         gameData.baseUrl = "http://125.176.246.14";
         //다른 곳에서 baseUrl쓸때 포트번호는 붙혀서 쓰시기를 바랍니다
         gameData.playerName = "Potato";
-        gameData.seed = Guid.NewGuid().GetHashCode();
 
         Application.targetFrameRate = 60;
+    }
+
+    public void NewSeed() {
+        gameData.seed = Guid.NewGuid().GetHashCode();
+    }
+
+    // ✅ 계속하기용: 저장되어 있던 시드 적용
+    public void ContinueSeed(int seedFromSave) {
+        gameData.seed = seedFromSave;
     }
 }

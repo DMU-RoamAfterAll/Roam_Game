@@ -86,6 +86,7 @@ public class LoginManager : MonoBehaviour
         {
             var resp = JsonUtility.FromJson<AuthLoginResponse>(req.downloadHandler.text);
             
+            // 토큰 저장
             AuthManager.Instance?.SetTokens(resp.accessToken, resp.refreshToken);
 
             // ✅ 유저네임 저장(메모리 + PlayerPrefs) & 게임 데이터 반영
@@ -93,15 +94,12 @@ public class LoginManager : MonoBehaviour
             _loggedInUsername = username;
             GameDataManager.Data.playerName = username;
 
-            // 로그인 사용자명 캐시 + 게임데이터 반영
-            _loggedInUsername = username;
-            GameDataManager.Data.playerName = username;
-
             // UI 전환
             enterUI.SetActive(true);
             registerUI.SetActive(false);
             loginUI.SetActive(false);
-            // 서버 세이브 유무만 검사해서 버튼 상태만 결정 (로컬 저장은 여기서 하지 않음)
+
+            // 서버 세이브 유무만 검사해서 버튼 상태만 결정
             yield return StartCoroutine(ProbeRemoteSave(username));
         }
         else
@@ -161,7 +159,6 @@ public class LoginManager : MonoBehaviour
     // Continue 버튼: 항상 서버에서 다시 GET해서 불러옴
     public void OnClickContinue()
     {
-        // 버튼이 잘못 활성화된 예외 상황 가드 (경고 제거도 겸함)
         if (!_hasRemoteSave) {
             Debug.LogWarning("[Continue] 서버 저장이 없는 상태입니다. (버튼 가드)");
             if (continueButton) continueButton.interactable = false;
@@ -189,13 +186,13 @@ public class LoginManager : MonoBehaviour
 
             if (get.result == UnityWebRequest.Result.Success && get.responseCode == 200)
             {
-                var body = get.downloadHandler.text; // <-- 대소문자 주의
+                var body = get.downloadHandler.text;
                 var serverSave = JsonUtility.FromJson<SaveData>(body);
 
-                // 서버 저장을 실제로 적용 (이때만 로컬에 씀)
                 if (serverSave != null)
                 {
-                    GameDataManager.Data.seed = serverSave.originSeed;
+                    // ★ 서버 저장으로 계속하기 → 서버 시드로 고정
+                    GameDataManager.Instance?.ContinueSeed(serverSave.originSeed);
 
                     if (SaveLoadManager.Instance != null) {
                         SaveLoadManager.Instance.OverwriteLocal(serverSave);   // 파일 저장
@@ -215,8 +212,16 @@ public class LoginManager : MonoBehaviour
                 yield break;
             }
 
-            // 서버에 없거나 실패 → Continue 차단
-            Debug.LogWarning($"[Continue] 원격 세이브 없음/실패 code={get.responseCode}, err={get.error}");
+            if (get.responseCode == 404)
+            {
+                Debug.LogWarning("[Continue] 서버 저장 없음(404)");
+                if (continueButton) continueButton.interactable = false;
+                if (newGameButton)  newGameButton.interactable  = true;
+                _hasRemoteSave = false;
+                yield break;
+            }
+
+            Debug.LogWarning($"[Continue] 원격 세이브 실패 code={get.responseCode}, err={get.error}");
             if (continueButton) continueButton.interactable = false;
             if (newGameButton)  newGameButton.interactable  = true;
             _hasRemoteSave = false;
@@ -227,7 +232,7 @@ public class LoginManager : MonoBehaviour
     public void OnClickNewGame()
     {
         if (SaveLoadManager.Instance != null) {
-            SaveLoadManager.Instance.NewGameClear();          // 로컬 리셋
+            SaveLoadManager.Instance.NewGameClear();          // 로컬 리셋(여기서 새 시드 생성은 SaveLoadManager에서 수행하도록 설계했으면 거기서 처리)
             SaveLoadManager.Instance.pendingLoadData = null;  // 과거 세이브 적용 방지
             SaveLoadManager.Instance.SaveNow();
         } else {

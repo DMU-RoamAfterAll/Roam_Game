@@ -81,10 +81,10 @@ public class RandomSectionSpawner : MonoBehaviour {
     public AreaAsset areaAsset;
     
     void Awake() {
-        StartCoroutine(InitializeSections());
+        InitializeSections();
     }
 
-    IEnumerator InitializeSections() {
+    void InitializeSections() {
         Player = MapSceneDataManager.Instance.Player;
 
         // 1) Load the AreaAsset (pre-created or downloaded at runtime)
@@ -148,8 +148,6 @@ public class RandomSectionSpawner : MonoBehaviour {
             section.sectionPosition = pos;
 
             sections.Add(section);
-
-            yield return new WaitForSeconds(Random.Range(0.5f, 1.2f));
         }
 
         // 8) Generate random points for normal sections
@@ -185,8 +183,6 @@ public class RandomSectionSpawner : MonoBehaviour {
             section.sectionPosition = pos;
 
             sections.Add(section);
-
-            yield return new WaitForSeconds(Random.Range(0.5f, 1.2f));
         }
 
         // 10) Adjust main sections relative to nearest neighbor

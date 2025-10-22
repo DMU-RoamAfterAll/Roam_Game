@@ -16,7 +16,7 @@
 			"하늘은 희뿌연 먼지로 가득했고, 주위는 무너진 콘크리트와 뒤틀린 철골들로 뒤엉켜 있었다."
 		],
 		"action" : { 
-			"image": "TSectionImage/T1-1"
+			"image": "T1-1"
 		},
 		"next": "Text2"
 	},
@@ -38,7 +38,7 @@
 			"어딘가엔 누군가 남기고 간 물자나 단서가 있을지도 모른다."
 		],
 		"action" : { 
-			"image": "TSectionImage/T1-2" 
+			"image": "T1-2" 
 		},
 		"next": "Menu1"
 	},
@@ -57,7 +57,7 @@
 			{
 				"id": "Select3",
 				"label": "바람 속에서 반짝이는 은색 포장",
-				"next": "Text_Result"
+				"next": "Text_Result3"
 			}
 		]
 	},
