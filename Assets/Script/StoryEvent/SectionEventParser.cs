@@ -21,7 +21,9 @@ public class SectionEventParser : MonoBehaviour
             "image",
             "checkI", "getI", "lostI",
             "checkW", "getW", "lostW",
-            "flagSet", "flagCheck"
+            "checkS", "getS",
+            "flagSet", "flagCheck",
+            "prob"
         };
 
         //알 수 없는 Action값 제외
@@ -55,12 +57,21 @@ public class SectionEventParser : MonoBehaviour
 
         if (actionObj.TryGetValue("lostW", out var lostWToken))
             action.lostW = ParseWeaponData(lostWToken);
+        
+        if (actionObj.TryGetValue("checkS", out var checkSToken))
+            action.checkS = ParseSkillData(checkSToken);
+
+        if (actionObj.TryGetValue("getS", out var getSToken))
+            action.getS = ParseSkillData(getSToken);
 
         if (actionObj.TryGetValue("flagSet", out var flagSetToken))
             action.flagSet = ParseStoryFlag(flagSetToken);
 
         if (actionObj.TryGetValue("flagCheck", out var flagCheckToken))
             action.flagCheck = ParseStoryFlag(flagCheckToken);
+        
+        if (actionObj.TryGetValue("prob", out var probToken))
+            action.prob = ParseProbOption(probToken);
             
         return action;
     }
@@ -272,6 +283,19 @@ public class SectionEventParser : MonoBehaviour
     }
 
     /// <summary>
+    /// 스킬 처리 부분의 parser (ParseActionNode함수에 사용)
+    /// </summary>
+    /// <param name="token">스킬 처리 action 정보</param>
+    private List<SkillData> ParseSkillData(JToken token)
+    {
+        return ParsePairsInt(token, (code, amount) => new SkillData
+        {
+            skillCode = code,
+            level = amount
+        }, defaultInt: 1);
+    }
+
+    /// <summary>
     /// 플래그 처리 부분의 parser (ParseActionNode함수에 사용)
     /// </summary>
     /// <param name="token">플래그 처리 action 정보</param>
@@ -282,5 +306,18 @@ public class SectionEventParser : MonoBehaviour
             flagCode = code,
             flagState = state
         }, defaultBool: false);
+    }
+
+    /// <summary>
+    /// 확률 이동 처리 부분의 parser (ParseActionNode함수에 사용)
+    /// </summary>
+    /// <param name="token">확률 이동 처리 action 정보</param>
+    private List<ProbData> ParseProbOption(JToken token)
+    {
+        return ParsePairsInt(token, (next, probability) => new ProbData
+        {
+            next = next,
+            probability = probability
+        }, defaultInt: 50);
     }
 }

@@ -71,8 +71,38 @@ public class UserDataManager : MonoBehaviour
     }
 
     /// <summary>
+    /// api를 통해 유저의 스탯 정보를 불러오는 함수
+    /// </summary>
+    /// <param name="onResult">리퀘스트 성공시 콜백</param>
+    /// <param name="onError">리퀘스트 실패시 콜백</param>
+    /// <returns></returns>
+    public IEnumerator PlayerDataLoad(Action<PlayerDataNode> onResult = null, Action<long, string> onError = null)
+    {
+        string url =
+            $"{apiUrl}/api/player-stats/{UnityWebRequest.EscapeURL(username)}" +
+            $"?username={UnityWebRequest.EscapeURL(username)}";
+
+        using (var req = UnityWebRequest.Get(url))
+        {
+            yield return SendApi(req); //호출 완료 대기
+
+            if (req.result == UnityWebRequest.Result.Success)
+            {
+                try
+                {
+                    PlayerDataNode playerData = JsonUtility.FromJson<PlayerDataNode>(req.downloadHandler.text);
+                    onResult?.Invoke(playerData);
+                }
+                catch (Exception e)
+                {
+                    onError?.Invoke(req.responseCode, "JSON parsing returned null.");
+                }
+            }
+        }
+    }
+
+    /// <summary>
     /// api를 통해 유저의 아이템 정보를 불러오는 함수
-    /// **api 조회로 인한 성능 저하를 최소화 하기 위한 조치 필요**
     /// </summary>
     /// <param name="onResult">리퀘스트 성공시 콜백</param>
     /// <param name="onError">리퀘스트 실패시 콜백</param>
@@ -127,7 +157,6 @@ public class UserDataManager : MonoBehaviour
 
     /// <summary>
     /// api를 통해 유저의 무기 정보를 불러오는 함수
-    /// **api 조회로 인한 성능 저하를 최소화 하기 위한 조치 필요**
     /// </summary>
     /// <param name="onResult">리퀘스트 성공시 콜백</param>
     /// <param name="onError">리퀘스트 실패시 콜백</param>
@@ -181,6 +210,42 @@ public class UserDataManager : MonoBehaviour
     }
 
     /// <summary>
+    /// api를 통해 유저의 스킬 정보를 불러오는 함수
+    /// </summary>
+    /// <param name="onResult">리퀘스트 성공시 콜백</param>
+    /// <param name="onError">리퀘스트 실패시 콜백</param>
+    /// <returns></returns>
+    public IEnumerator SkillCheck(Action<List<SkillData>> onResult = null, Action<long, string> onError = null)
+    {
+        string url =
+            $"{apiUrl}/api/skills" +
+            $"?username={UnityWebRequest.EscapeURL(username)}";
+
+        using (var req = UnityWebRequest.Get(url))
+        {
+            yield return GetJsonList<SkillData>(req, onResult, onError);
+        }
+    }
+
+    /// <summary>
+    /// api를 통해 서버에 스킬을 추가하는 함수
+    /// </summary>
+    /// <param name="weaponCode">스킬 코드</param>
+    /// <param name="amount">스킬 레벨</param>
+    /// <returns></returns>
+    public IEnumerator GetSkill(string skillCode, int level)
+    {
+        string url =
+        $"{apiUrl}/api/skills" +
+        $"?username={UnityWebRequest.EscapeURL(username)}" +
+        $"&skillCode={UnityWebRequest.EscapeURL(skillCode)}" +
+        $"&delta={level}";
+
+        using (var req = UnityWebRequest.PostWwwForm(url, "")) //body부분 비우고 전송
+            yield return SendApi(req);
+    }
+
+    /// <summary>
     /// api를 통해 서버의 플래그를 설정하는 함수
     /// </summary>
     /// <param name="flagCode">플래그 코드</param>
@@ -200,7 +265,6 @@ public class UserDataManager : MonoBehaviour
 
     /// <summary>
     /// api를 통해 유저의 플래그 정보를 불러오는 함수
-    /// **api 조회로 인한 성능 저하를 최소화 하기 위한 조치 필요**
     /// </summary>
     /// <param name="onResult">리퀘스트 성공시 콜백</param>
     /// <param name="onError">리퀘스트 실패시 콜백</param>
