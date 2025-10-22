@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 public class UserDataManager : MonoBehaviour
 {
     protected string apiUrl = "http://125.176.246.14:8081"; //api 주소
-    protected string username = "cnwvid"; //테스트용 유저 이름
+    protected string username = ""; //테스트용 유저 이름
     public string accessToken = ""; //로그인 토큰
 
     /// <summary>
@@ -279,5 +279,10 @@ public class UserDataManager : MonoBehaviour
         {
             yield return GetJsonList<FlagData>(req, onResult, onError);
         }
+    }
+
+    void Start() {
+        accessToken = AuthManager.Instance.GetToken();
+        username = AuthManager.Instance.GetUserName();
     }
 }

@@ -10,8 +10,10 @@ public class AuthManager : MonoBehaviour
     public static AuthManager Instance { get; private set; }
 
     // 저장 키
-    private const string KEY_ACCESS = "auth_access_token";
-    private const string KEY_REFRESH = "auth_refresh_token";
+    protected const string KEY_ACCESS = "auth_access_token";
+    protected const string KEY_REFRESH = "auth_refresh_token";
+
+    protected string username = "";
 
     // 서버 URL 루트 (GameDataManager에서 가져옴)
     private string baseUrl; // ex) http://125.176.246.14:8081
@@ -181,5 +183,17 @@ public class AuthManager : MonoBehaviour
             return true;
         }
         catch { return false; }
+    }
+
+    public string GetToken() {
+        return KEY_ACCESS;
+    }
+
+    public string GetUserName() {
+        return KEY_ACCESS;
+    }
+
+    public void SetUserName(string name) {
+        username = name;
     }
 }

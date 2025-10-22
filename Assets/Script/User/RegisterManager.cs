@@ -154,6 +154,8 @@ public class RegisterManager : MonoBehaviour {
             GameDataManager.Data.playerName = nickname;
             registerUI.SetActive(false);
             loginUI.SetActive(true);
+
+            AuthManager.Instance.SetUserName(username);
         }
         else // 회원가입 실패시 표시할 텍스트
         {
