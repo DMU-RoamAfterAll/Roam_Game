@@ -18,13 +18,15 @@ public class EventDisplayManager : MonoBehaviour
     public GameObject buttonPrefab; //버튼 프리팹 (인스펙터 접속)
     public Transform buttonPanel; //버튼 부모 오브젝트
     public Image sceneImage; //UI에 띄울 이미지 컴포넌트
+    public string nextText = "다음으로"; //다음 노드로 넘어가는 버튼의 Text값
 
     //타이핑 관련
     private Coroutine typingCoroutine; //현재 실행 중인 타이핑 코루틴
     public TextMeshProUGUI dialogueText; //출력될 텍스트 컴포넌트
     public float delayPerChar = 0.01f; //문장 타이핑 딜레이
-    public float delayPerSentence = 0.25f; //문장간 딜레이
-    public string nextText = "다음으로";
+    private float delayPerSentence = 0.5f;  //문장 당 딜레이
+    private bool isTyping = false; //타이핑 진행 상황 확인
+    private bool skipRequested = false; //타이핑 스킵 상태 확인
 
     private void Awake()
     {
@@ -33,6 +35,14 @@ public class EventDisplayManager : MonoBehaviour
         sceneImage = viewport.Find("Content/UI_Image/Image").GetComponent<Image>();
         dialogueText = viewport.Find("Content/value").GetComponent<TextMeshProUGUI>();
         buttonPanel = viewport.Find("Content/Panel_Button").GetComponent<Transform>();
+    }
+
+    private void Update()
+    {
+        if (isTyping && Input.GetMouseButtonDown(0)) //화면 터치시 스킵 요청
+        {
+            skipRequested = true;
+        }
     }
 
     /// <summary>
@@ -271,6 +281,7 @@ public class EventDisplayManager : MonoBehaviour
         typingCoroutine = StartCoroutine(TypeTextCoroutine(baseText, appendText, () =>
         {
             typingCoroutine = null; //타이핑이 끝나면 코루틴 정리
+            isTyping = false; //타이핑 끝남 처리
             onComplete?.Invoke(); //후처리 함수 실행
         }));
     }
@@ -285,6 +296,8 @@ public class EventDisplayManager : MonoBehaviour
             StopCoroutine(typingCoroutine);
             typingCoroutine = null;
         }
+        isTyping = false;
+        skipRequested = false;
     }
 
     /// <summary>
@@ -294,21 +307,28 @@ public class EventDisplayManager : MonoBehaviour
     /// <param name="onComplete">타이핑 완료시 실행할 이벤트</param>
     private IEnumerator TypeTextCoroutine(string baseText, string appendText, System.Action onComplete = null)
     {
+        isTyping = true; //타이핑 시작
+        skipRequested = false; //타이핑 스킵 요청 초기화
+
         int typingLength = appendText.GetTypingLength(); //문장 길이 측정
 
         for (int i = 0; i <= typingLength; i++) //타이핑 효과
         {
-            dialogueText.text = baseText; //타이핑 반복문 동안 기존 텍스트 내용은 유지
-            dialogueText.text += appendText.Typing(i);
-            if (!string.IsNullOrEmpty(dialogueText.text))
+            if (skipRequested) //스킵 요청 시 즉시 전체 텍스트 출력 후 종료
             {
-                if (dialogueText.text[dialogueText.text.Length - 1] == '\n')
-                {
-                    yield return new WaitForSeconds(delayPerSentence); //문장 끝일때 딜레이 추가
-                }
+                dialogueText.text = baseText + appendText;
+                break;
+            }
+
+            dialogueText.text = baseText + appendText.Typing(i); //타이핑 반복문 동안 기존 텍스트 내용은 유지
+            if (!string.IsNullOrEmpty(dialogueText.text)
+                && dialogueText.text[dialogueText.text.Length - 1] == '\n')
+            {
+                yield return new WaitForSeconds(delayPerSentence); //문장 끝일때 딜레이 추가
             }
             yield return new WaitForSeconds(delayPerChar); //타이핑 딜레이
         }
+        dialogueText.text = baseText + appendText; //반복문을 빠져나올 시 텍스트 전체 표시
         onComplete?.Invoke();
     }
 }

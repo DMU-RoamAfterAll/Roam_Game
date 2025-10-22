@@ -2,16 +2,16 @@ using System.Collections.Generic;
 using UnityEngine;
 
 //-------------------------------------------------------------------------------
-// ** Weapon Json 데이터 클래스 구조 **
+// ** skill Json 데이터 클래스 구조 **
 //-------------------------------------------------------------------------------
 [System.Serializable]
-//아이템 데이터 노드
+//스킬 데이터 노드
 public class SkillDataNode
 {
-    public string code; //무기 코드
-    public string name; //무기 이름
-    public string description; //무기 설명
-    public string category; //무기 분류
+    public string code; //스킬 코드
+    public string name; //스킬 이름
+    public string description; //스킬 설명
+    public string category; //스킬 분류
 }
 //-------------------------------------------------------------------------------
 
