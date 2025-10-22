@@ -10,8 +10,9 @@ public class AuthManager : MonoBehaviour
     public static AuthManager Instance { get; private set; }
 
     // 저장 키
-    protected const string KEY_ACCESS = "auth_access_token";
-    protected const string KEY_REFRESH = "auth_refresh_token";
+    protected string KEY_ACCESS = "auth_access_token";
+    protected string KEY_REFRESH = "auth_refresh_token";
+    protected string KEY_USERNAME = "auth_username";
 
     protected string username = "";
 
@@ -27,23 +28,22 @@ public class AuthManager : MonoBehaviour
     [Serializable] private class RefreshRequest { public string refreshToken; }
     [Serializable] private class RefreshResponse { public string accessToken; public string refreshToken; }
 
-    void Start()
-    {
+    void Awake() {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
         DontDestroyOnLoad(gameObject);
+    }
 
-        baseUrl = $"{GameDataManager.Data.baseUrl}:8081";
-
-        // 앱 재실행 시 저장된 토큰 복구
-        var savedAccess = PlayerPrefs.GetString(KEY_ACCESS, string.Empty);
+    void Start() {
+        baseUrl = $"{GameDataManager.Data.baseUrl}:8081"; // ⬅️ 3번 참고
+        var savedAccess  = PlayerPrefs.GetString(KEY_ACCESS, string.Empty);
         var savedRefresh = PlayerPrefs.GetString(KEY_REFRESH, string.Empty);
-        if (!string.IsNullOrEmpty(savedRefresh)) {
-            AccessToken = savedAccess;
-            RefreshToken = savedRefresh;
+        username          = PlayerPrefs.GetString(KEY_USERNAME, string.Empty); // ★ 추가
 
-            // 바로 선제 갱신 루프 시작
-            refreshLoop = StartCoroutine(AutoRefreshLoop());
+        if (!string.IsNullOrEmpty(savedRefresh)) {
+            AccessToken  = savedAccess;
+            RefreshToken = savedRefresh;
+            refreshLoop  = StartCoroutine(AutoRefreshLoop());
         }
     }
 
@@ -148,8 +148,11 @@ public class AuthManager : MonoBehaviour
     {
         AccessToken = null;
         RefreshToken = null;
+        username = string.Empty; // ★ 추가
+
         PlayerPrefs.DeleteKey(KEY_ACCESS);
         PlayerPrefs.DeleteKey(KEY_REFRESH);
+        PlayerPrefs.DeleteKey(KEY_USERNAME); // ★ 추가
         PlayerPrefs.Save();
 
         if (refreshLoop != null) { StopCoroutine(refreshLoop); refreshLoop = null; }
@@ -185,15 +188,13 @@ public class AuthManager : MonoBehaviour
         catch { return false; }
     }
 
-    public string GetToken() {
-        return KEY_ACCESS;
-    }
+    public string GetToken() => AccessToken;
 
-    public string GetUserName() {
-        return KEY_ACCESS;
-    }
+    public string GetUserName() => username;
 
     public void SetUserName(string name) {
-        username = name;
+        username = name;                                     // 메모리에 보관
+        PlayerPrefs.SetString(KEY_USERNAME, username);       // ★ 영구 저장
+        PlayerPrefs.Save();
     }
 }

@@ -275,7 +275,7 @@ public class EventDisplayManager : MonoBehaviour
         string baseText = string.Empty;
         string appendText = fullText;
 
-        if (append && dialogueText.text != string.Empty) { baseText = dialogueText.text + '\n\n'; }
+        if (append && dialogueText.text != string.Empty) { baseText = dialogueText.text + '\n' + '\n'; }
 
         //새 코루틴 실행
         typingCoroutine = StartCoroutine(TypeTextCoroutine(baseText, appendText, () =>

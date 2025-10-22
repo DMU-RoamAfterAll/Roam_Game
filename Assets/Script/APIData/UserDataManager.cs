@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 public class UserDataManager : MonoBehaviour
 {
     protected string apiUrl = "http://125.176.246.14:8081"; //api 주소
-    protected string username = ""; //테스트용 유저 이름
+    public string username = ""; //테스트용 유저 이름
     public string accessToken = ""; //로그인 토큰
 
     /// <summary>
@@ -19,14 +19,18 @@ public class UserDataManager : MonoBehaviour
     /// <returns></returns>
     private IEnumerator SendApi(UnityWebRequest req)
     {
+        // 요청 직전 상세 로그
+        var hasAuth = string.IsNullOrEmpty(accessToken) ? "no" : "yes";
+        Debug.Log($"[{GetType().Name}] --> {req.method} {req.url} (user={username}, auth={hasAuth})");
+
         req.SetRequestHeader("Authorization", $"Bearer {accessToken}");
         req.downloadHandler = new DownloadHandlerBuffer();
         req.timeout = 10;
 
         yield return req.SendWebRequest();
 
-        //디버깅용 로그
-        Debug.Log($"[{GetType().Name}] code={req.responseCode}, result={req.result}");
+        // 응답 로그
+        Debug.Log($"[{GetType().Name}] <-- code={req.responseCode}, result={req.result}");
         if (req.result == UnityWebRequest.Result.Success)
             Debug.Log($"[{GetType().Name}] OK body='{req.downloadHandler.text}'");
         else
@@ -78,25 +82,30 @@ public class UserDataManager : MonoBehaviour
     /// <returns></returns>
     public IEnumerator PlayerDataLoad(Action<PlayerDataNode> onResult = null, Action<long, string> onError = null)
     {
-        string url =
-            $"{apiUrl}/api/player-stats/{UnityWebRequest.EscapeURL(username)}" +
-            $"?username={UnityWebRequest.EscapeURL(username)}";
-
+    string url = $"{apiUrl}/api/player-stats/{UnityWebRequest.EscapeURL(username)}?username={UnityWebRequest.EscapeURL(username)}";
         using (var req = UnityWebRequest.Get(url))
         {
-            yield return SendApi(req); //호출 완료 대기
+            yield return SendApi(req);
 
-            if (req.result == UnityWebRequest.Result.Success)
+            if (req.result != UnityWebRequest.Result.Success)
             {
-                try
+                onError?.Invoke(req.responseCode, req.error);
+                yield break;
+            }
+
+            try
+            {
+                var playerData = JsonUtility.FromJson<PlayerDataNode>(req.downloadHandler.text);
+                if (playerData == null)
                 {
-                    PlayerDataNode playerData = JsonUtility.FromJson<PlayerDataNode>(req.downloadHandler.text);
-                    onResult?.Invoke(playerData);
+                    onError?.Invoke(req.responseCode, "parse_null");
+                    yield break;
                 }
-                catch (Exception e)
-                {
-                    onError?.Invoke(req.responseCode, $"JSON parsing returned null.{e}");
-                }
+                onResult?.Invoke(playerData);
+            }
+            catch (Exception e)
+            {
+                onError?.Invoke(req.responseCode, $"parse_error: {e.Message}");
             }
         }
     }
@@ -281,7 +290,7 @@ public class UserDataManager : MonoBehaviour
         }
     }
 
-    void Start() {
+    void Awake() {
         accessToken = AuthManager.Instance.GetToken();
         username = AuthManager.Instance.GetUserName();
     }

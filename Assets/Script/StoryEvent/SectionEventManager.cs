@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using System.IO;
 using UnityEngine.UI;
 using System.Linq;
 using UnityEditor;
@@ -118,9 +119,6 @@ public class BattleNode
 
 public class SectionEventManager : MonoBehaviour
 {
-    public string jsonFileName = ""; //불러올 Json파일 이름, 외부에서 받아옴
-    private string jsonFolderPath =
-    "StoryGameData/SectionData/SectionEvent"; //Json폴더가 담긴 파일의 경로
     private Dictionary<string, object> sectionData = new Dictionary<string, object>(); //파싱된 Json데이터
     private BattleEventManager battleEventManager;
     private EventDisplayManager eventDisplayManager;
@@ -140,7 +138,7 @@ public class SectionEventManager : MonoBehaviour
         userDataManager = GetComponent<UserDataManager>();
         dataService = GetComponent<DataService>();
 
-        LoadJson(jsonFileName); //Json파일 로드
+        LoadJson(); //Json파일 로드
     }
 
     private void Start()
@@ -156,10 +154,9 @@ public class SectionEventManager : MonoBehaviour
     /// <summary>
     /// Json Event 데이터 파일 로드 및 파싱
     /// </summary>
-    /// <param name="jsonFileName">Json 파일명(확장자 미포함)</param>
-    public void LoadJson(string jsonFileName)
+    public void LoadJson()
     {
-        string filePath = $"{jsonFolderPath}/{jsonFileName}";
+        string filePath = Path.ChangeExtension(GameDataManager.Instance.sectionPath, null);
 
         TextAsset jsonFile = Resources.Load<TextAsset>(filePath); //Json 파일 로드
         if (jsonFile == null)
@@ -241,7 +238,7 @@ public class SectionEventManager : MonoBehaviour
                 Debug.LogWarning($"[{GetType().Name}] 인식할 수 없는 노드: {key}");
             }
         }
-        Debug.Log("Reading File : " + jsonFileName + ".json"); //파일 로드 확인 로그
+        Debug.Log("Reading File : " + filePath); //파일 로드 확인 로그
     }
 
     /// <summary>

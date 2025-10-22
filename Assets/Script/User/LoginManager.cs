@@ -41,6 +41,7 @@ public class LoginManager : MonoBehaviour
     private string _loggedInUsername;
     // 서버에 저장 존재 여부 (버튼 가드에도 사용해 경고 제거)
     private bool _hasRemoteSave;
+    public string un;
 
     void Start() {
         baseUrl = $"{GameDataManager.Data.baseUrl}:8081/api/users";
@@ -84,7 +85,13 @@ public class LoginManager : MonoBehaviour
         if (req.result == UnityWebRequest.Result.Success && req.responseCode >= 200 && req.responseCode < 300)
         {
             var resp = JsonUtility.FromJson<AuthLoginResponse>(req.downloadHandler.text);
+            
             AuthManager.Instance?.SetTokens(resp.accessToken, resp.refreshToken);
+
+            // ✅ 유저네임 저장(메모리 + PlayerPrefs) & 게임 데이터 반영
+            AuthManager.Instance?.SetUserName(username);
+            _loggedInUsername = username;
+            GameDataManager.Data.playerName = username;
 
             // 로그인 사용자명 캐시 + 게임데이터 반영
             _loggedInUsername = username;
@@ -94,7 +101,6 @@ public class LoginManager : MonoBehaviour
             enterUI.SetActive(true);
             registerUI.SetActive(false);
             loginUI.SetActive(false);
-
             // 서버 세이브 유무만 검사해서 버튼 상태만 결정 (로컬 저장은 여기서 하지 않음)
             yield return StartCoroutine(ProbeRemoteSave(username));
         }
@@ -117,6 +123,8 @@ public class LoginManager : MonoBehaviour
             AddAuth(get);
             get.downloadHandler = new DownloadHandlerBuffer();
             yield return get.SendWebRequest();
+
+            un = username;
 
             if (get.result == UnityWebRequest.Result.Success && get.responseCode == 200)
             {
