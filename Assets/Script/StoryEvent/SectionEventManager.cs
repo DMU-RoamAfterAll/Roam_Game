@@ -633,6 +633,14 @@ public class SectionEventManager : MonoBehaviour
                                 "조사 종료",
                                 null)
                         );
+
+                        if(nextNode.Equals("EndS")) {
+                            SwitchSceneManager.Instance.sectionCleared = true;
+                        }
+                        else if (nextNode.Equals("EndF")) {
+                            SwitchSceneManager.Instance.sectionCleared = false;
+                        }
+
                         SwitchSceneManager.GoToMapScene(); //다음 노드가 없다면 조사를 종료하고 씬 이동
                     }
                     else

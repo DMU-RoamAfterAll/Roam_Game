@@ -20,11 +20,15 @@ public class SwitchSceneManager : MonoBehaviour {
     private readonly List<string> overlayStack = new List<string>();
     private bool _busy;
 
+    public bool sectionCleared;
+
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
         DontDestroyOnLoad(gameObject);
+
+        sectionCleared = false;
     }
 
     private IEnumerator Start() {
@@ -211,8 +215,9 @@ public class SwitchSceneManager : MonoBehaviour {
         var pc = player ? player.GetComponent<PlayerControl>() : null;
 
         if (pc != null && pc.sectionData != null) {
-            pc.sectionData.isCleared = true; //여기서 Clear조건 판명하는 거 넣기
-
+            pc.sectionData.isCleared = Instance.sectionCleared;
+            Instance.sectionCleared = false;
+            
             var tuto = pc.sectionData.GetComponent<TutorialManager>();
             if (tuto != null) tuto.CompleteSection();
         }
