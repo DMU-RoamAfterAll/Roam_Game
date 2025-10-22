@@ -95,7 +95,7 @@ public class UserDataManager : MonoBehaviour
                 }
                 catch (Exception e)
                 {
-                    onError?.Invoke(req.responseCode, "JSON parsing returned null.");
+                    onError?.Invoke(req.responseCode, $"JSON parsing returned null.{e}");
                 }
             }
         }
