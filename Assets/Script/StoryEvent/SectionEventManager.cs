@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System;
 using UnityEngine.UI;
 using System.Linq;
+using UnityEditor;
 
 //-------------------------------------------------------------------------------
 // ** Section Event Json 데이터 클래스 구조 **
@@ -181,8 +182,8 @@ public class SectionEventManager : MonoBehaviour
                 TextNode text = nodeClone.ToObject<TextNode>();
 
                 //action 수동 파싱
-                if (nodeObj.TryGetValue("action", out var actionToken))
-                    text.action = sectionEventParser.ParseActionNode((JObject)actionToken);
+                if (nodeObj.TryGetValue("action", out var actionToken) && actionToken is JObject actionObj)
+                    text.action = sectionEventParser.ParseActionNode(actionObj);
 
                 sectionData[key] = text; //키가 존재하지 않으면 동적 추가
             }
@@ -192,7 +193,14 @@ public class SectionEventManager : MonoBehaviour
 
                 // action 빼고 복제본 만들기
                 JObject nodeClone = (JObject)nodeObj.DeepClone();
-                nodeClone.Remove("action");
+                if (nodeClone["menuOption"] is JArray optArrayClone)
+                {
+                    foreach (var opt in optArrayClone)
+                    {
+                        if (opt is JObject optObj)
+                            optObj.Remove("action"); //옵션 안의 action 제거
+                    }
+                }
 
                 MenuNode menu = nodeClone.ToObject<MenuNode>();
 
@@ -201,15 +209,16 @@ public class SectionEventManager : MonoBehaviour
                 {
                     for (int i = 0; i < menu.menuOption.Count && i < optionsToken.Count; i++) //메뉴 옵션을 순회하며 action 파싱
                     {
-                        if (optionsToken[i] is JObject optObj &&
-                            optObj.TryGetValue("action", out var actionTok) &&
-                            actionTok is JObject actionObj)
+                        var optSrc = optionsToken[i] as JObject;
+                        if (optSrc == null) continue;
+
+                        if (optSrc.TryGetValue("action", out var actionToken) &&
+                            actionToken is JObject actionObj)
                         {
                             menu.menuOption[i].action = sectionEventParser.ParseActionNode(actionObj);
                         }
                     }
                 }
-                
                 sectionData[key] = menu; //키가 존재하지 않으면 동적 추가
             }
             else if (key.StartsWith("Battle"))
@@ -506,6 +515,21 @@ public class SectionEventManager : MonoBehaviour
         return result;
     }
 
+    public bool checkValidation(Dictionary<string, object> actionResult)
+    {
+        if (actionResult == null || actionResult.Count == 0)
+        return true; // 기본 true로 반환
+        
+        var checkResults = actionResult.Values.Where(v => v is bool).Cast<bool>(); //check 확인
+
+        bool checkResult = checkResults.Any() //요슈 존재 확인 
+        ? checkResults.Aggregate(true, (a, b) => a && b) //AND연산, check중 하나라도 false면 false
+        : true; //비어있으면 기본 true
+
+        Debug.Log($"action check 완료, 선택지 {(checkResult ? "비활성화" : "활성화")}");
+        return !checkResult;
+    }
+
     //-------------------------------------------------------------------------------
     // ** 게임 내 오브젝트 출력 부분 **
     //-------------------------------------------------------------------------------
@@ -524,7 +548,8 @@ public class SectionEventManager : MonoBehaviour
                 string nextNode = textNode.next;
 
                 var actionResult = HandleNodeActions(textNode.action); //액션 실행
-                if (actionResult.TryGetValue("prob", out var objNext) &&
+                if (actionResult != null &&
+                    actionResult.TryGetValue("prob", out var objNext) &&
                     objNext is string next &&
                     !string.IsNullOrEmpty(next)) //prob값이 존재한다면 적용
                 {
@@ -562,33 +587,37 @@ public class SectionEventManager : MonoBehaviour
             //---------------선택지 출력---------------
             else if (node is MenuNode menuNode)
             {
-                eventDisplayManager.DisplayMenuNode(menuNode, (MenuOption option) =>
+                foreach (MenuOption option in menuNode.menuOption)
                 {
-                    //선택지 선택 후 진행
-                    Debug.Log($"선택됨: {option.id}");
-                    string nextNode = option.next;
-
-                    if (option.action != null)
+                    var actionResult = HandleNodeActions(option.action); //액션 실행
+                    eventDisplayManager.DisplayMenuButton(option, checkValidation(actionResult), () =>
                     {
-                        Debug.Log($"[Action 실행]");
-                        var actionResult = HandleNodeActions(option.action); //액션 실행
-                        if (actionResult.TryGetValue("prob", out var objNext) &&
-                            objNext is string next &&
-                            !string.IsNullOrEmpty(next)) //prob값이 존재한다면 적용
+                        //선택지 선택 후 진행
+                        Debug.Log($"선택됨: {option.id}");
+                        string nextNode = option.next;
+
+                        if (option.action != null)
                         {
-                            nextNode = next;
+                            Debug.Log($"[Action 실행]");
+                            
+                            if (actionResult.TryGetValue("prob", out var objNext) &&
+                                objNext is string next &&
+                                !string.IsNullOrEmpty(next)) //prob값이 존재한다면 적용
+                            {
+                                nextNode = next;
+                            }
                         }
-                    }
 
-                    if (!string.IsNullOrEmpty(nextNode))
-                    {
-                        StartCoroutine(StartDialogue(nextNode)); //선택 완료시 결과 노드로 이동
-                    }
-                    else
-                    {
-                        Debug.Log($"[{GetType().Name}] MenuNode의 next 값이 없습니다. 종료 또는 대기 처리 필요.");
-                    }
-                });
+                        if (!string.IsNullOrEmpty(nextNode))
+                        {
+                            StartCoroutine(StartDialogue(nextNode)); //선택 완료시 결과 노드로 이동
+                        }
+                        else
+                        {
+                            Debug.Log($"[{GetType().Name}] MenuNode의 next 값이 없습니다. 종료 또는 대기 처리 필요.");
+                        }
+                    });
+                }
             }
             //---------------전투씬 출력---------------
             else if (node is BattleNode battleNode)

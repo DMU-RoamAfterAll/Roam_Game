@@ -61,15 +61,10 @@ public class EventDisplayManager : MonoBehaviour
     /// </summary>
     /// <param name="node">출력할 선택지 노드</param>
     /// <param name="HandleMenuSelect">선택지를 고른 뒤 실행할 콜백함수</param>
-    public void DisplayMenuNode(MenuNode node, UnityAction<MenuOption> HandleMenuSelect)
+    public void DisplayMenuButton(MenuOption option, bool isInteract, UnityAction HandleMenuSelect)
     {
-        ClearButtons(); //기존 버튼 제거
-
-        foreach (MenuOption option in node.menuOption)
-        {
-            //각 선택지에 대해 버튼 생성
-            CreateButtons(option.label, option, HandleMenuSelect);
-        }
+        //각 선택지에 대해 버튼 생성
+        CreateButtons(option.label, isInteract, HandleMenuSelect);
     }
 
     /// <summary>
@@ -162,9 +157,9 @@ public class EventDisplayManager : MonoBehaviour
     /// 버튼 UI 생성 메소드
     /// </summary>
     /// <param name="text">버튼에 표시 글자</param>
-    /// <param name="onClickAction">버튼 onClick 함수</param>
-    /// <returns></returns>
-    private Button CreateButtons(string text, UnityAction onClickAction)
+    /// <param name="onClick">버튼 onClick 함수</param>
+    /// <returns>생성한 버튼</returns>
+    private Button CreateButtons(string text, UnityAction onClick)
     {
         Button tempBtn = ActivateButton(); //버튼 활성화
         SetupButton(tempBtn, text); //버튼 세팅
@@ -173,27 +168,36 @@ public class EventDisplayManager : MonoBehaviour
         tempBtn.onClick.AddListener(() =>
         {
             ClearButtons(); //클릭 시 버튼 비활
-            onClickAction?.Invoke(); //onClick 실행
+            onClick?.Invoke(); //onClick 실행
         });
 
         return tempBtn;
     }
 
     /// <summary>
-    /// 추가: payload를 함께 넘기는 제네릭 오버로드
+    /// 버튼 UI 생성 메소드 : 오버로드 (메뉴)
     /// </summary>
-    private Button CreateButtons<T>(string text, T payload, UnityAction<T> onClick)
+    /// <typeparam name="T"></typeparam>
+    /// <param name="text">버튼에 표시 글자</param>
+    /// <param name="actionResult"></param>
+    /// <param name="onClick">버튼 onClick 함수</param>
+    /// <returns>생성한 버튼</returns>
+    private Button CreateButtons(string text, bool isInteract, UnityAction onClick)
     {
         Button tempBtn = ActivateButton(); //버튼 활성화
         SetupButton(tempBtn, text); //버튼 세팅
-
-        tempBtn.onClick.RemoveAllListeners();
-        tempBtn.onClick.AddListener(() =>
+        if (isInteract) //버튼 활성화 체크
         {
-            ClearButtons(); //클릭 시 버튼 비활
-            onClick?.Invoke(payload); //payload를 포함한 onClick실행
-        });
+            tempBtn.onClick.RemoveAllListeners();
+            tempBtn.onClick.AddListener(() =>
+            {
+                ClearButtons(); //클릭 시 버튼 비활
+                onClick?.Invoke(); //onClick 실행
+            });
 
+            return tempBtn;
+        }
+        tempBtn.interactable = isInteract;
         return tempBtn;
     }
 
