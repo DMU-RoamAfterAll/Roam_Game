@@ -29,33 +29,19 @@ public class EnemySlot
     public string InstanceName => instanceId == 0 ? enemyData.name : $"{enemyData.name}{instanceId}";
 }
 
-// ------------------------------------------------------
-// 플레이어 스탯 (api 연동 전)
-// ------------------------------------------------------
-[System.Serializable]
-public class PlayerStats
-{
-    public int hp = 100; //체력 (100)
-    public int atk = 20; //공격력 (10)
-    public int spd = 10; //민첩 (10)
-    public int hitRate = 70; //공격 적중 확률 (70%)
-    public int evasionRate = 12; //회피 확률 (12%)
-    public int CounterRate = 3; //치명타 확률 (3%, 반격 시 +5 추가 데미지)
-}
-
 // --------------------------------------------------------------------
 // 플레이어 런타임 슬롯(이번 전투에서만 HP 추적). 스탯은 player api 기준으로 사용.
 // --------------------------------------------------------------------
 public class PlayerSlot
 {
-    public PlayerStats playerData; //적 데이터, 공격력 듯 필요한 고정 스탯을 불러옴
+    public PlayerDataNode playerData; //적 데이터, 공격력 듯 필요한 고정 스탯을 불러옴
     public int hp; //이번 전투 hp
 
     /// <summary>
     /// 전투 진입 시 hp를 api 기준값으로 설정하는 메소드
     /// </summary>
     /// <param name="data">플레이어 데이터</param>
-    public PlayerSlot(PlayerStats data)
+    public PlayerSlot(PlayerDataNode data)
     {
         playerData = data;
         hp = data.hp;
@@ -73,7 +59,7 @@ public class BattleEventManager : MonoBehaviour
     private EventDisplayManager eventDisplayManager;
     private DataService dataService;
 
-    public PlayerStats player;
+    public PlayerDataNode player;
     public PlayerSlot playerSlot;
     private string battleImage = string.Empty; //전투 삽화
     private string nextOnWin; //승리 후 이동할 노드 키
@@ -119,7 +105,7 @@ public class BattleEventManager : MonoBehaviour
             battleRoutine = null;
         }
 
-        playerSlot = new PlayerSlot(player); //플레이어 슬롯 생성
+        playerSlot = new PlayerSlot(dataService.player.GetPlayerData()); //플레이어 슬롯 생성
         turnOrder = BuildCurrentEnemyList(battleOrder); //적 리스트를 받아 슬롯 생성
 
         if (turnOrder == null || turnOrder.Count == 0)
@@ -533,7 +519,7 @@ public class BattleEventManager : MonoBehaviour
 
         menuList.Add(new WeaponDataNode { code = UNARMED_CODE }); //메뉴에 맨손 선택지 추가
 
-        userDataManager.WeaponCheck(onResult: list => //보유중인 무기 리스트 불러오기
+        StartCoroutine(userDataManager.WeaponCheck(onResult: list => //보유중인 무기 리스트 불러오기
         {
             Debug.Log("무기 리스트 로드 완료.");
             ownedWeapons = list;
@@ -549,7 +535,11 @@ public class BattleEventManager : MonoBehaviour
                         menuList.Add(w);
                 }
             }
-        });
+        },
+        onError: (code, msg) =>
+        {
+            Debug.LogError($"[OwnedWeaponCacheLoad] 무기 로드 실패({code}) : {msg}");
+        }));
     }
 
     /// <summary>
@@ -604,7 +594,7 @@ public class BattleEventManager : MonoBehaviour
     {
         int damage = playerSlot.playerData.atk;
         if (weapon != null && weapon.code != UNARMED_CODE && weapon.code != null)
-            damage = +weapon.damage;
+            damage += weapon.damage;
 
         return damage;
     }
