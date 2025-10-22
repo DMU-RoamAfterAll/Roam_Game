@@ -115,7 +115,7 @@
         "하늘은 여전히 흐렸지만, 발걸음은 조금씩 앞으로 향하고 있었다."
       ],
       "action" : { "flagSet" : ["t3_MapCheck", true] },
-      "next" : "End"
+      "next" : "EndS"
     }
   }
 }

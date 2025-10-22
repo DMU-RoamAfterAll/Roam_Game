@@ -106,7 +106,7 @@
         ["m2_GetIrisMap", true]
       ]
     },
-    "next" : "End"
+    "next" : "EndS"
   },
 
   "Text_Result2" : {
@@ -181,7 +181,7 @@
           ["item_1010", 1]
         ]
       },
-      "next" : "End"
+      "next" : "EndS"
     },
     "PostBattle1_L" : {
       "value" : [
@@ -201,7 +201,7 @@
         "녹슨 쇠의 냄새와 어딘가에서 울리는 웃음소리뿐이었다.",
         "[GAME OVER]"
       ],
-      "next" : "End"
+      "next" : "EndF"
     }
   },
   
@@ -340,7 +340,7 @@
         "희미해지는 시야 속에서 붉은 경보등만이 반복해 깜빡이고 있었다.",
         "[GAME OVER]"
       ],
-      "next" : "End"
+      "next" : "EndF"
     }
   },
 
@@ -361,6 +361,6 @@
       ],
       "image" : "M2-1"
     },
-    "next" : "End"
+    "next" : "EndS"
   }
 }

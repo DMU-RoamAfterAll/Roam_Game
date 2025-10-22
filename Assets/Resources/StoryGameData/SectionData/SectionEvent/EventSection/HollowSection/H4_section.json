@@ -44,7 +44,7 @@
         ["item_1017", 1]
       ]
     },
-    "next" : "End"
+    "next" : "EndS"
   },
 
   "Text3" : {
@@ -65,6 +65,6 @@
         ["item_1016", 1]
       ]
     },
-    "next" : "End"
+    "next" : "EndS"
   }
 }
