@@ -106,34 +106,41 @@ public class WeatherManager : MonoBehaviour {
         city = "Seoul";
         yield return StartCoroutine(GetByCity(city));
 
-#elif UNITY_IOS || UNITY_ANDROID
-
-        if(!Input.location.isEnabledByUser) {
-            yield break;
-        }
+#elif UNITY_IOS 
 
         Input.location.Start();
         int maxWait = 10;
-
         while(Input.location.status == LocationServiceStatus.Initializing && maxWait > 0) {
-            yield return new WaitForSeconds(1);
+            yield return new WaitForSeconds(1f);
             maxWait--;
         }
-
         if(Input.location.status == LocationServiceStatus.Failed) {
             yield break;
         }
         else {
             float lat = Input.location.lastData.latitude;
             float lon = Input.location.lastData.longitude;
-            Debug.Log($"Current GPS = lat={lat}. lon={lon}");
+            Debug.Log($"[iOS] GPS = lat = {lat}, lon = {lon}");
             yield return StartCoroutine(GetByCoords(lat, lon));
         }
+#elif UNITY_ANDROID
 
-#else
-
-        Debug.Log("Not Support Platform")
-
+        if(!Input.location.isEnableByUser) { yield break; }
+        Input.location.Start();
+        int maxWait = 10;
+        while(Input.location.status == LocationServiceStatus.Initializing && maxWait > 0) {
+            yield return new WaitForSeconds(1);
+            maxWait--;
+        }
+        if(Input.location.status == LocationServiceStatus.Failed) {
+            yield break;
+        }
+        else {
+            float lat = Input.location.lastData.latitude;
+            float lon = Input.location.lastData.longitude;
+            Debug.Log($"[Android] GPS = lat = {lat}, lon = {lon}");
+            yield return StartCoroutine(GetByCoords(lat, lon));
+        }
 #endif
     }
 

@@ -1493,6 +1493,8 @@ MonoBehaviour:
   emailInputField: {fileID: 1051324257}
   nicknameInputField: {fileID: 1479462736}
   birthInputField: {fileID: 1843012924}
+  registerUI: {fileID: 0}
+  loginUI: {fileID: 0}
 --- !u!4 &705525225
 Transform:
   m_ObjectHideFlags: 0

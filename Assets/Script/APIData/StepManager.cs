@@ -5,6 +5,10 @@ using System;
 using UnityEngine.Android; // ACTIVITY_RECOGNITION 권한
 #endif
 
+#if UNITY_IOS && !UNITY_EDITOR
+using System.Runtime.InteropServices;
+#endif
+
 /// <summary>
 /// 안드로이드 STEP_COUNTER 누적값을 읽어 "오늘 걸음수 잔액(availableSteps)"로 관리.
 /// - 일일 리셋은 TimeManager.onNewDay 이벤트로만 수행
@@ -60,13 +64,31 @@ public class StepManager : MonoBehaviour {
         #if UNITY_ANDROID && !UNITY_EDITOR
         if (!Permission.HasUserAuthorizedPermission(PERMISSION))
             Permission.RequestUserPermission(PERMISSION);
-        #else
         // 에디터/기타 플랫폼: 저장값 복원(테스트 편의상 기본 9999)
         availableSteps = PlayerPrefs.GetInt(KEY_AVAILABLE, 9999);
         rawStepCount   = PlayerPrefs.GetInt(KEY_LAST_TOTAL, 9999);
         lastTotal      = rawStepCount;
         sessionLastTotal = rawStepCount;
         sessionSteps = 0;
+        #endif
+
+        #if UNITY_IOS && !UNITY_EDITOR
+        try {
+            if(IOSPedometer.iOS_Pedometer_IsSupported()) {
+                IOSPedometer.iOS_Pedometer_Start();
+                int today = IOSPedometer.iOS_Pedometer_GetTodaySteps();
+                rawStepCount = today;
+                lastTotal = today;
+                sessionLastTotal = today;
+
+                int baseline = PlayerPrefs.GetInt(KEY_BASELINE, 0);
+                availableSteps = PlayerPrefs.GetInt(KEY_AVAILABLE, Mathf.Max(0, today - baseline));
+                iosInitialized = true;
+            }
+        }
+        catch (Exception ex) {
+            Debug.LogError($"{ex}");
+        }
         #endif
         // 앱 시작 시 "지난 저장 날짜 != 오늘"이면 1회 초기화
         OneShotDailyResetIfNeeded();
@@ -111,6 +133,40 @@ public class StepManager : MonoBehaviour {
         if(sessionDelta > 0) {
             sessionSteps += sessionDelta;
             sessionLastTotal = total;
+        }
+        #endif
+
+        #if UNITY_IOS && !UNITY_EDITOR
+
+        if(iosInitialized) {
+            int total = 0;
+            try { total = IOSPedometer.iOS_Pedometer_GetTodaySteps(); }
+            catch (Exception ex) {
+                Debug.LogError($"[StepManager][iOS] GetTodaySteps error : {ex}");
+                total = rawStepCount;
+            }
+
+            if(total < lastTotal) {
+                Debug.LogWarning("[StepManager][iOS] Counter reset (midnight?). Re-baselining.");
+                Rebaseline(total);
+                sessionLastTotal = total;
+                AvailableStepsChanged?.Invoke(availableSteps);
+            }
+
+            int delta = total - lastTotal;
+            if(delta > 0) {
+                rawStepCount = total;
+                lastTotal = total;
+                availableSteps += delta;
+                Persist();
+                AvailableStepsChanged?.Invoke(availableSteps);
+            }
+
+            int sessionDelta = total - sessionLastTotal;
+            if(sessionDelta > 0) {
+                sessionSteps += sessionDelta;
+                sessionLastTotal = total;
+            }
         }
         #endif
     }
@@ -200,6 +256,17 @@ public class StepManager : MonoBehaviour {
     }
     #endif
 
+    #if UNITY_IOS && !UNITY_EDITOR
+    private bool iosInitialized = false;
+
+    internal static class IOSPedometer {
+        [DllImport("__Internal")] public static extern bool iOS_Pedometer_IsSupported();
+        [DllImport("__Internal")] public static extern void iOS_Pedometer_Start();
+        [DllImport("__Internal")] public static extern void iOS_Pedometer_Stop();
+        [DllImport("__Internal")] public static extern int  iOS_Pedometer_GetTodaySteps();
+    }
+    #endif
+
     // ===== 퍼블릭 API =====
     public bool TryConsumeSteps(int cost) {
         if (availableSteps >= cost) {
@@ -252,13 +319,26 @@ public class StepManager : MonoBehaviour {
         #if UNITY_ANDROID && !UNITY_EDITOR
         int t = ReadTotalFromPluginSafe();
         return (t >= 0) ? t : rawStepCount;
+        #elif UNITY_IOS && !UNITY_EDITOR
+        try { return IOSPedometer.iOS_Pedometer_GetTodaySteps(); }
+        catch { return rawStepCount; }
         #else
         return rawStepCount;
         #endif
     }
 
     private void OnApplicationPause(bool pause) {
-        if (pause) Persist();
+        if (pause) { 
+            Persist();
+            #if UNITY_IOS && !UNITY_EDITOR
+            if(iosInitialized) IOSPedometer.iOS_Pedometer_Stop();
+            #endif
+        }
+        else {
+            #if UNITY_IOS && !UNITY_EDITOR
+            if(iosInitialized) IOSPedometer.iOS_Pedometer_Start();
+            #endif
+        }
     }
 
     private void OnApplicationQuit() {
