@@ -79,7 +79,7 @@
         "id" : "Select1",
         "label" : "은밀행동 보유 시 (50% 확률로 통과)",
         "action" : {
-          "skillCheck" : [
+          "checkS" : [
             ["sk_0002", 1]
           ],
           "prob" : [
@@ -137,7 +137,7 @@
         "id" : "Select1",
         "label" : "관찰력 기술 보유 시 (80%)",
         "action" : {
-          "skillCheck" : [
+          "checkS" : [
             ["sk_0002", 1]
           ],
           "prob" : [

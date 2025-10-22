@@ -55,7 +55,7 @@
         "id" : "Select1",
         "label" : "전기지식, 목장갑 보유 시",
         "action" : {
-          "skillCheck" : [
+          "checkS" : [
             ["sk_0004", 1]
           ],
           "checkI" : [
@@ -69,7 +69,7 @@
         "id" : "Select2",
         "label" : "전기지식 보유 시",
         "action" : {
-          "skillCheck" : [
+          "checkS" : [
             ["sk_0004", 1]
           ]
         },
@@ -105,7 +105,7 @@
       "[전기지식 획득 : +1]"
     ],
     "action" : {
-      "skillSet" : [
+      "getS" : [
         ["sk_0004", 1]
       ],
       "getI" : [
@@ -137,7 +137,7 @@
       "[전기지식 획득 : +1]"
     ],
     "action" : {
-      "skillSet" : [
+      "getS" : [
         ["sk_0004", 1]
       ],
       "next" : "Text_End"
@@ -163,7 +163,7 @@
       "[전기지식 획득 : +1]"
     ],
     "action" : {
-      "skillSet" : [
+      "getS" : [
         ["sk_0004", 1]
       ]
     },
@@ -191,7 +191,7 @@
       "[전기지식 획득 : +1]"
     ],
     "action" : {
-      "skillSet" : [
+      "getS" : [
         ["sk_0004", 1]
       ]
     },

@@ -135,7 +135,7 @@
         "id" : "Select1",
         "label" : "근력 기술이 보유 시",
         "action" : {
-          "skillCheck" : [
+          "checkS" : [
             ["sk_0003", 1]
           ],
           "prob" : [
@@ -192,7 +192,7 @@
         "id" : "Select1",
         "label" : "은밀행동 보유 시",
         "action" : {
-          "skillCheck" : [
+          "checkS" : [
             ["sk_0002", 1]
           ],
           "prob" : [

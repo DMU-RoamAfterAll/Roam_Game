@@ -64,35 +64,21 @@ public class StepManager : MonoBehaviour {
         #if UNITY_ANDROID && !UNITY_EDITOR
         if (!Permission.HasUserAuthorizedPermission(PERMISSION))
             Permission.RequestUserPermission(PERMISSION);
-        // 에디터/기타 플랫폼: 저장값 복원(테스트 편의상 기본 9999)
-        availableSteps = PlayerPrefs.GetInt(KEY_AVAILABLE, 9999);
-        rawStepCount   = PlayerPrefs.GetInt(KEY_LAST_TOTAL, 9999);
-        lastTotal      = rawStepCount;
-        sessionLastTotal = rawStepCount;
         sessionSteps = 0;
         #endif
 
         #if UNITY_IOS && !UNITY_EDITOR
         try {
-            if(IOSPedometer.iOS_Pedometer_IsSupported()) {
+            if (IOSPedometer.iOS_Pedometer_IsSupported()) {
                 IOSPedometer.iOS_Pedometer_Start();
-                int today = IOSPedometer.iOS_Pedometer_GetTodaySteps();
-                rawStepCount = today;
-                lastTotal = today;
-                sessionLastTotal = today;
-
-                int baseline = PlayerPrefs.GetInt(KEY_BASELINE, 0);
-                availableSteps = PlayerPrefs.GetInt(KEY_AVAILABLE, Mathf.Max(0, today - baseline));
-                iosInitialized = true;
+                PrimeIOSLastTotal();    // ✅ 첫 프레임 전에 lastTotal 프라임
             }
-        }
-        catch (Exception ex) {
-            Debug.LogError($"{ex}");
+        } catch (Exception ex) {
+            Debug.LogError($"[StepManager][iOS] init error: {ex}");
         }
         #endif
-        // 앱 시작 시 "지난 저장 날짜 != 오늘"이면 1회 초기화
-        OneShotDailyResetIfNeeded();
 
+        OneShotDailyResetIfNeeded();    // ✅ 날짜 처리/복원은 여기서 일괄
         AvailableStepsChanged?.Invoke(availableSteps);
     }
 
@@ -137,36 +123,41 @@ public class StepManager : MonoBehaviour {
         #endif
 
         #if UNITY_IOS && !UNITY_EDITOR
+        if (!iosInitialized) {
+            // 혹시 재개 사이클에서 초기화가 안됐으면 한 번 보정
+            PrimeIOSLastTotal();
+            return;
+        }
 
-        if(iosInitialized) {
-            int total = 0;
-            try { total = IOSPedometer.iOS_Pedometer_GetTodaySteps(); }
-            catch (Exception ex) {
-                Debug.LogError($"[StepManager][iOS] GetTodaySteps error : {ex}");
-                total = rawStepCount;
-            }
+        int total = 0;
+        try { total = IOSPedometer.iOS_Pedometer_GetTodaySteps(); }
+        catch (Exception ex) {
+            Debug.LogError($"[StepManager][iOS] GetTodaySteps error : {ex}");
+            total = rawStepCount;
+        }
 
-            if(total < lastTotal) {
-                Debug.LogWarning("[StepManager][iOS] Counter reset (midnight?). Re-baselining.");
-                Rebaseline(total);
-                sessionLastTotal = total;
-                AvailableStepsChanged?.Invoke(availableSteps);
-            }
+        // 자정/리셋 감지
+        if (total < lastTotal) {
+            Rebaseline(total);
+            sessionLastTotal = total;
+            AvailableStepsChanged?.Invoke(availableSteps);
+        }
 
-            int delta = total - lastTotal;
-            if(delta > 0) {
-                rawStepCount = total;
-                lastTotal = total;
-                availableSteps += delta;
-                Persist();
-                AvailableStepsChanged?.Invoke(availableSteps);
-            }
+        // 증가분만큼만 더하기
+        int delta = total - lastTotal;
+        if (delta > 0) {
+            rawStepCount  = total;
+            lastTotal     = total;
+            availableSteps += delta;
+            Persist();
+            AvailableStepsChanged?.Invoke(availableSteps);
+        }
 
-            int sessionDelta = total - sessionLastTotal;
-            if(sessionDelta > 0) {
-                sessionSteps += sessionDelta;
-                sessionLastTotal = total;
-            }
+        // 세션 집계
+        int sessionDelta = total - sessionLastTotal;
+        if (sessionDelta > 0) {
+            sessionSteps     += sessionDelta;
+            sessionLastTotal  = total;
         }
         #endif
     }
@@ -265,6 +256,33 @@ public class StepManager : MonoBehaviour {
         [DllImport("__Internal")] public static extern void iOS_Pedometer_Stop();
         [DllImport("__Internal")] public static extern int  iOS_Pedometer_GetTodaySteps();
     }
+
+
+    private void PrimeIOSLastTotal()
+    {
+        // 플러그인에서 '오늘 자정 이후 누적'을 바로 읽는다
+        int today = 0;
+        try { today = IOSPedometer.iOS_Pedometer_GetTodaySteps(); }
+        catch { today = rawStepCount; }
+
+        rawStepCount     = today;
+        // 저장된 lastTotal이 있으면 그걸 쓰고, 없으면 오늘 누적을 그대로 사용(=스파이크 방지)
+        lastTotal        = PlayerPrefs.GetInt(KEY_LAST_TOTAL, today);
+        sessionLastTotal = lastTotal;
+
+        // baseline/available은 OneShotDailyResetIfNeeded()에서 통일 처리
+        iosInitialized = true;
+    }
+    #endif
+
+    #if UNITY_ANDROID && !UNITY_EDITOR
+    private void PrimeAndroidLastTotal() {
+        int total = ReadTotalFromPluginSafe();
+        if (total < 0) total = rawStepCount;      // fallback
+        rawStepCount     = total;
+        lastTotal        = PlayerPrefs.GetInt(KEY_LAST_TOTAL, total);
+        sessionLastTotal = lastTotal;
+    }
     #endif
 
     // ===== 퍼블릭 API =====
@@ -328,15 +346,22 @@ public class StepManager : MonoBehaviour {
     }
 
     private void OnApplicationPause(bool pause) {
-        if (pause) { 
+        if (pause) {
             Persist();
             #if UNITY_IOS && !UNITY_EDITOR
-            if(iosInitialized) IOSPedometer.iOS_Pedometer_Stop();
+            if (iosInitialized) IOSPedometer.iOS_Pedometer_Stop();
             #endif
-        }
-        else {
+        } else {
             #if UNITY_IOS && !UNITY_EDITOR
-            if(iosInitialized) IOSPedometer.iOS_Pedometer_Start();
+            if (IOSPedometer.iOS_Pedometer_IsSupported()) {
+                IOSPedometer.iOS_Pedometer_Start();
+                PrimeIOSLastTotal();
+            }
+            #endif
+            #if UNITY_ANDROID && !UNITY_EDITOR
+            if (isInitialized && stepPlugin != null) {
+                PrimeAndroidLastTotal(); // ← 안전망
+            }
             #endif
         }
     }

@@ -148,7 +148,7 @@
         "id" : "Seletc1",
         "label" : "조심스레 조사한다 (은밀행동 보유 시)",
         "action" : {
-          "skillCheck" : [
+          "checkS" : [
             ["sk_0002" , 1]
           ]
         },
@@ -242,7 +242,7 @@
         "id" : "Seletc1",
         "label" : "조심스레 조사한다 (관찰력 보유 시)",
         "action" : {
-          "skillCheck" : [
+          "checkS" : [
             ["sk_0001", 1]
           ]
         },

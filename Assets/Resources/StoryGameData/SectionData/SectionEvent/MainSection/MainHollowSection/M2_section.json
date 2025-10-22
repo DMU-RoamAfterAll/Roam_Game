@@ -212,7 +212,7 @@
         "id" : "Select1",
         "label" : "은밀행동 보유 시 (100% 성공)",
         "action" : {
-          "skillCheck" : [
+          "checkS" : [
             ["sk_0002", 1]
           ]
         },
@@ -251,7 +251,7 @@
         "id" : "Select1",
         "label" : "관찰력 보유 시 (100% 성공)",
         "action" : {
-          "skillCheck" : [
+          "checkS" : [
             ["sk_0001", 1]
           ]
         },

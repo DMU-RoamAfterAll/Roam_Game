@@ -96,7 +96,7 @@
         "id" : "Select1",
         "label" : "관찰력 보유 시 (60%)",
         "action" : {
-          "skillCheck" : [
+          "checkS" : [
             ["sk_0001", 1]
           ],
           "prob" : [

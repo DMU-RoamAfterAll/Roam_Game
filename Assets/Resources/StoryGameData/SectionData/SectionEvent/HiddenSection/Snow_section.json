@@ -33,7 +33,7 @@
         "id" : "Select2",
         "label" : "어깨로 밀어 올린다. (근력 보유 시)",
         "action" : {
-          "skillCheck" : [
+          "checkS" : [
             ["sk_0003", 1]
           ]
         },
@@ -124,7 +124,7 @@
       "getW" : [
         ["wp_2001", 1]
       ],
-      "skillCheck" : [
+      "checkS" : [
         ["sk_0003", 1]
       ]
     },

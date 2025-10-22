@@ -56,7 +56,7 @@
         "id" : "Select1",
         "label" : "자세히 관찰한다. (관찰력 보유 시)",
         "action" : {
-          "skillCheck" : ["sk_0001", 1]
+          "checkS" : ["sk_0001", 1]
         },
         "next" : "Text2"
       },
@@ -111,7 +111,7 @@
         "id" : "Select1",
         "label" : "신중히 발걸음을 내딛는다 (은밀행동 보유 시)",
         "action" : {
-          "skillCheck" : ["sk_0002", 1]
+          "checkS" : ["sk_0002", 1]
         },
         "next" : "Text4"
       },
@@ -160,7 +160,7 @@
         "id" : "Select1",
         "label" : "자세히 관찰한다. (관찰력 보유 시)",
         "action" : {
-          "skillCheck" : ["sk_0001", 1]
+          "checkS" : ["sk_0001", 1]
         },
         "next" : "Text6"
       },
