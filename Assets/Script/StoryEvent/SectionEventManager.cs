@@ -319,6 +319,7 @@ public class SectionEventManager : MonoBehaviour
         if (actions.checkI != null && actions.checkI.Count > 0 && actions.checkI is List<ItemData> checkIData)
         {
             bool checkIResult = true;
+            bool checkIFlag = true;
             foreach (ItemData actionItem in checkIData)
             {
                 if (actionItem != null && actionItem.itemCode != "" && actionItem.amount >= 0 &&
@@ -336,15 +337,21 @@ public class SectionEventManager : MonoBehaviour
                                     if (amount <= it.amount)
                                     {
                                         Debug.Log($"{itemData.name}의 수량이 필요 수량을 만족합니다.");
+                                        checkIFlag = true;
                                         break;
                                     }
                                     else
                                     {
                                         Debug.Log($"{itemData.name}의 수량이 필요 수량을 만족하지 않습니다. (추가 필요 수량 : {amount - it.amount})");
                                         checkIResult = false; //하나라도 수량을 만족하지 못했을 시 false
+                                        checkIFlag = true;
                                         break;
                                     }
                                 }
+                            }
+                            if (checkIFlag)
+                            {
+                                checkIResult = false; //아이템 미보유 시 false
                             }
                         },
                         onError: (code, msg) => Debug.LogError($"[{GetType().Name}] 아이템 불러오기 실패: {code}/{msg}")
@@ -394,6 +401,7 @@ public class SectionEventManager : MonoBehaviour
         if (actions.checkW != null && actions.checkW.Count > 0 && actions.checkW is List<WeaponData> checkWData)
         {
             bool checkWResult = true;
+            bool checkWFlag = true;
             foreach (WeaponData actionWeapon in checkWData)
             {
                 if (actionWeapon != null && actionWeapon.weaponCode != "" && actionWeapon.amount >= 0 &&
@@ -411,15 +419,21 @@ public class SectionEventManager : MonoBehaviour
                                     if (amount <= it.amount)
                                     {
                                         Debug.Log($"{weaponData.name}의 수량이 필요 수량을 만족합니다.");
+                                        checkWFlag = false;
                                         break;
                                     }
                                     else
                                     {
                                         Debug.Log($"{weaponData.name}의 수량이 필요 수량을 만족하지 않습니다. (추가 필요 수량 : {amount - it.amount})");
                                         checkWResult = false; //하나라도 수량을 만족하지 못했을 시 false
+                                        checkWFlag = false;
                                         break;
                                     }
                                 }
+                            }
+                            if (checkWFlag)
+                            {
+                                checkWResult = false; //무기 미보유 시 false
                             }
                         },
                         onError: (code, msg) => Debug.LogError($"[{GetType().Name}] 무기 불러오기 실패: {code}/{msg}")
@@ -469,6 +483,7 @@ public class SectionEventManager : MonoBehaviour
         if (actions.checkS != null && actions.checkS.Count > 0 && actions.checkS is List<SkillData> checkSData)
         {
             bool checkSResult = true;
+            bool checkSFlag = true;
             foreach (SkillData actionSkill in checkSData)
             {
                 if (actionSkill != null && actionSkill.skillCode != "" && actionSkill.skillLevel >= 0 &&
@@ -487,15 +502,21 @@ public class SectionEventManager : MonoBehaviour
                                     if (level <= it.skillLevel)
                                     {
                                         Debug.Log($"{skillData.name}의 레벨이 필요 레벨을 만족합니다.");
+                                        checkSFlag = false;
                                         break;
                                     }
                                     else
                                     {
                                         Debug.Log($"{skillData.name}의 레벨이 필요 레벨을 만족하지 않습니다. (추가 필요 레벨 : {level - it.skillLevel}), level = {level}, it.level = {it.skillLevel}");
                                         checkSResult = false; //하나라도 레벨을 만족하지 못했을 시 false
+                                        checkSFlag = false;
                                         break;
                                     }
                                 }
+                            }
+                            if (checkSFlag)
+                            {
+                                checkSResult = false; //보유하지 않았을 시 false
                             }
                         },
                         onError: (code, msg) => Debug.LogError($"[{GetType().Name}] 스킬 불러오기 실패: {code}/{msg}")
@@ -545,6 +566,7 @@ public class SectionEventManager : MonoBehaviour
         if (actions.flagCheck != null && actions.flagCheck.Count > 0 && actions.flagCheck is List<FlagData> fCheckData)
         {
             bool flagCheckResult = true;
+            bool flagcheckFlag = true;
             foreach (FlagData actionFlag in fCheckData)
             {
                 if (actionFlag != null && actionFlag.flagCode != "" &&
@@ -562,15 +584,21 @@ public class SectionEventManager : MonoBehaviour
                                     if (flagState == it.flagState)
                                     {
                                         Debug.Log($"{FlagData.name}는 {flagState}를 만족합니다."); //테스트 출력
+                                        flagcheckFlag = false;
                                         break;
                                     }
                                     else
                                     {
                                         Debug.Log($"{FlagData.name}는 {flagState}를 만족하지 않습니다."); //테스트 출력
                                         flagCheckResult = false; //하나라도 상태를 만족하지 못했을 시 false
+                                        flagcheckFlag = false;
                                         break;
                                     }
                                 }
+                            }
+                            if (flagcheckFlag)
+                            {
+                                flagCheckResult = false; //플래그 미보유 시 false
                             }
                         },
                         onError: (code, msg) => Debug.LogError($"[{GetType().Name}] 플래그 불러오기 실패: {code}/{msg}")
