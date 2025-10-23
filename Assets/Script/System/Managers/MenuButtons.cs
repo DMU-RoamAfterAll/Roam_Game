@@ -17,7 +17,8 @@ public class MenuButtons : MonoBehaviour {
     public void OnClickNewGame() {
         SaveLoadManager.Instance.NewGameClear(true);
 
-        SwitchSceneManager.Instance.EnterBaseFromBoot();
+        GameDataManager.Instance.sectionPath = "StoryGameData/SectionData/SectionEvent/MainSection/T0_section.json";
+        SceneManager.LoadScene(SceneList.Story);
     }
 
     public void OnClickContinue() {

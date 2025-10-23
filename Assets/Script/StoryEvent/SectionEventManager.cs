@@ -7,6 +7,7 @@ using System.IO;
 using UnityEngine.UI;
 using System.Linq;
 using UnityEditor;
+using UnityEngine.SceneManagement;
 
 //-------------------------------------------------------------------------------
 // ** Section Event Json 데이터 클래스 구조 **
@@ -59,7 +60,7 @@ public class WeaponData
 public class SkillData
 {
     public string skillCode; //스킬 코드명
-    public int level; //스킬 레벨
+    public int skillLevel; //스킬 레벨
 }
 
 [System.Serializable]
@@ -283,6 +284,22 @@ public class SectionEventManager : MonoBehaviour
     /// 액션 노드 처리 메소드
     /// </summary>
     /// <param name="actions">대상 액션 노드</param>
+    
+    public Dictionary<string, object> result;
+
+#if UNITY_EDITOR
+    [SerializeField, TextArea(5,20)]
+    private string resultPreview; 
+
+    private void OnValidate()
+    {
+        resultPreview = result == null
+            ? "(null)"
+            : string.Join("\n", result.Select(kv =>
+                $"{kv.Key}: {kv.Value} ({kv.Value?.GetType().Name})"));
+    }
+#endif
+
     public Dictionary<string, object> HandleNodeActions(ActionNode actions)
     {
         if (actions == null)
@@ -290,7 +307,7 @@ public class SectionEventManager : MonoBehaviour
             return null;
         }
 
-        Dictionary<string, object> result = new Dictionary<string, object>();
+        result = new Dictionary<string, object>();
 
         //삽화 변경
         if (actions.image != null && actions.image != "" && actions.image is string imageName)
@@ -336,6 +353,7 @@ public class SectionEventManager : MonoBehaviour
                 }
             }
             result["checkI"] = checkIResult;
+            Debug.Log("Item Check = " + result["checkI"]);
         }
 
         //아이템 획득
@@ -410,6 +428,7 @@ public class SectionEventManager : MonoBehaviour
                 }
             }
             result["checkW"] = checkWResult;
+            Debug.Log("Weapon Check" + result["checkW"]);
         }
 
         //무기 획득
@@ -452,8 +471,8 @@ public class SectionEventManager : MonoBehaviour
             bool checkSResult = true;
             foreach (SkillData actionSkill in checkSData)
             {
-                if (actionSkill != null && actionSkill.skillCode != "" && actionSkill.level >= 0 &&
-                actionSkill.skillCode is string skillCode && actionSkill.level is int level)
+                if (actionSkill != null && actionSkill.skillCode != "" && actionSkill.skillLevel >= 0 &&
+                actionSkill.skillCode is string skillCode && actionSkill.skillLevel is int level)
                 {
                     SkillDataNode skillData = dataService.skill.GetSkillByCode(skillCode);
 
@@ -462,16 +481,17 @@ public class SectionEventManager : MonoBehaviour
                         {
                             foreach (var it in list)
                             {
+                                Debug.Log("skillCode = " + it.skillCode + "skillLevel" + it.skillLevel);
                                 if (skillCode == it.skillCode)
                                 {
-                                    if (level <= it.level)
+                                    if (level <= it.skillLevel)
                                     {
                                         Debug.Log($"{skillData.name}의 레벨이 필요 레벨을 만족합니다.");
                                         break;
                                     }
                                     else
                                     {
-                                        Debug.Log($"{skillData.name}의 레벨이 필요 레벨을 만족하지 않습니다. (추가 필요 레벨 : {level - it.level})");
+                                        Debug.Log($"{skillData.name}의 레벨이 필요 레벨을 만족하지 않습니다. (추가 필요 레벨 : {level - it.skillLevel}), level = {level}, it.level = {it.skillLevel}");
                                         checkSResult = false; //하나라도 레벨을 만족하지 못했을 시 false
                                         break;
                                     }
@@ -484,6 +504,7 @@ public class SectionEventManager : MonoBehaviour
                 }
             }
             result["checkS"] = checkSResult;
+            Debug.Log("Skill Check" + result["checkS"]);
         }
 
         //스킬 획득
@@ -491,8 +512,8 @@ public class SectionEventManager : MonoBehaviour
         {
             foreach (SkillData actionSkill in getSData)
             {
-                if (actionSkill != null && actionSkill.skillCode != "" && actionSkill.level != 0 &&
-                actionSkill.skillCode is string skillCode && actionSkill.level is int level)
+                if (actionSkill != null && actionSkill.skillCode != "" && actionSkill.skillLevel != 0 &&
+                actionSkill.skillCode is string skillCode && actionSkill.skillLevel is int level)
                 {
                     SkillDataNode skillData = dataService.skill.GetSkillByCode(skillCode);
 
@@ -558,6 +579,7 @@ public class SectionEventManager : MonoBehaviour
                 }
             }
             result["flagCheck"] = flagCheckResult;
+            Debug.Log("Flag Check" + result["flagCheck"]);
         }
 
         //확률 이동
@@ -574,6 +596,7 @@ public class SectionEventManager : MonoBehaviour
                 }
             }
             result["prob"] = SecureRng.Weighted(randomNext);
+            Debug.Log("Prob" + result["prob"]);
         }
 
         return result;
@@ -581,17 +604,19 @@ public class SectionEventManager : MonoBehaviour
 
     public bool checkValidation(Dictionary<string, object> actionResult)
     {
+        Debug.Log("actionResult == " + actionResult);
+        OnValidate();
         if (actionResult == null || actionResult.Count == 0)
         return true; // 기본 true로 반환
         
         var checkResults = actionResult.Values.Where(v => v is bool).Cast<bool>(); //check 확인
 
-        bool checkResult = checkResults.Any() //요슈 존재 확인 
+        bool checkResult = checkResults.Any() //요류 존재 확인 
         ? checkResults.Aggregate(true, (a, b) => a && b) //AND연산, check중 하나라도 false면 false
         : true; //비어있으면 기본 true
 
-        Debug.Log($"action check 완료, 선택지 {(checkResult ? "비활성화" : "활성화")}");
-        return !checkResult;
+        Debug.Log($"action check 완료, 선택지 {(!checkResult ? "비활성화" : "활성화")}");
+        return checkResult;
     }
 
     //-------------------------------------------------------------------------------
@@ -630,6 +655,10 @@ public class SectionEventManager : MonoBehaviour
                                 "조사 종료",
                                 null)
                         );
+
+                        if(!SceneManager.GetSceneByName(SceneList.Map).isLoaded) {
+                            SwitchSceneManager.Instance.EnterBaseFromBoot();
+                        }
 
                         if(nextNode.Equals("EndS")) {
                             SwitchSceneManager.Instance.sectionCleared = true;

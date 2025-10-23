@@ -291,7 +291,7 @@ public class SectionEventParser : MonoBehaviour
         return ParsePairsInt(token, (code, amount) => new SkillData
         {
             skillCode = code,
-            level = amount
+            skillLevel = amount
         }, defaultInt: 1);
     }
 
