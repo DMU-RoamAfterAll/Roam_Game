@@ -106,60 +106,33 @@ public class AreaLocateControl : MonoBehaviour {
     }
 
 
-    ///구한 구역의 귝겨에 맞게 구역을 이동시킨
     IEnumerator MoveArea() {
         int count = createdAreaCount;
-        Vector2[] starts = new Vector2[count];
-        Vector2[] ends = new Vector2[count];
-        float[] durations = new float[count];
-        float[] elapsed = new float[count];
 
-        // 초기 위치와 목표 위치, 시간 설정
+        // 1) 애니메이션 없이 즉시 목표 위치로 이동
         for (int i = 0; i < count; i++) {
-            starts[i] = areas[i].transform.position;
-            ends[i] = basePoint[i];
-            durations[i] = Random.Range(0.5f, 1.2f);
-            elapsed[i] = 0f;
+            areas[i].transform.position = basePoint[i];
         }
 
-        bool allDone = false;
-
-        while (!allDone) {
-            allDone = true;
-
-            for (int i = 0; i < count; i++) {
-                if (elapsed[i] < durations[i]) {
-                    elapsed[i] += Time.deltaTime;
-                    float t = Mathf.Clamp01(elapsed[i] / durations[i]);
-                    areas[i].transform.position = Vector2.Lerp(starts[i], ends[i], t);
-                    allDone = false; // 아직 이동 중인 스포너가 있음
-                }
-            }
-
-            yield return null; // 다음 프레임까지 대기  
-        }
-
-        // 끝 위치 고정
-        for (int i = 0; i < count; i++) {
-            areas[i].transform.position = ends[i];
-        }
-
+        // 2) 리버/아이리스 섹션 생성
         CreateRiverSection();
-        CreateIrisSection();   
+        CreateIrisSection();
 
+        // 3) 링크 스포너 준비
         var linker = GetComponent<LinkSectionSpawner>();
-        if (linker == null) linker = gameObject.AddComponent<LinkSectionSpawner>(); 
+        if (linker == null) linker = gameObject.AddComponent<LinkSectionSpawner>();
 
+        // 한 프레임 양보(선택): 트랜스폼/인스턴스 반영 후 의존 코드가 있으면 안정적
         yield return null;
 
-        // ✅ 4) 이제 튜토리얼만 남기도록 비활성화
+        // 4) 튜토리얼만 남기도록 비활성화
         StartToturial();
 
-        // (선택) 다른 리스너들이 있으면 알림
+        // 5) 이벤트 알림
         OnAreaMoveFinished?.Invoke();
         EventManager.RaiseAreaMoveFinished();
 
-        // 기존 로직 유지: 저장/펜딩 로드/플래그 세팅
+        // 6) 펜딩 세이브 적용(있다면)
         var slm = SaveLoadManager.Instance;
         if (slm != null && slm.pendingLoadData != null) {
             Debug.Log("[AreaLocate] Applying pending save after map assembled");
@@ -167,6 +140,7 @@ public class AreaLocateControl : MonoBehaviour {
             slm.pendingLoadData = null;
         }
 
+        // 7) 저장/업로드 및 상태 갱신
         SaveLoadManager.Instance.SaveNow();
         SaveLoadManager.Instance.SaveNowAndUpload(GameDataManager.Data.playerName);
 

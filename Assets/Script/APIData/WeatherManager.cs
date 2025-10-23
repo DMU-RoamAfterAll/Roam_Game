@@ -124,23 +124,38 @@ public class WeatherManager : MonoBehaviour {
             yield return StartCoroutine(GetByCoords(lat, lon));
         }
 #elif UNITY_ANDROID
-
-        if(!Input.location.isEnableByUser) { yield break; }
-        Input.location.Start();
-        int maxWait = 10;
-        while(Input.location.status == LocationServiceStatus.Initializing && maxWait > 0) {
-            yield return new WaitForSeconds(1);
-            maxWait--;
+        // 권한 확인
+        if (!Permission.HasUserAuthorizedPermission(Permission.FineLocation)) {
+            Permission.RequestUserPermission(Permission.FineLocation);
+            int wait = 10;
+            while (!Permission.HasUserAuthorizedPermission(Permission.FineLocation) && wait-- > 0)
+                yield return null;
         }
-        if(Input.location.status == LocationServiceStatus.Failed) {
+
+        // 사용자 위치 서비스 상태 확인
+        if (!Input.location.isEnabledByUser) {
+            Debug.LogWarning("[Android] 위치 서비스가 꺼져있습니다. city로 폴백합니다.");
+            yield return StartCoroutine(GetByCity("Seoul"));
             yield break;
         }
-        else {
+
+        Input.location.Start(); // 혹은 정확도/거리 갱신 간격 지정: Start(1f, 1f)
+
+        int maxWait = 10;
+        while (Input.location.status == LocationServiceStatus.Initializing && maxWait-- > 0)
+            yield return new WaitForSeconds(1);
+
+        if (Input.location.status == LocationServiceStatus.Running) {
             float lat = Input.location.lastData.latitude;
             float lon = Input.location.lastData.longitude;
-            Debug.Log($"[Android] GPS = lat = {lat}, lon = {lon}");
+            Debug.Log($"[Android] GPS = lat={lat}, lon={lon}");
             yield return StartCoroutine(GetByCoords(lat, lon));
+        } else {
+            Debug.LogWarning("[Android] 위치 시작 실패. city로 폴백합니다.");
+            yield return StartCoroutine(GetByCity("Seoul"));
         }
+
+        Input.location.Stop();
 #endif
     }
 
