@@ -38,7 +38,7 @@
       {
         "id" : "Select3",
         "label" : "폐자재 더미를 살펴본다.",
-        "next" : "TextP_Result3"
+        "next" : "Text_Result3"
       }
     ]
   },

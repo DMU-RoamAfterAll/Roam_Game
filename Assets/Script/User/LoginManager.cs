@@ -193,6 +193,7 @@ public class LoginManager : MonoBehaviour
                 {
                     // ★ 서버 저장으로 계속하기 → 서버 시드로 고정
                     GameDataManager.Instance?.ContinueSeed(serverSave.originSeed);
+                    GameDataManager.Instance?.SetTutorialClear(serverSave.tutorialClear);
 
                     if (SaveLoadManager.Instance != null) {
                         SaveLoadManager.Instance.OverwriteLocal(serverSave);   // 파일 저장

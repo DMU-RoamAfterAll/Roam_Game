@@ -353,14 +353,14 @@ public class SectionEventManager : MonoBehaviour
                             {
                                 checkIResult = false; //아이템 미보유 시 false
                             }
+                            result["checkI"] = checkIResult;
+                            Debug.Log("Item Check = " + result["checkI"]);
                         },
                         onError: (code, msg) => Debug.LogError($"[{GetType().Name}] 아이템 불러오기 실패: {code}/{msg}")
                         )
                     );
                 }
             }
-            result["checkI"] = checkIResult;
-            Debug.Log("Item Check = " + result["checkI"]);
         }
 
         //아이템 획득
@@ -412,8 +412,10 @@ public class SectionEventManager : MonoBehaviour
                     StartCoroutine(userDataManager.WeaponCheck( //api 메소드
                         onResult: list =>
                         {
+                            Debug.Log("Code1" + list);
                             foreach (var it in list)
                             {
+                                Debug.Log("Code2" + it.weaponCode);
                                 if (weaponCode == it.weaponCode)
                                 {
                                     if (amount <= it.amount)
@@ -432,17 +434,18 @@ public class SectionEventManager : MonoBehaviour
                                 }
                             }
                             if (checkWFlag)
-                            {
+                            {   
+                                Debug.Log("Flag = true if");
                                 checkWResult = false; //무기 미보유 시 false
                             }
+                            result["checkW"] = checkWResult;
+                            Debug.Log("Weapon Check" + result["checkW"]);
                         },
                         onError: (code, msg) => Debug.LogError($"[{GetType().Name}] 무기 불러오기 실패: {code}/{msg}")
                         )
                     );
                 }
             }
-            result["checkW"] = checkWResult;
-            Debug.Log("Weapon Check" + result["checkW"]);
         }
 
         //무기 획득
@@ -518,14 +521,14 @@ public class SectionEventManager : MonoBehaviour
                             {
                                 checkSResult = false; //보유하지 않았을 시 false
                             }
+                            result["checkS"] = checkSResult;
+                            Debug.Log("Skill Check" + result["checkS"]);
                         },
                         onError: (code, msg) => Debug.LogError($"[{GetType().Name}] 스킬 불러오기 실패: {code}/{msg}")
                         )
                     );
                 }
             }
-            result["checkS"] = checkSResult;
-            Debug.Log("Skill Check" + result["checkS"]);
         }
 
         //스킬 획득
@@ -600,14 +603,14 @@ public class SectionEventManager : MonoBehaviour
                             {
                                 flagCheckResult = false; //플래그 미보유 시 false
                             }
+                            result["flagCheck"] = flagCheckResult;
+                            Debug.Log("Flag Check" + result["flagCheck"]);
                         },
                         onError: (code, msg) => Debug.LogError($"[{GetType().Name}] 플래그 불러오기 실패: {code}/{msg}")
                         )
                     );
                 }
             }
-            result["flagCheck"] = flagCheckResult;
-            Debug.Log("Flag Check" + result["flagCheck"]);
         }
 
         //확률 이동
