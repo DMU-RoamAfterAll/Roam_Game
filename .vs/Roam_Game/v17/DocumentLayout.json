@@ -3,11 +3,27 @@
   "WorkspaceRootPath": "C:\\Users\\minig\\Roam_Game\\Roam_Game\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{9FC98CB6-278D-CCBF-F6DA-B274B5CF8F59}|Assembly-CSharp.csproj|c:\\users\\minig\\roam_game\\roam_game\\assets\\script\\apidata\\weathermanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{9FC98CB6-278D-CCBF-F6DA-B274B5CF8F59}|Assembly-CSharp.csproj|c:\\users\\minig\\roam_game\\roam_game\\assets\\script\\ui\\story\\smartautoscroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9FC98CB6-278D-CCBF-F6DA-B274B5CF8F59}|Assembly-CSharp.csproj|solutionrelative:assets\\script\\ui\\story\\smartautoscroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9FC98CB6-278D-CCBF-F6DA-B274B5CF8F59}|Assembly-CSharp.csproj|C:\\Users\\minig\\Roam_Game\\Roam_Game\\assets\\script\\ui\\story\\scrollposkeeper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9FC98CB6-278D-CCBF-F6DA-B274B5CF8F59}|Assembly-CSharp.csproj|solutionrelative:assets\\script\\ui\\story\\scrollposkeeper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9FC98CB6-278D-CCBF-F6DA-B274B5CF8F59}|Assembly-CSharp.csproj|C:\\Users\\minig\\Roam_Game\\Roam_Game\\assets\\script\\ui\\scrollbarfader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9FC98CB6-278D-CCBF-F6DA-B274B5CF8F59}|Assembly-CSharp.csproj|solutionrelative:assets\\script\\ui\\scrollbarfader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9FC98CB6-278D-CCBF-F6DA-B274B5CF8F59}|Assembly-CSharp.csproj|C:\\Users\\minig\\Roam_Game\\Roam_Game\\assets\\script\\apidata\\stepmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9FC98CB6-278D-CCBF-F6DA-B274B5CF8F59}|Assembly-CSharp.csproj|solutionrelative:assets\\script\\apidata\\stepmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9FC98CB6-278D-CCBF-F6DA-B274B5CF8F59}|Assembly-CSharp.csproj|C:\\Users\\minig\\Roam_Game\\Roam_Game\\assets\\script\\apidata\\weathermanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{9FC98CB6-278D-CCBF-F6DA-B274B5CF8F59}|Assembly-CSharp.csproj|solutionrelative:assets\\script\\apidata\\weathermanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9FC98CB6-278D-CCBF-F6DA-B274B5CF8F59}|Assembly-CSharp.csproj|c:\\users\\minig\\roam_game\\roam_game\\assets\\script\\system\\securerng.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{9FC98CB6-278D-CCBF-F6DA-B274B5CF8F59}|Assembly-CSharp.csproj|C:\\Users\\minig\\Roam_Game\\Roam_Game\\assets\\script\\system\\securerng.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{9FC98CB6-278D-CCBF-F6DA-B274B5CF8F59}|Assembly-CSharp.csproj|solutionrelative:assets\\script\\system\\securerng.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -33,6 +49,55 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "SmartAutoScroller.cs",
+              "DocumentMoniker": "C:\\Users\\minig\\Roam_Game\\Roam_Game\\Assets\\Script\\UI\\Story\\SmartAutoScroller.cs",
+              "RelativeDocumentMoniker": "Assets\\Script\\UI\\Story\\SmartAutoScroller.cs",
+              "ToolTip": "C:\\Users\\minig\\Roam_Game\\Roam_Game\\Assets\\Script\\UI\\Story\\SmartAutoScroller.cs",
+              "RelativeToolTip": "Assets\\Script\\UI\\Story\\SmartAutoScroller.cs",
+              "ViewState": "AgIAAGYAAAAAAAAAAAAAAEUAAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-23T08:33:40.62Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ScrollbarFader.cs",
+              "DocumentMoniker": "C:\\Users\\minig\\Roam_Game\\Roam_Game\\Assets\\Script\\UI\\ScrollbarFader.cs",
+              "RelativeDocumentMoniker": "Assets\\Script\\UI\\ScrollbarFader.cs",
+              "ToolTip": "C:\\Users\\minig\\Roam_Game\\Roam_Game\\Assets\\Script\\UI\\ScrollbarFader.cs",
+              "RelativeToolTip": "Assets\\Script\\UI\\ScrollbarFader.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-23T08:23:29.824Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ScrollPosKeeper.cs",
+              "DocumentMoniker": "C:\\Users\\minig\\Roam_Game\\Roam_Game\\Assets\\Script\\UI\\Story\\ScrollPosKeeper.cs",
+              "RelativeDocumentMoniker": "Assets\\Script\\UI\\Story\\ScrollPosKeeper.cs",
+              "ToolTip": "C:\\Users\\minig\\Roam_Game\\Roam_Game\\Assets\\Script\\UI\\Story\\ScrollPosKeeper.cs",
+              "RelativeToolTip": "Assets\\Script\\UI\\Story\\ScrollPosKeeper.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAABIwAsAAABGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-23T08:21:36.05Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "StepManager.cs",
+              "DocumentMoniker": "C:\\Users\\minig\\Roam_Game\\Roam_Game\\Assets\\Script\\APIData\\StepManager.cs",
+              "RelativeDocumentMoniker": "Assets\\Script\\APIData\\StepManager.cs",
+              "ToolTip": "C:\\Users\\minig\\Roam_Game\\Roam_Game\\Assets\\Script\\APIData\\StepManager.cs",
+              "RelativeToolTip": "Assets\\Script\\APIData\\StepManager.cs",
+              "ViewState": "AgIAALwAAAAAAAAAAAAcwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-23T08:11:38.229Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
               "Title": "WeatherManager.cs",
               "DocumentMoniker": "C:\\Users\\minig\\Roam_Game\\Roam_Game\\Assets\\Script\\APIData\\WeatherManager.cs",
               "RelativeDocumentMoniker": "Assets\\Script\\APIData\\WeatherManager.cs",
@@ -40,12 +105,11 @@
               "RelativeToolTip": "Assets\\Script\\APIData\\WeatherManager.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAANgAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-10T07:18:00.619Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-10T07:18:00.619Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 5,
               "Title": "SecureRng.cs",
               "DocumentMoniker": "C:\\Users\\minig\\Roam_Game\\Roam_Game\\Assets\\Script\\System\\SecureRng.cs",
               "RelativeDocumentMoniker": "Assets\\Script\\System\\SecureRng.cs",
@@ -53,12 +117,11 @@
               "RelativeToolTip": "Assets\\Script\\System\\SecureRng.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAADwvwAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-10T07:15:23.408Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-10T07:15:23.408Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 6,
               "Title": "TogglePanel.cs",
               "DocumentMoniker": "C:\\Users\\minig\\Roam_Game\\Roam_Game\\Assets\\Script\\UI\\CharInfo\\TogglePanel.cs",
               "RelativeDocumentMoniker": "Assets\\Script\\UI\\CharInfo\\TogglePanel.cs",
@@ -70,7 +133,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 7,
               "Title": "FixLayout.cs",
               "DocumentMoniker": "C:\\Users\\minig\\Roam_Game\\Assets\\Script\\UI\\FixLayout.cs",
               "RelativeDocumentMoniker": "..\\Assets\\Script\\UI\\FixLayout.cs",
@@ -81,7 +144,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 8,
               "Title": "HideScrollbar.cs",
               "DocumentMoniker": "C:\\Users\\minig\\Roam_Game\\Assets\\Script\\UI\\HideScrollbar.cs",
               "RelativeDocumentMoniker": "..\\Assets\\Script\\UI\\HideScrollbar.cs",

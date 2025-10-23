@@ -1,19 +1,20 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.EventSystems; // For pointer events
-using UnityEngine.UI;           // For ScrollRect and CanvasGroup
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
-public class ScrollbarFader : MonoBehaviour, IBeginDragHandler, IEndDragHandler
+public class ScrollbarFader : MonoBehaviour
 {
     [Header("References")]
-    public CanvasGroup scrollbarGroup;       // The scrollbar to fade in/out
-    public ScrollRect scrollRect;            // The ScrollRect component to track drag events
+    public CanvasGroup scrollbarGroup;
+    public ScrollRect scrollRect;
 
     [Header("Settings")]
-    public float visibleAlpha = 0.5f;        // Opacity when visible
-    public float hideDelay = 1f;             // Delay before hiding
+    public float visibleAlpha = 0.5f;
+    public float hideDelay = 1f; 
 
     private Coroutine hideCoroutine;
+    private float previousPos;
 
     void Start()
     {
@@ -21,19 +22,27 @@ public class ScrollbarFader : MonoBehaviour, IBeginDragHandler, IEndDragHandler
             scrollbarGroup.alpha = 0f;
 
         if (scrollRect == null)
-            scrollRect = GetComponent<ScrollRect>(); // Try auto-assign
+            scrollRect = GetComponent<ScrollRect>();
+
+        previousPos = scrollRect.verticalNormalizedPosition;
+
+        scrollRect.onValueChanged.AddListener(OnScroll);
     }
 
-    public void OnBeginDrag(PointerEventData eventData)
+    void OnScroll(Vector2 _)
     {
-        ShowScrollbar();
-    }
+        float currentPos = scrollRect.verticalNormalizedPosition;
 
-    public void OnEndDrag(PointerEventData eventData)
-    {
+        if (currentPos < previousPos)
+        {
+            ShowScrollbar();
+        }
+
         if (hideCoroutine != null)
             StopCoroutine(hideCoroutine);
         hideCoroutine = StartCoroutine(HideScrollbarAfterDelay());
+
+        previousPos = currentPos;
     }
 
     private void ShowScrollbar()

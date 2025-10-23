@@ -3658,8 +3658,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b88bbff13c49b4468835d31117b13327, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rawStepCount: 0
-  availableSteps: 0
+  rawStepCount: 10000
+  availableSteps: 10000
 --- !u!4 &733488319
 Transform:
   m_ObjectHideFlags: 0
@@ -7122,6 +7122,7 @@ MonoBehaviour:
   loginUI: {fileID: 581593616}
   continueButton: {fileID: 477562053}
   newGameButton: {fileID: 858859250}
+  un: 
 --- !u!4 &1461900207
 Transform:
   m_ObjectHideFlags: 0
