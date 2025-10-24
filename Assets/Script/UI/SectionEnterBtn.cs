@@ -18,6 +18,7 @@ public class SectionEnterBtn : MonoBehaviour {
         noBtn.onClick.AddListener(OnNoClicked);
 
         if(cost != 0) costText.text = $"이동하기 위해 {cost}보가 필요합니다.";
+        else costText.text = $"이동하시겠습니까?";
         return tcs.Task;
     }
 

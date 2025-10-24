@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3237825561558387826}
   - component: {fileID: 661475424082495149}
   - component: {fileID: 3629888734085304846}
+  - component: {fileID: 7818371502707636796}
   m_Layer: 8
   m_Name: RiverSectionPrefab
   m_TagString: River
@@ -152,3 +153,25 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &7818371502707636796
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 944879611818450130}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b99d1739ea8da47aa90b814142f60e8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  linkSections: []
+  id: StoryGameData/SectionData/SectionEvent/MainSection/MainLiverSection/M3_section.json
+  rate: 83
+  eventType: "\uC2A4\uD1A0\uB9AC"
+  content: .
+  isVisited: 0
+  isCleared: 0
+  isPlayerOn: 0
+  isCanMove: 0
+  sectionPosition: {x: 0, y: 0}

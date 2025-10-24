@@ -26,7 +26,12 @@ public class SectionData : MonoBehaviour {
         spriteRenderer = GetComponent<SpriteRenderer>();
         originalColor = spriteRenderer.color;
 
+        SetPinImage();
         #endregion
+    }
+
+    void OnEnable() {
+        UpdateSectionColor();
     }
 
     ///플레이어가 Section에 있는지 없는지를 판별하는 함수
@@ -74,8 +79,33 @@ public class SectionData : MonoBehaviour {
     public void UpdateSectionColor() {
         if (spriteRenderer == null) return;
 
-        if (isCanMove || isVisited) spriteRenderer.color = Color.blue;
-        else spriteRenderer.color = originalColor;
+        if (isCleared) spriteRenderer.color = Color.green;
+        else spriteRenderer.color = Color.white;
+        
+    }
+
+    private string resourcePath;
+    public void SetPinImage() {
+        resourcePath = "ImgObj/Pin/";
+        switch(eventType) {
+            case "검은 숲" : 
+                resourcePath += "ForestPin";
+                break;
+            case "폐허" : 
+                resourcePath += "HollowPin";
+                break;
+            case "튜토리얼" : 
+                resourcePath += "TutorialPin";
+                break;
+
+            default : 
+                resourcePath += "EndPin";
+                break;
+        }
+
+        spriteRenderer.sprite = Resources.Load<Sprite>(resourcePath);
+
     }
     #endregion
+
 }

@@ -133,7 +133,7 @@
     "menuOption": [
       {
         "id" : "Select1",
-        "label" : "근력 기술이 보유 시",
+        "label" : "근력 기술 보유 시",
         "action" : {
           "checkS" : [
             ["sk_0003", 1]

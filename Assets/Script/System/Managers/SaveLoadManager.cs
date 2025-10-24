@@ -15,6 +15,8 @@ public class SaveData {
     public string preSectionId;
     public bool tutorialClear;
     public List<string> visitedSectionIds = new List<string>();
+    public List<string> clearedSectionIds = new List<string>();
+    public List<string> canMoveSectionIds = new List<string>();
 }
 
 public class SaveLoadManager : MonoBehaviour {
@@ -93,6 +95,18 @@ public class SaveLoadManager : MonoBehaviour {
                     set.Add(NormalizeId(raw));
                 save.visitedSectionIds = new List<string>(set); // 중복 제거 포함
             }
+            if(save.clearedSectionIds != null) {
+                var set = new HashSet<string>();
+                foreach (var raw in save.clearedSectionIds)
+                    set.Add(NormalizeId(raw));
+                save.clearedSectionIds = new List<string>(set); // 중복 제거 포함
+            }
+            if(save.canMoveSectionIds != null) {
+                var set = new HashSet<string>();
+                foreach (var raw in save.canMoveSectionIds)
+                    set.Add(NormalizeId(raw));
+                save.canMoveSectionIds = new List<string>(set); // 중복 제거 포함
+            }
             
             Debug.Log($"SaveLoad Loaded from {path}");
             return true;
@@ -145,6 +159,24 @@ public class SaveLoadManager : MonoBehaviour {
                 sec.LightObj();
             }
             else Debug.LogWarning($"[Load] visitedId '{raw}' -> '{id}' not found in map");
+        }
+
+        Debug.Log($"[Load] cleared ids in save: {data.clearedSectionIds?.Count ?? 0}");
+        foreach (var raw in data.clearedSectionIds) {
+            var id = NormalizeId(raw);          // ★ 2구간 정규화
+            if (map.TryGetValue(id, out var sec)) {
+                sec.isCleared = true;
+            }
+            else Debug.LogWarning($"[Load] clearId '{raw}' -> '{id}' not found in map");
+        }
+
+        Debug.Log($"[Load] canMove ids in save: {data.canMoveSectionIds?.Count ?? 0}");
+        foreach (var raw in data.canMoveSectionIds) {
+            var id = NormalizeId(raw);          // ★ 2구간 정규화
+            if (map.TryGetValue(id, out var sec)) {
+                sec.isCanMove = true;
+            }
+            else Debug.LogWarning($"[Load] canMoveId '{raw}' -> '{id}' not found in map");
         }
 
         var pc = player != null ? player.GetComponent<PlayerControl>() : null;
@@ -209,7 +241,7 @@ public class SaveLoadManager : MonoBehaviour {
                     sd.isVisited = false;
                     sd.isCleared = false;
                     sd.isPlayerOn = false;
-                    // 규칙에 따라 필요하면: sd.isCanMove = false;
+                    sd.isCanMove = false;
                     sd.UpdateSectionColor();
                 }
             }
@@ -271,6 +303,22 @@ public class SaveLoadManager : MonoBehaviour {
         }
     }
 
+    public void AddClearedSectionIds(string id) {
+        if (save == null) save = new SaveData();
+        var norm = NormalizeId(id);                 // ★ 2구간 정규화
+        if (!string.IsNullOrEmpty(norm) && !save.clearedSectionIds.Contains(norm)) {
+            save.clearedSectionIds.Add(norm);
+        }
+    }
+
+    public void AddCanMoveSectionIds(string id) {
+        if (save == null) save = new SaveData();
+        var norm = NormalizeId(id);                 // ★ 2구간 정규화
+        if (!string.IsNullOrEmpty(norm) && !save.canMoveSectionIds.Contains(norm)) {
+            save.canMoveSectionIds.Add(norm);
+        }
+    }
+
     // SaveLoadManager.cs 내부 아무 public 메서드들 아래에 추가
     public void OverwriteLocal(SaveData data, bool normalize = true)
     {
@@ -284,6 +332,14 @@ public class SaveLoadManager : MonoBehaviour {
             {
                 for (int i = 0; i < data.visitedSectionIds.Count; i++)
                     data.visitedSectionIds[i] = NormalizeId(data.visitedSectionIds[i]);
+            }
+            if(data.clearedSectionIds != null) {
+                for (int i = 0; i < data.clearedSectionIds.Count; i++)
+                    data.clearedSectionIds[i] = NormalizeId(data.clearedSectionIds[i]);
+            }
+            if(data.canMoveSectionIds != null) {
+                for (int i = 0; i < data.canMoveSectionIds.Count; i++)
+                    data.canMoveSectionIds[i] = NormalizeId(data.canMoveSectionIds[i]);
             }
         }
 
@@ -413,6 +469,20 @@ public class SaveLoadManager : MonoBehaviour {
             foreach (var v in save.visitedSectionIds) {
                 var n = NormalizeId(v);
                 Debug.Log($"[Saved] visited raw='{v}', norm='{n}', inScene={sceneIds.Contains(n)}");
+            }
+        }
+        //cleared
+        if (save.clearedSectionIds != null) {
+            foreach (var v in save.clearedSectionIds) {
+                var n = NormalizeId(v);
+                Debug.Log($"[Saved] cleared raw='{v}', norm='{n}', inScene={sceneIds.Contains(n)}");
+            }
+        }
+
+        if (save.canMoveSectionIds != null) {
+            foreach (var v in save.canMoveSectionIds) {
+                var n = NormalizeId(v);
+                Debug.Log($"[Saved] canMove raw='{v}', norm='{n}', inScene={sceneIds.Contains(n)}");
             }
         }
     }

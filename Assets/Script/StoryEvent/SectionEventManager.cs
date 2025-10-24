@@ -545,9 +545,12 @@ public class SectionEventManager : MonoBehaviour
                         }
 
                         if(nextNode.Equals("EndS")) {
-                            _ = MapSceneDataManager.Instance?.Player?.TryGetComponent<PlayerControl>(out var pc) == true
-                            && pc.sectionData != null
-                            && (pc.sectionData.isCleared = true);
+                            if (MapSceneDataManager.Instance?.Player?.TryGetComponent<PlayerControl>(out var pc) == true &&
+                                pc.sectionData != null)
+                            {
+                                pc.sectionData.isCleared = true;
+                                SaveLoadManager.Instance?.AddClearedSectionIds(pc.sectionData.id);
+                            }
                         }
                         else if (nextNode.Equals("EndF")) {
                             _ = MapSceneDataManager.Instance?.Player?.TryGetComponent<PlayerControl>(out var pc) == true

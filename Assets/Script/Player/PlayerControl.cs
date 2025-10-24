@@ -238,7 +238,7 @@ public class PlayerControl : MonoBehaviour {
         _confirmBusy = true;
 
         try {
-            int cost = GetStepCost(sd.transform.position);
+            int cost = GetStepCost(sd.transform);
             Debug.Log($"[PC] Need StepCost = {cost}");
 
             // 4) Task<bool> → 코루틴 대기
@@ -338,13 +338,38 @@ public class PlayerControl : MonoBehaviour {
             }
 
             section.isCanMove = canMove;
+            SaveLoadManager.Instance?.AddClearedSectionIds(section.id);
             section.UpdateSectionColor();
         }
     }
 
-    int GetStepCost(Vector2 sectionPosition) {
-        int step = (int)(Vector2.Distance(this.transform.position, sectionPosition));
-        return step;
+    // 새 오버로드: 섹션 Transform을 직접 받아 처리(같은 부모면 0)
+    int GetStepCost(Transform sectionTransform)
+    {
+        if (sectionTransform == null) return 0;
+
+        // 같은 섹션(부모 동일)이라면 비용 0
+        if (transform.parent == sectionTransform ||
+            (currentSection != null && currentSection.transform == sectionTransform))
+            return 0;
+
+        // 월드 위치가 거의 같아도 0 (부동소수 오차 대비)
+        var diff = (Vector2)transform.position - (Vector2)sectionTransform.position;
+        if (diff.sqrMagnitude < 1e-6f) return 0;
+
+        // 그 외에는 월드 거리로 계산
+        return Mathf.RoundToInt(Vector2.Distance(transform.position, sectionTransform.position));
+    }
+
+    // (원형을 쓰는 다른 코드가 있을 수 있으니) 기존 시그니처도 안전하게 유지
+    int GetStepCost(Vector2 sectionPosition)
+    {
+        if (currentSection != null)
+        {
+            var curPos = (Vector2)currentSection.transform.position;
+            if ((curPos - sectionPosition).sqrMagnitude < 1e-6f) return 0;
+        }
+        return Mathf.RoundToInt(Vector2.Distance(transform.position, sectionPosition));
     }
 
     void OnDrawGizmos() {

@@ -32,7 +32,7 @@ public class LinkSection : MonoBehaviour {
         if (sectionData != null && sectionData.isPlayerOn) {
             // 내(=이 LinkSection이 붙은 쪽)의 SectionData가 아직 방문 전일 때만
             var mySd = GetComponent<SectionData>();
-            if (mySd != null && !mySd.isVisited) {
+            if (mySd != null && !mySd.isVisited && !mySd.isCanMove) {
                 // 이미 만들어져 있으면 재생성 금지
                 if (virtualSection != null) return;
 

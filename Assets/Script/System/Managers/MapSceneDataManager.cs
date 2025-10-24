@@ -28,6 +28,8 @@ public class MapSceneDataManager : MonoBehaviour {
 
     public bool isPopUpOn;
 
+    public SectionData riverSection;
+
     void Awake() {
         if (Instance != null && Instance != this) {
             Destroy(this.gameObject);
@@ -103,5 +105,54 @@ public class MapSceneDataManager : MonoBehaviour {
             Debug.LogWarning($"[MapSceneDataManager] areaNumber fetch failed: {ex.Message}");
             // 실패 시 기본값 유지 혹은 fallback 값 지정 가능
         }
+
+        if(AreAreasFullyCleared()) CheckClearChapterOne();
+    }
+
+    void OnEnable() { if(AreAreasFullyCleared()) CheckClearChapterOne(); }
+
+    // 지정한 Area 인덱스들에 대해, 각 Area의 자식들 중 SectionData가 모두 isCleared == true 인지 검사
+    public bool AreAreasFullyCleared(params int[] areaIndices)
+    {
+        if (areaObjects == null || areaObjects.Count == 0 || areaIndices == null || areaIndices.Length == 0)
+            return false;
+
+        foreach (var idx in areaIndices)
+        {
+            if (idx < 0 || idx >= areaObjects.Count)
+            {
+                Debug.LogWarning($"[MapSceneDataManager] AreAreasFullyCleared: index {idx} out of range");
+                return false;
+            }
+
+            var areaRoot = areaObjects[idx];
+            if (areaRoot == null) return false;
+
+            // 비활성 포함해서 자식들 중 SectionData 전부 가져옴
+            var sectionsInArea = areaRoot.GetComponentsInChildren<SectionData>(true);
+            if (sectionsInArea == null || sectionsInArea.Length == 0)
+            {
+                Debug.LogWarning($"[MapSceneDataManager] Area {idx} has no SectionData children");
+                return false;
+            }
+
+            // 하나라도 미클리어면 false
+            foreach (var sd in sectionsInArea)
+            {
+                if (sd != null && !sd.isCleared)
+                    return false;
+            }
+        }
+
+        return true;
+    }
+
+    // 챕터1 클리어 판정 (예: 0,1,5번 Area 모두 클리어인지)
+    public void CheckClearChapterOne()
+    {
+        bool cleared = AreAreasFullyCleared(0, 1, 5);
+        Debug.Log($"[MapSceneDataManager] Chapter One Cleared = {cleared}");
+
+        
     }
 }

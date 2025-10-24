@@ -49,14 +49,14 @@ public class MissionManager : MonoBehaviour {
             headerMaskList.Add(headerObj);
 
             foreach(var section in sections) {
-                if(section.transform.parent.name != areaObj.name || !section.GetComponent<SectionData>().isVisited) 
+                if(section.transform.parent.name != areaObj.name || !section.GetComponent<SectionData>().isCleared) 
                     continue;
                 GameObject sectionObj = Instantiate(bodyPrefab, areaObj.transform);
                 sectionObj.GetComponent<BodyMaskInfo>().sd = section.GetComponent<SectionData>();
             }
 
             foreach(var mSection in mainSections) {
-                if(mSection.transform.parent.name != areaObj.name || !mSection.GetComponent<SectionData>().isVisited) 
+                if(mSection.transform.parent.name != areaObj.name || !mSection.GetComponent<SectionData>().isCleared) 
                     continue;
                 GameObject mSectionObj = Instantiate(bodyPrefab, areaObj.transform);
                 mSectionObj.GetComponent<BodyMaskInfo>().sd = mSection.GetComponent<SectionData>();
