@@ -260,7 +260,7 @@ public class UserDataManager : MonoBehaviour
     /// <param name="flagCode">플래그 코드</param>
     /// <param name="flagState">플래그 상태(true or false)</param>
     /// <returns></returns>
-    public IEnumerator FlagSet(string flagCode, bool flagState) 
+    public IEnumerator FlagSet(string flagCode, bool flagState)
     {
         string url =
             $"{apiUrl}/api/flags" +
@@ -294,7 +294,22 @@ public class UserDataManager : MonoBehaviour
         }
     }
 
-    void Awake() {
+    /// <summary>
+    /// api를 통해 유저의 진행 데이터를 초기화하는 함수
+    /// </summary>
+    /// <returns></returns>
+    public IEnumerator GameReset()
+    {
+        string url =
+        $"{apiUrl}/api/reset/hard" +
+        $"?username={UnityWebRequest.EscapeURL(username)}";
+
+        using (var req = UnityWebRequest.PostWwwForm(url, "")) //body부분 비우고 전송
+            yield return SendApi(req);
+    }
+
+    void Awake()
+    {
         accessToken = AuthManager.Instance.GetToken();
         username = AuthManager.Instance.GetUserName();
     }
