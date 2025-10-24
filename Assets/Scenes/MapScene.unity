@@ -835,7 +835,7 @@ MonoBehaviour:
     \uC2A4\uD0AC3\uC2A4\uD0AC 1, \uC2A4\uD0AC2, \uC2A4\uD0AC3\uC2A4\uD0AC 1, \uC2A4\uD0AC2,
     \uC2A4\uD0AC3\uC2A4\uD0AC 1, \uC2A4\uD0AC2, \uC2A4\uD0AC3"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 9714604a60d390a4f8cc35c87b87790b, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 5480a68f70d3d8140b5b5fc2ad94af23, type: 2}
   m_sharedMaterial: {fileID: -3244293587049979586, guid: 9714604a60d390a4f8cc35c87b87790b, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -901,7 +901,7 @@ MonoBehaviour:
   m_margin: {x: 15, y: 15, z: 15, w: 15}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &115736597
@@ -3664,7 +3664,7 @@ MonoBehaviour:
     1, 2, 3\n\uC2A4\uD14C\uC774\uD130\uC2A4 1, 2, 3\n\uC2A4\uD14C\uC774\uD130\uC2A4
     1, 2, 3\n\uC2A4\uD14C\uC774\uD130\uC2A4 1, 2, 3"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 9714604a60d390a4f8cc35c87b87790b, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 5480a68f70d3d8140b5b5fc2ad94af23, type: 2}
   m_sharedMaterial: {fileID: -3244293587049979586, guid: 9714604a60d390a4f8cc35c87b87790b, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -3730,7 +3730,7 @@ MonoBehaviour:
   m_margin: {x: 15, y: 15, z: 15, w: 15}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &635883336
@@ -4156,6 +4156,9 @@ GameObject:
   m_Component:
   - component: {fileID: 697819897}
   - component: {fileID: 697819898}
+  - component: {fileID: 697819899}
+  - component: {fileID: 697819900}
+  - component: {fileID: 697819901}
   m_Layer: 0
   m_Name: UI_CharInfo
   m_TagString: Untagged
@@ -4196,6 +4199,56 @@ MonoBehaviour:
   playerName: {fileID: 1173358377}
   survivalDay: {fileID: 646738092}
   stepCount: {fileID: 1819585439}
+--- !u!114 &697819899
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 697819896}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ace79b1ecb594a73ace543d716fd99b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  autoFetchOnEnable: 1
+  fetchDelayOnEnable: 0
+--- !u!114 &697819900
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 697819896}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f922407f22f9b4434ab413a1c48f1fed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inventory: {fileID: 697819899}
+  catalog: {fileID: 0}
+  itemsText: {fileID: 635883335}
+  weaponsText: {fileID: 1465610971}
+  skillsText: {fileID: 115736596}
+  skipZeroAmount: 1
+  emptyPlaceholder: '-'
+--- !u!114 &697819901
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 697819896}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15886495d11df4532bd77719bae6eab3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemsJson: {fileID: 0}
+  weaponsJson: {fileID: 0}
+  skillsJson: {fileID: 0}
+  autoLoadOnEnable: 1
+  debugLog: 0
 --- !u!1 &712265520
 GameObject:
   m_ObjectHideFlags: 0
@@ -8434,7 +8487,7 @@ MonoBehaviour:
     1, 2, 3\n\uC2A4\uD14C\uC774\uD130\uC2A4 1, 2, 3\n\uC2A4\uD14C\uC774\uD130\uC2A4
     1, 2, 3"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 9714604a60d390a4f8cc35c87b87790b, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 5480a68f70d3d8140b5b5fc2ad94af23, type: 2}
   m_sharedMaterial: {fileID: -3244293587049979586, guid: 9714604a60d390a4f8cc35c87b87790b, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -8500,7 +8553,7 @@ MonoBehaviour:
   m_margin: {x: 15, y: 15, z: 15, w: 15}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &1465610972
@@ -9946,8 +9999,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\uBCF4\uC720 \uC2A4\uD0AC"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 9714604a60d390a4f8cc35c87b87790b, type: 2}
-  m_sharedMaterial: {fileID: -3244293587049979586, guid: 9714604a60d390a4f8cc35c87b87790b, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 5480a68f70d3d8140b5b5fc2ad94af23, type: 2}
+  m_sharedMaterial: {fileID: -7600655278663350453, guid: 5480a68f70d3d8140b5b5fc2ad94af23, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -10159,8 +10212,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\uC544\uC774\uD15C"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 9714604a60d390a4f8cc35c87b87790b, type: 2}
-  m_sharedMaterial: {fileID: -3244293587049979586, guid: 9714604a60d390a4f8cc35c87b87790b, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 5480a68f70d3d8140b5b5fc2ad94af23, type: 2}
+  m_sharedMaterial: {fileID: -7600655278663350453, guid: 5480a68f70d3d8140b5b5fc2ad94af23, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -10434,10 +10487,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uC0C1\uD0DC"
+  m_text: "\uBCF4\uC720 \uBB34\uAE30"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 9714604a60d390a4f8cc35c87b87790b, type: 2}
-  m_sharedMaterial: {fileID: -3244293587049979586, guid: 9714604a60d390a4f8cc35c87b87790b, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 5480a68f70d3d8140b5b5fc2ad94af23, type: 2}
+  m_sharedMaterial: {fileID: -7600655278663350453, guid: 5480a68f70d3d8140b5b5fc2ad94af23, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
