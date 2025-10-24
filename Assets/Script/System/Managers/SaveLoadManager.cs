@@ -70,6 +70,8 @@ public class SaveLoadManager : MonoBehaviour {
         } catch (Exception e) {
             Debug.LogError($"[SaveLoad] Save failed: {e.Message}");
         }
+
+        GameDataManager.Instance?.SendMessage("PersistCoreToPrefs", SendMessageOptions.DontRequireReceiver);
     }
 
     public bool TryLoad(out SaveData data) {
@@ -188,6 +190,8 @@ public class SaveLoadManager : MonoBehaviour {
 
     public void NewGameClear(bool resetSceneFlags = true) {
         GameDataManager.Instance?.NewSeed();
+        // NewGameClear()
+        GameDataManager.Instance?.SetTutorialClear(false);
 
         DeleteSave();              // 파일 삭제
         save = new SaveData();     // 메모리 초기화

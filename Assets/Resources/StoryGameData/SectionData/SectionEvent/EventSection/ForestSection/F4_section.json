@@ -181,7 +181,7 @@
 
       {
         "id" : "Select2",
-        "label" : "관찰력 미보유 시",
+        "label" : "식칼 미보유 시",
         "next" : "Text5"
       }
     ]

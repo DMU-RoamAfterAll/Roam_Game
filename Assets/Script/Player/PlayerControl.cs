@@ -238,7 +238,7 @@ public class PlayerControl : MonoBehaviour {
         _confirmBusy = true;
 
         try {
-            int cost = GetStepCost(sd.sectionPosition);
+            int cost = GetStepCost(sd.transform.position);
             Debug.Log($"[PC] Need StepCost = {cost}");
 
             // 4) Task<bool> → 코루틴 대기
@@ -343,8 +343,8 @@ public class PlayerControl : MonoBehaviour {
     }
 
     int GetStepCost(Vector2 sectionPosition) {
-        int step = (int)(Vector2.Distance(transform.position, sectionPosition));
-        return step * 10;
+        int step = (int)(Vector2.Distance(this.transform.position, sectionPosition));
+        return step;
     }
 
     void OnDrawGizmos() {
