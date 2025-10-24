@@ -39,6 +39,7 @@ public class ActionNode
     public List<FlagData> flagSet;
     public List<FlagData> flagCheck;
     public List<ProbData> prob;
+    public string reset; //유저 데이터를 초기화하는 노드
 }
 
 [System.Serializable]
@@ -464,6 +465,12 @@ public class SectionEventManager : MonoBehaviour
                 eval.result["prob"] = SecureRng.Weighted(randomNext);
                 Debug.Log("Prob -> " + eval.result["prob"]);
             }
+        }
+
+        if (actions.reset == "reset")
+        {
+            StartCoroutine(userDataManager.GameReset());
+            Debug.Log("유저 데이터 리셋");
         }
 
         return eval;

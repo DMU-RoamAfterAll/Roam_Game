@@ -23,7 +23,8 @@ public class SectionEventParser : MonoBehaviour
             "checkW", "getW", "lostW",
             "checkS", "getS",
             "flagSet", "flagCheck",
-            "prob"
+            "prob",
+            "reset"
         };
 
         //알 수 없는 Action값 제외
@@ -69,9 +70,12 @@ public class SectionEventParser : MonoBehaviour
 
         if (actionObj.TryGetValue("flagCheck", out var flagCheckToken))
             action.flagCheck = ParseStoryFlag(flagCheckToken);
-        
+
         if (actionObj.TryGetValue("prob", out var probToken))
             action.prob = ParseProbOption(probToken);
+
+        if (actionObj.ContainsKey("reset"))
+            action.reset = "reset";
             
         return action;
     }
