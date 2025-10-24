@@ -6,7 +6,9 @@ using System;
 using System.IO;
 using UnityEngine.UI;
 using System.Linq;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine.SceneManagement;
 
 //-------------------------------------------------------------------------------
@@ -26,72 +28,43 @@ public class CommonNode
 public class ActionNode
 {
     public string image; //삽화를 변경하기 위한 삽화 명을 작성하는 노드, 본문을 출력하기 전 삽화 변경이 이루어짐
-    public List<ItemData> checkI; //아이템 수량 확인을 위한 노드, <"아이템 코드", 갯수>형식으로 작성
-    public List<ItemData> getI; //아이템 획득 기능을 위한 노드, <"아이템 코드", 갯수>형식으로 작성
-    public List<ItemData> lostI; //아이템 유실 기능을 위한 노드, <"아이템 코드", 갯수>형식으로 작성
-    public List<WeaponData> checkW; //무기 수량 확인을 위한 노드, <"무기 코드", 갯수> 형식으로 작성
-    public List<WeaponData> getW; //무기 획득 기능을 위한 노드, <"무기 코드", 갯수> 형식으로 작성
-    public List<WeaponData> lostW; //무기 유실 기능을 위한 노드, <"무기 코드", 갯수> 형식으로 작성
-    public List<SkillData> checkS; //스킬 보유 레벨 확인을 위한 노드, <"스킬 코드", 레벨> 형식으로 작성
-    public List<SkillData> getS; //스킬 획득 기능을 위한 노드, <"스킬 코드", 레벨> 형식으로 작성
-    public List<FlagData> flagSet; //플래그 설정을 위한 플래그 명을 작성을 위한 노드, <"플래그명", boolean>형식으로 작성
-    public List<FlagData> flagCheck; //본문을 내보내기 위해 플래그를 확인을 위한 노드, <"플래그명", boolean>형식으로 작성
-    public List<ProbData> prob; //확률에 따라 다른 노드로 이동하기 위한 노드, <"노드 키값", 확률>형식으로 작성
+    public List<ItemData> checkI;
+    public List<ItemData> getI;
+    public List<ItemData> lostI;
+    public List<WeaponData> checkW;
+    public List<WeaponData> getW;
+    public List<WeaponData> lostW;
+    public List<SkillData> checkS;
+    public List<SkillData> getS;
+    public List<FlagData> flagSet;
+    public List<FlagData> flagCheck;
+    public List<ProbData> prob;
 }
 
 [System.Serializable]
-//아이템 제어를 위한 데이터 모델
-public class ItemData
-{
-    public string itemCode; //아이템 코드명
-    public int amount; //아이템 갯수
-}
+public class ItemData { public string itemCode; public int amount; }
 
 [System.Serializable]
-//무기 제어를 위한 데이터 모델
-public class WeaponData
-{
-    public string weaponCode; //무기 코드명
-    public int amount; //무기 갯수
-}
+public class WeaponData { public string weaponCode; public int amount; }
 
 [System.Serializable]
-//무기 제어를 위한 데이터 모델
-public class SkillData
-{
-    public string skillCode; //스킬 코드명
-    public int skillLevel; //스킬 레벨
-}
+public class SkillData { public string skillCode; public int skillLevel; }
 
 [System.Serializable]
-//플래그 제어를 위한 데이터 모델
-public class FlagData
-{
-    public string flagCode; //플래그 코드명
-    public bool flagState; //플래그 상태
-}
+public class FlagData { public string flagCode; public bool flagState; }
 
 [System.Serializable]
-//확률 이동 제어를 위한 데이터 모델
-public class ProbData
-{
-    public string next; //다음 출력을 위한 노드 키값, 선택지 확률값에 따라 해당 노드로 이동
-    public int probability; //선택지 확률
-}
+public class ProbData { public string next; public int probability; }
 
 //-------------------------------------------------------------------------------
 
 [System.Serializable]
-//텍스트 본문을 출력하는 노드, Text1 Text2 ... 혹은 Result1 Result2 ... 등으로 작성
 public class TextNode : CommonNode
 {
-    public List<string> value; //본문 내용을 적는 노드, 리스트를 사용하여 여러 문장을 나누어 작성
+    public List<string> value;
 }
 
-//-------------------------------------------------------------------------------
-
 [System.Serializable]
-//선택지를 생성하는 노드, Menu1 Menu2 ... 등으로 작성
 public class MenuNode
 {
     public List<MenuOption> menuOption;
@@ -99,28 +72,32 @@ public class MenuNode
 
 public class MenuOption : CommonNode
 {
-    public string id; //선택지를 구분하기 위한 키값
-    public string label; //선택지 내용
+    public string id;
+    public string label;
 }
 
-//-------------------------------------------------------------------------------
-
 [System.Serializable]
-//전투씬을 출력하는 노드, Battle1 Battle2 ... 등으로 작성
 public class BattleNode
 {
-    public List<string> battleIntro; //전투 시작 전 인트로 내용을 적는 노드, 리스트를 사용하여 여러 문장을 나누어 작성
-    public List<string> battleOrder; //전투 진행 순서를 결정하는 노드, 리스트 앞쪽 순서부터 순서대로 진행
-    public List<string> battleTriggers; //전투시 적용할 특성
-    public string battleWin; //전투 승리 시 다음 출력을 위한 노드 키값, 본문이 출력된 후 해당 노드로 이동
-    public string battleLose; //전투 패배 시 다음 출력을 위한 노드 키값, 본문이 출력된 후 해당 노드로 이동
+    public List<string> battleIntro;
+    public List<string> battleOrder;
+    public List<string> battleTriggers;
+    public string battleWin;
+    public string battleLose;
+}
+
+// ---- 액션 평가 결과 컨테이너 ----
+public class ActionEval
+{
+    public Dictionary<string, object> result = new Dictionary<string, object>(); // 각 체크 키 -> bool, 기타(확률 next 등)
+    public HashSet<string> requiredKeys = new HashSet<string>();                  // 완료를 기다릴 키 목록
 }
 
 //-------------------------------------------------------------------------------
 
 public class SectionEventManager : MonoBehaviour
 {
-    private Dictionary<string, object> sectionData = new Dictionary<string, object>(); //파싱된 Json데이터
+    private Dictionary<string, object> sectionData = new Dictionary<string, object>();
     private BattleEventManager battleEventManager;
     private EventDisplayManager eventDisplayManager;
     private SectionEventParser sectionEventParser;
@@ -148,74 +125,62 @@ public class SectionEventManager : MonoBehaviour
 
         //Json테스트 출력
         testjson = GetTextNode("Text1");
-        Debug.Log(testjson.value[0]);
+        if (testjson != null && testjson.value != null && testjson.value.Count > 0)
+            Debug.Log(testjson.value[0]);
         StartCoroutine(StartDialogue("Text1"));
     }
 
-    /// <summary>
-    /// Json Event 데이터 파일 로드 및 파싱
-    /// </summary>
+    // ---------------- JSON 로드 ----------------
     public void LoadJson()
     {
         string filePath = Path.ChangeExtension(GameDataManager.Instance.sectionPath, null);
 
-        TextAsset jsonFile = Resources.Load<TextAsset>(filePath); //Json 파일 로드
+        TextAsset jsonFile = Resources.Load<TextAsset>(filePath);
         if (jsonFile == null)
         {
             Debug.LogError($"[{GetType().Name}] 파일을 찾을 수 없음: {filePath}.json");
             return;
         }
-        //Json파일에서 텍스트 데이터를 가져와 Json객체 구조로 변경
         string jsonText = jsonFile.text;
         JObject root = JObject.Parse(jsonText);
 
-        // 각 노드를 순회하며 타입에 따라 파싱
         foreach (var pair in root)
         {
             string key = pair.Key;
             JObject nodeObj = (JObject)pair.Value;
 
-            //세션 정보 무시
-            if (key == "SectionInfo")
-            {
-                continue;
-            }
-            //본문과 선택지 여부에 따라 저장
+            if (key == "SectionInfo") continue;
+
             if (key.StartsWith("Text") || key.StartsWith("Result") || key.StartsWith("Post"))
             {
-                // action 빼고 복제본 만들기
                 JObject nodeClone = (JObject)nodeObj.DeepClone();
                 nodeClone.Remove("action");
 
                 TextNode text = nodeClone.ToObject<TextNode>();
 
-                //action 수동 파싱
                 if (nodeObj.TryGetValue("action", out var actionToken) && actionToken is JObject actionObj)
                     text.action = sectionEventParser.ParseActionNode(actionObj);
 
-                sectionData[key] = text; //키가 존재하지 않으면 동적 추가
+                sectionData[key] = text;
             }
             else if (key.StartsWith("Menu"))
             {
-                var optionsToken = nodeObj["menuOption"] as JArray; //메뉴 옵션 저장
+                var optionsToken = nodeObj["menuOption"] as JArray;
 
-                // action 빼고 복제본 만들기
                 JObject nodeClone = (JObject)nodeObj.DeepClone();
                 if (nodeClone["menuOption"] is JArray optArrayClone)
                 {
                     foreach (var opt in optArrayClone)
                     {
-                        if (opt is JObject optObj)
-                            optObj.Remove("action"); //옵션 안의 action 제거
+                        if (opt is JObject optObj) optObj.Remove("action");
                     }
                 }
 
                 MenuNode menu = nodeClone.ToObject<MenuNode>();
 
-                //action 수동 파싱
                 if (optionsToken != null && menu?.menuOption != null)
                 {
-                    for (int i = 0; i < menu.menuOption.Count && i < optionsToken.Count; i++) //메뉴 옵션을 순회하며 action 파싱
+                    for (int i = 0; i < menu.menuOption.Count && i < optionsToken.Count; i++)
                     {
                         var optSrc = optionsToken[i] as JObject;
                         if (optSrc == null) continue;
@@ -227,28 +192,22 @@ public class SectionEventManager : MonoBehaviour
                         }
                     }
                 }
-                sectionData[key] = menu; //키가 존재하지 않으면 동적 추가
+                sectionData[key] = menu;
             }
             else if (key.StartsWith("Battle"))
             {
                 BattleNode battle = nodeObj.ToObject<BattleNode>();
-                sectionData[key] = battle; //키가 존재하지 않으면 동적 추가
+                sectionData[key] = battle;
             }
             else
             {
                 Debug.LogWarning($"[{GetType().Name}] 인식할 수 없는 노드: {key}");
             }
         }
-        Debug.Log("Reading File : " + filePath); //파일 로드 확인 로그
+        Debug.Log("Reading File : " + filePath);
     }
 
-    /// <summary>
-    /// 텍스트 노드를 꺼내는 메소드
-    /// ex) TextNode node = sectionEventManager.GetTextNode("Text2");
-    ///     Debug.Log(node.value[0]);
-    /// </summary>
-    /// <param name="key">꺼낼 텍스트 노드의 key값</param>
-    /// <returns>해당 텍스트 노드</returns>
+    // ---------------- 노드 Getter ----------------
     public TextNode GetTextNode(string key)
     {
         if (sectionData.TryGetValue(key, out object node) && node is TextNode text)
@@ -256,11 +215,6 @@ public class SectionEventManager : MonoBehaviour
         return null;
     }
 
-    /// <summary>
-    /// 메뉴 노드를 꺼내는 메소드
-    /// </summary>
-    /// <param name="key">꺼낼 메뉴 노드의 key값</param>
-    /// <returns>해당 메뉴 노드</returns>
     public MenuNode GetMenuNode(string key)
     {
         if (sectionData.TryGetValue(key, out object node) && node is MenuNode menu)
@@ -268,11 +222,6 @@ public class SectionEventManager : MonoBehaviour
         return null;
     }
 
-    /// <summary>
-    /// 전투씬 노드를 꺼내는 메소드
-    /// </summary>
-    /// <param name="key">꺼낼 전투씬 노드의 key값</param>
-    /// <returns>해당 전투씬 노드</returns>
     public BattleNode GetBattleNode(string key)
     {
         if (sectionData.TryGetValue(key, out object node) && node is BattleNode battle)
@@ -280,383 +229,280 @@ public class SectionEventManager : MonoBehaviour
         return null;
     }
 
-    /// <summary>
-    /// 액션 노드 처리 메소드
-    /// </summary>
-    /// <param name="actions">대상 액션 노드</param>
-    
-    public Dictionary<string, object> result;
+    // ---------------- 액션 처리 ----------------
 
 #if UNITY_EDITOR
     [SerializeField, TextArea(5,20)]
-    private string resultPreview; 
+    private string resultPreview;
 
     private void OnValidate()
     {
-        resultPreview = result == null
-            ? "(null)"
-            : string.Join("\n", result.Select(kv =>
-                $"{kv.Key}: {kv.Value} ({kv.Value?.GetType().Name})"));
+        // 이 프리뷰는 마지막으로 계산한 결과만 간단히 표시
+        // (선택지마다 별도의 ActionEval을 쓰므로 디버그 용도로만)
+        // Null-safe
     }
 #endif
 
-    public Dictionary<string, object> HandleNodeActions(ActionNode actions)
+    private ActionEval HandleNodeActions(ActionNode actions)
     {
-        if (actions == null)
+        if (actions == null) return new ActionEval();
+
+        var eval = new ActionEval();
+
+        // ---- 삽화 변경 ----
+        if (!string.IsNullOrEmpty(actions.image))
         {
-            return null;
+            eventDisplayManager.LoadSceneSprite(actions.image);
         }
 
-        result = new Dictionary<string, object>();
-
-        //삽화 변경
-        if (actions.image != null && actions.image != "" && actions.image is string imageName)
+        // ---- 아이템 체크 ----
+        if (actions.checkI != null && actions.checkI.Count > 0)
         {
-            eventDisplayManager.LoadSceneSprite(imageName);
-        }
-
-        //아이템 체크
-        if (actions.checkI != null && actions.checkI.Count > 0 && actions.checkI is List<ItemData> checkIData)
-        {
-            bool checkIResult = true;
-            bool checkIFlag = true;
-            foreach (ItemData actionItem in checkIData)
+            foreach (var a in actions.checkI)
             {
-                if (actionItem != null && actionItem.itemCode != "" && actionItem.amount >= 0 &&
-                actionItem.itemCode is string itemCode && actionItem.amount is int amount)
-                {
-                    ItemDataNode itemData = dataService.Item.GetItemByCode(itemCode);
+                if (a == null || string.IsNullOrEmpty(a.itemCode)) continue;
 
-                    StartCoroutine(userDataManager.ItemCheck( //api 메소드
-                        onResult: list =>
-                        {
-                            foreach (var it in list)
-                            {
-                                if (itemCode == it.itemCode)
-                                {
-                                    if (amount <= it.amount)
-                                    {
-                                        Debug.Log($"{itemData.name}의 수량이 필요 수량을 만족합니다.");
-                                        checkIFlag = true;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        Debug.Log($"{itemData.name}의 수량이 필요 수량을 만족하지 않습니다. (추가 필요 수량 : {amount - it.amount})");
-                                        checkIResult = false; //하나라도 수량을 만족하지 못했을 시 false
-                                        checkIFlag = true;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (checkIFlag)
-                            {
-                                checkIResult = false; //아이템 미보유 시 false
-                            }
-                            result["checkI"] = checkIResult;
-                            Debug.Log("Item Check = " + result["checkI"]);
-                        },
-                        onError: (code, msg) => Debug.LogError($"[{GetType().Name}] 아이템 불러오기 실패: {code}/{msg}")
-                        )
-                    );
-                }
+                string key = $"checkI:{a.itemCode}";
+                eval.requiredKeys.Add(key);
+
+                bool done = false;
+                bool ok = false;
+
+                StartCoroutine(userDataManager.ItemCheck(
+                    onResult: list =>
+                    {
+                        var it = list.FirstOrDefault(x => x.itemCode == a.itemCode);
+                        ok = (it != null && it.amount >= a.amount);
+                        done = true;
+                    },
+                    onError: (code, msg) => { ok = false; done = true; }
+                ));
+
+                StartCoroutine(When(() => done, () =>
+                {
+                    eval.result[key] = ok;
+                    Debug.Log($"Item Check {a.itemCode} >= {a.amount} => {ok}");
+                }));
             }
         }
 
-        //아이템 획득
-        if (actions.getI != null && actions.getI.Count > 0 && actions.getI is List<ItemData> getIData)
+        // ---- 아이템 획득/유실 ----
+        if (actions.getI != null)
         {
-            foreach (ItemData actionItem in getIData)
+            foreach (var a in actions.getI)
             {
-                if (actionItem != null && actionItem.itemCode != "" && actionItem.amount != 0 &&
-                actionItem.itemCode is string itemCode && actionItem.amount is int amount)
-                {
-                    ItemDataNode itemData = dataService.Item.GetItemByCode(itemCode);
-
-                    //테스트 출력
-                    Debug.Log($"\'{itemData.code}\'아이템을 {amount}개 획득했습니다.");
-                    StartCoroutine(userDataManager.GetItem(itemData.code, amount)); //api 메소드
-                }
+                if (a == null || string.IsNullOrEmpty(a.itemCode) || a.amount == 0) continue;
+                var itemData = dataService.Item.GetItemByCode(a.itemCode);
+                Debug.Log($"'{itemData.code}' 아이템 {a.amount}개 획득");
+                StartCoroutine(userDataManager.GetItem(itemData.code, a.amount));
+            }
+        }
+        if (actions.lostI != null)
+        {
+            foreach (var a in actions.lostI)
+            {
+                if (a == null || string.IsNullOrEmpty(a.itemCode) || a.amount == 0) continue;
+                var itemData = dataService.Item.GetItemByCode(a.itemCode);
+                Debug.Log($"'{itemData.name}' 아이템 {a.amount}개 유실");
+                StartCoroutine(userDataManager.LostItem(itemData.code, a.amount));
             }
         }
 
-        //아이템 유실
-        if (actions.lostI != null && actions.lostI.Count > 0 && actions.lostI is List<ItemData> lostIData)
+        // ---- 무기 체크 ----
+        if (actions.checkW != null && actions.checkW.Count > 0)
         {
-            foreach (ItemData actionItem in lostIData)
+            foreach (var a in actions.checkW)
             {
-                if (actionItem != null && actionItem.itemCode != "" && actionItem.amount != 0 &&
-                actionItem.itemCode is string itemCode && actionItem.amount is int amount)
-                {
-                    ItemDataNode itemData = dataService.Item.GetItemByCode(itemCode);
+                if (a == null || string.IsNullOrEmpty(a.weaponCode)) continue;
 
-                    //테스트 출력
-                    Debug.Log($"\'{itemData.name}\'아이템을 {amount}개 잃었습니다.");
-                    StartCoroutine(userDataManager.LostItem(itemData.code, amount)); //api 메소드
-                }
+                string key = $"checkW:{a.weaponCode}";
+                eval.requiredKeys.Add(key);
+
+                bool done = false;
+                bool ok = false;
+
+                StartCoroutine(userDataManager.WeaponCheck(
+                    onResult: list =>
+                    {
+                        var it = list.FirstOrDefault(x => x.weaponCode == a.weaponCode);
+                        ok = (it != null && it.amount >= a.amount);
+                        done = true;
+                    },
+                    onError: (code, msg) => { ok = false; done = true; }
+                ));
+
+                StartCoroutine(When(() => done, () =>
+                {
+                    eval.result[key] = ok;
+                    Debug.Log($"Weapon Check {a.weaponCode} >= {a.amount} => {ok}");
+                }));
             }
         }
 
-        //무기 체크
-        if (actions.checkW != null && actions.checkW.Count > 0 && actions.checkW is List<WeaponData> checkWData)
+        // ---- 무기 획득/유실 ----
+        if (actions.getW != null)
         {
-            bool checkWResult = true;
-            bool checkWFlag = true;
-            foreach (WeaponData actionWeapon in checkWData)
+            foreach (var a in actions.getW)
             {
-                if (actionWeapon != null && actionWeapon.weaponCode != "" && actionWeapon.amount >= 0 &&
-                actionWeapon.weaponCode is string weaponCode && actionWeapon.amount is int amount)
-                {
-                    WeaponDataNode weaponData = dataService.Weapon.GetWeaponByCode(weaponCode);
-
-                    StartCoroutine(userDataManager.WeaponCheck( //api 메소드
-                        onResult: list =>
-                        {
-                            Debug.Log("Code1" + list);
-                            foreach (var it in list)
-                            {
-                                Debug.Log("Code2" + it.weaponCode);
-                                if (weaponCode == it.weaponCode)
-                                {
-                                    if (amount <= it.amount)
-                                    {
-                                        Debug.Log($"{weaponData.name}의 수량이 필요 수량을 만족합니다.");
-                                        checkWFlag = false;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        Debug.Log($"{weaponData.name}의 수량이 필요 수량을 만족하지 않습니다. (추가 필요 수량 : {amount - it.amount})");
-                                        checkWResult = false; //하나라도 수량을 만족하지 못했을 시 false
-                                        checkWFlag = false;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (checkWFlag)
-                            {   
-                                Debug.Log("Flag = true if");
-                                checkWResult = false; //무기 미보유 시 false
-                            }
-                            result["checkW"] = checkWResult;
-                            Debug.Log("Weapon Check" + result["checkW"]);
-                        },
-                        onError: (code, msg) => Debug.LogError($"[{GetType().Name}] 무기 불러오기 실패: {code}/{msg}")
-                        )
-                    );
-                }
+                if (a == null || string.IsNullOrEmpty(a.weaponCode) || a.amount == 0) continue;
+                var weaponData = dataService.Weapon.GetWeaponByCode(a.weaponCode);
+                Debug.Log($"'{weaponData.code}' 무기 {a.amount}개 획득");
+                StartCoroutine(userDataManager.GetWeapon(weaponData.code, a.amount));
+            }
+        }
+        if (actions.lostW != null)
+        {
+            foreach (var a in actions.lostW)
+            {
+                if (a == null || string.IsNullOrEmpty(a.weaponCode) || a.amount == 0) continue;
+                var weaponData = dataService.Weapon.GetWeaponByCode(a.weaponCode);
+                Debug.Log($"'{weaponData.name}' 무기 {a.amount}개 유실");
+                StartCoroutine(userDataManager.LostWeapon(weaponData.code, a.amount));
             }
         }
 
-        //무기 획득
-        if (actions.getW != null && actions.getW.Count > 0 && actions.getW is List<WeaponData> getWData)
+        // ---- 스킬 체크 ----
+        if (actions.checkS != null && actions.checkS.Count > 0)
         {
-            foreach (WeaponData actionWeapon in getWData)
+            foreach (var a in actions.checkS)
             {
-                if (actionWeapon != null && actionWeapon.weaponCode != "" && actionWeapon.amount != 0 &&
-                actionWeapon.weaponCode is string weaponCode && actionWeapon.amount is int amount)
-                {
-                    WeaponDataNode weaponData = dataService.Weapon.GetWeaponByCode(weaponCode);
+                if (a == null || string.IsNullOrEmpty(a.skillCode)) continue;
 
-                    //테스트 출력
-                    Debug.Log($"\'{weaponData.code}\'무기를 {amount}개 획득했습니다.");
-                    StartCoroutine(userDataManager.GetWeapon(weaponData.code, amount)); //api 메소드
-                }
+                string key = $"checkS:{a.skillCode}";
+                eval.requiredKeys.Add(key);
+
+                bool done = false;
+                bool ok = false;
+
+                StartCoroutine(userDataManager.SkillCheck(
+                    onResult: list =>
+                    {
+                        var it = list.FirstOrDefault(x => x.skillCode == a.skillCode);
+                        ok = (it != null && it.skillLevel >= a.skillLevel);
+                        done = true;
+
+                        Debug.Log($"[checkS] need {a.skillCode}:{a.skillLevel}, " +
+                                  $"have {(it==null ? "none" : it.skillLevel.ToString())} -> {ok}");
+                    },
+                    onError: (code, msg) => { ok = false; done = true; }
+                ));
+
+                StartCoroutine(When(() => done, () =>
+                {
+                    eval.result[key] = ok;
+                    Debug.Log($"Skill Check {a.skillCode} >= {a.skillLevel} => {ok}");
+                }));
             }
         }
 
-        //무기 유실
-        if (actions.lostW != null && actions.lostW.Count > 0 && actions.lostW is List<WeaponData> lostWData)
+        // ---- 스킬 획득 ----
+        if (actions.getS != null)
         {
-            foreach (WeaponData actionWeapon in lostWData)
+            foreach (var a in actions.getS)
             {
-                if (actionWeapon != null && actionWeapon.weaponCode != "" && actionWeapon.amount != 0 &&
-                actionWeapon.weaponCode is string weaponCode && actionWeapon.amount is int amount)
-                {
-                    WeaponDataNode weaponData = dataService.Weapon.GetWeaponByCode(weaponCode);
-
-                    //테스트 출력
-                    Debug.Log($"\'{weaponData.name}\'무기를 {amount}개 잃었습니다.");
-                    StartCoroutine(userDataManager.LostWeapon(weaponData.code, amount)); //api 메소드
-                }
+                if (a == null || string.IsNullOrEmpty(a.skillCode) || a.skillLevel == 0) continue;
+                var skillData = dataService.skill.GetSkillByCode(a.skillCode);
+                Debug.Log($"'{skillData.code}' 스킬 레벨 +{a.skillLevel}");
+                StartCoroutine(userDataManager.GetSkill(skillData.code, a.skillLevel));
             }
         }
 
-        //스킬 체크
-        if (actions.checkS != null && actions.checkS.Count > 0 && actions.checkS is List<SkillData> checkSData)
+        // ---- 플래그 설정 ----
+        if (actions.flagSet != null)
         {
-            bool checkSResult = true;
-            bool checkSFlag = true;
-            foreach (SkillData actionSkill in checkSData)
+            foreach (var a in actions.flagSet)
             {
-                if (actionSkill != null && actionSkill.skillCode != "" && actionSkill.skillLevel >= 0 &&
-                actionSkill.skillCode is string skillCode && actionSkill.skillLevel is int level)
-                {
-                    SkillDataNode skillData = dataService.skill.GetSkillByCode(skillCode);
-
-                    StartCoroutine(userDataManager.SkillCheck( //api 메소드
-                        onResult: list =>
-                        {
-                            foreach (var it in list)
-                            {
-                                Debug.Log("skillCode = " + it.skillCode + "skillLevel" + it.skillLevel);
-                                if (skillCode == it.skillCode)
-                                {
-                                    if (level <= it.skillLevel)
-                                    {
-                                        Debug.Log($"{skillData.name}의 레벨이 필요 레벨을 만족합니다.");
-                                        checkSFlag = false;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        Debug.Log($"{skillData.name}의 레벨이 필요 레벨을 만족하지 않습니다. (추가 필요 레벨 : {level - it.skillLevel}), level = {level}, it.level = {it.skillLevel}");
-                                        checkSResult = false; //하나라도 레벨을 만족하지 못했을 시 false
-                                        checkSFlag = false;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (checkSFlag)
-                            {
-                                checkSResult = false; //보유하지 않았을 시 false
-                            }
-                            result["checkS"] = checkSResult;
-                            Debug.Log("Skill Check" + result["checkS"]);
-                        },
-                        onError: (code, msg) => Debug.LogError($"[{GetType().Name}] 스킬 불러오기 실패: {code}/{msg}")
-                        )
-                    );
-                }
+                if (a == null || string.IsNullOrEmpty(a.flagCode)) continue;
+                var f = dataService.StoryFlag.GetFlagByCode(a.flagCode);
+                Debug.Log($"'{f.name}' 플래그 = {a.flagState}");
+                StartCoroutine(userDataManager.FlagSet(a.flagCode, a.flagState));
             }
         }
 
-        //스킬 획득
-        if (actions.getS != null && actions.getS.Count > 0 && actions.getS is List<SkillData> getSData)
+        // ---- 플래그 체크 ----
+        if (actions.flagCheck != null && actions.flagCheck.Count > 0)
         {
-            foreach (SkillData actionSkill in getSData)
+            foreach (var a in actions.flagCheck)
             {
-                if (actionSkill != null && actionSkill.skillCode != "" && actionSkill.skillLevel != 0 &&
-                actionSkill.skillCode is string skillCode && actionSkill.skillLevel is int level)
-                {
-                    SkillDataNode skillData = dataService.skill.GetSkillByCode(skillCode);
+                if (a == null || string.IsNullOrEmpty(a.flagCode)) continue;
 
-                    //테스트 출력
-                    Debug.Log($"\'{skillData.code}\'스킬의 레벨이 {level}만큼 올랐습니다.");
-                    StartCoroutine(userDataManager.GetSkill(skillData.code, level)); //api 메소드
-                }
+                string key = $"flagCheck:{a.flagCode}";
+                eval.requiredKeys.Add(key);
+
+                bool done = false;
+                bool ok = false;
+
+                StartCoroutine(userDataManager.FlagCheck(
+                    onResult: list =>
+                    {
+                        var it = list.FirstOrDefault(x => x.flagCode == a.flagCode);
+                        ok = (it != null && it.flagState == a.flagState);
+                        done = true;
+                    },
+                    onError: (code, msg) => { ok = false; done = true; }
+                ));
+
+                StartCoroutine(When(() => done, () =>
+                {
+                    eval.result[key] = ok;
+                    Debug.Log($"Flag Check {a.flagCode} == {a.flagState} => {ok}");
+                }));
             }
         }
 
-        //플래그 설정
-        if (actions.flagSet != null && actions.flagSet.Count > 0 && actions.flagSet is List<FlagData> fSetData)
+        // ---- 확률 이동 ----
+        if (actions.prob != null && actions.prob.Count > 0)
         {
-            foreach (FlagData actionFlag in fSetData)
+            var randomNext = new List<(string, float)>();
+            foreach (var p in actions.prob)
             {
-                if (actionFlag != null && actionFlag.flagCode != "" &&
-                actionFlag.flagCode is string flagCode && actionFlag.flagState is bool flagState)
-                {
-                    storyFlagNode FlagData = dataService.StoryFlag.GetFlagByCode(flagCode);
-
-                    //테스트 출력
-                    Debug.Log($"\'{FlagData.name}\'플래그 상태를 {flagState}로 변경했습니다.");
-                    StartCoroutine(userDataManager.FlagSet(flagCode, flagState)); //api 메소드
-                }
+                if (p == null || string.IsNullOrEmpty(p.next)) continue;
+                randomNext.Add((p.next, (float)p.probability));
+            }
+            if (randomNext.Count > 0)
+            {
+                eval.result["prob"] = SecureRng.Weighted(randomNext);
+                Debug.Log("Prob -> " + eval.result["prob"]);
             }
         }
 
-        //플래그 체크
-        if (actions.flagCheck != null && actions.flagCheck.Count > 0 && actions.flagCheck is List<FlagData> fCheckData)
-        {
-            bool flagCheckResult = true;
-            bool flagcheckFlag = true;
-            foreach (FlagData actionFlag in fCheckData)
-            {
-                if (actionFlag != null && actionFlag.flagCode != "" &&
-                actionFlag.flagCode is string flagCode && actionFlag.flagState is bool flagState)
-                {
-                    storyFlagNode FlagData = dataService.StoryFlag.GetFlagByCode(flagCode);
-
-                    StartCoroutine(userDataManager.FlagCheck( //api 메소드
-                        onResult: list =>
-                        {
-                            foreach (var it in list)
-                            {
-                                if (flagCode == it.flagCode)
-                                {
-                                    if (flagState == it.flagState)
-                                    {
-                                        Debug.Log($"{FlagData.name}는 {flagState}를 만족합니다."); //테스트 출력
-                                        flagcheckFlag = false;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        Debug.Log($"{FlagData.name}는 {flagState}를 만족하지 않습니다."); //테스트 출력
-                                        flagCheckResult = false; //하나라도 상태를 만족하지 못했을 시 false
-                                        flagcheckFlag = false;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (flagcheckFlag)
-                            {
-                                flagCheckResult = false; //플래그 미보유 시 false
-                            }
-                            result["flagCheck"] = flagCheckResult;
-                            Debug.Log("Flag Check" + result["flagCheck"]);
-                        },
-                        onError: (code, msg) => Debug.LogError($"[{GetType().Name}] 플래그 불러오기 실패: {code}/{msg}")
-                        )
-                    );
-                }
-            }
-        }
-
-        //확률 이동
-        if (actions.prob != null && actions.prob.Count > 0 && actions.prob is List<ProbData> probData)
-        {
-            List<(string, float)> randomNext = new List<(string, float)>();
-
-            foreach (ProbData actionProb in probData)
-            {
-                if (actionProb != null && actionProb.next != "" &&
-                actionProb.next is string next && actionProb.probability is int probability)
-                {
-                    randomNext.Add((next, (float)probability));
-                }
-            }
-            result["prob"] = SecureRng.Weighted(randomNext);
-            Debug.Log("Prob" + result["prob"]);
-        }
-
-        return result;
+        return eval;
     }
 
-    public bool checkValidation(Dictionary<string, object> actionResult)
+    private bool CheckValidation(Dictionary<string, object> actionResult)
     {
-        Debug.Log("actionResult == " + actionResult);
-        OnValidate();
-        if (actionResult == null || actionResult.Count == 0)
-        return true; // 기본 true로 반환
-        
-        var checkResults = actionResult.Values.Where(v => v is bool).Cast<bool>(); //check 확인
+        if (actionResult == null || actionResult.Count == 0) return true;
 
-        bool checkResult = checkResults.Any() //요류 존재 확인 
-        ? checkResults.Aggregate(true, (a, b) => a && b) //AND연산, check중 하나라도 false면 false
-        : true; //비어있으면 기본 true
+        var bools = actionResult.Values.Where(v => v is bool).Cast<bool>();
+        bool ok = bools.Any()
+            ? bools.Aggregate(true, (a, b) => a && b)
+            : true;
 
-        Debug.Log($"action check 완료, 선택지 {(!checkResult ? "비활성화" : "활성화")}");
-        return checkResult;
+        Debug.Log($"action check 완료, 선택지 {(!ok ? "비활성화" : "활성화")}");
+        return ok;
+    }
+
+    private IEnumerator When(System.Func<bool> predicate, System.Action action)
+    {
+        yield return new WaitUntil(predicate);
+        action?.Invoke();
+    }
+
+    /// <summary>
+    /// 모든 필요한 키가 result에 채워질 때까지 기다렸다가, 유효하면 버튼 켠다.
+    /// </summary>
+    private IEnumerator WaitAndEnableWhenReady(Button btn, HashSet<string> requiredKeys, Dictionary<string, object> result)
+    {
+        // 대기: 모든 키가 존재할 때까지
+        yield return new WaitUntil(() => requiredKeys.All(k => result.ContainsKey(k)));
+        // 최종 AND 판정
+        bool enable = CheckValidation(result);
+        btn.interactable = enable;
     }
 
     //-------------------------------------------------------------------------------
     // ** 게임 내 오브젝트 출력 부분 **
     //-------------------------------------------------------------------------------
-    /// <summary>
-    /// 노드의 출력을 위한 메소드, 노드의 키값에 따라 알맞은 출력 메소드를 실행
-    /// </summary>
-    /// <param name="nodeKey">출력을 시작할 노드의 키값</param>
     public IEnumerator StartDialogue(string nodeKey)
     {
         Debug.Log($"{nodeKey} 노드 출력 실행");
@@ -667,11 +513,11 @@ public class SectionEventManager : MonoBehaviour
             {
                 string nextNode = textNode.next;
 
-                var actionResult = HandleNodeActions(textNode.action); //액션 실행
-                if (actionResult != null &&
-                    actionResult.TryGetValue("prob", out var objNext) &&
+                var eval = HandleNodeActions(textNode.action); // (텍스트는 버튼 gating 없음)
+                if (eval != null &&
+                    eval.result.TryGetValue("prob", out var objNext) &&
                     objNext is string next &&
-                    !string.IsNullOrEmpty(next)) //prob값이 존재한다면 적용
+                    !string.IsNullOrEmpty(next))
                 {
                     nextNode = next;
                 }
@@ -692,13 +538,17 @@ public class SectionEventManager : MonoBehaviour
                         }
 
                         if(nextNode.Equals("EndS")) {
-                            SwitchSceneManager.Instance.sectionCleared = true;
+                            _ = MapSceneDataManager.Instance?.Player?.TryGetComponent<PlayerControl>(out var pc) == true
+                            && pc.sectionData != null
+                            && (pc.sectionData.isCleared = true);
                         }
                         else if (nextNode.Equals("EndF")) {
-                            SwitchSceneManager.Instance.sectionCleared = false;
+                            _ = MapSceneDataManager.Instance?.Player?.TryGetComponent<PlayerControl>(out var pc) == true
+                            && pc.sectionData != null
+                            && (pc.sectionData.isCleared = false);
                         }
 
-                        SwitchSceneManager.GoToMapScene(); //다음 노드가 없다면 조사를 종료하고 씬 이동
+                        SwitchSceneManager.GoToMapScene();
                     }
                     else
                     {
@@ -708,7 +558,7 @@ public class SectionEventManager : MonoBehaviour
                                 eventDisplayManager.nextText,
                                 null)
                         );
-                        StartCoroutine(StartDialogue(nextNode)); //출력이 끝나면 다음 노드로
+                        StartCoroutine(StartDialogue(nextNode));
                     }
                 }
                 else
@@ -721,34 +571,41 @@ public class SectionEventManager : MonoBehaviour
             {
                 foreach (MenuOption option in menuNode.menuOption)
                 {
-                    var actionResult = HandleNodeActions(option.action); //액션 실행
-                    eventDisplayManager.DisplayMenuButton(option, checkValidation(actionResult), () =>
-                    {
-                        //선택지 선택 후 진행
-                        Debug.Log($"선택됨: {option.id}");
-                        string nextNode = option.next;
+                    var eval = HandleNodeActions(option.action); // 액션 실행(비동기 시작됨)
 
-                        if (option.action != null)
+                    // 초기는 잠가두되, 체크가 하나도 없으면 즉시 켬
+                    bool initialInteract = (eval.requiredKeys.Count == 0) && CheckValidation(eval.result);
+
+                    Button btn = eventDisplayManager.DisplayMenuButton(
+                        option,
+                        initialInteract,
+                        () =>
                         {
-                            Debug.Log($"[Action 실행]");
-                            
-                            if (actionResult.TryGetValue("prob", out var objNext) &&
+                            //선택지 선택 후 진행
+                            Debug.Log($"선택됨: {option.id}");
+                            string nextNode = option.next;
+
+                            if (option.action != null &&
+                                eval.result.TryGetValue("prob", out var objNext) &&
                                 objNext is string next &&
-                                !string.IsNullOrEmpty(next)) //prob값이 존재한다면 적용
+                                !string.IsNullOrEmpty(next))
                             {
                                 nextNode = next;
                             }
-                        }
 
-                        if (!string.IsNullOrEmpty(nextNode))
-                        {
-                            StartCoroutine(StartDialogue(nextNode)); //선택 완료시 결과 노드로 이동
-                        }
-                        else
-                        {
-                            Debug.Log($"[{GetType().Name}] MenuNode의 next 값이 없습니다. 종료 또는 대기 처리 필요.");
-                        }
-                    });
+                            if (!string.IsNullOrEmpty(nextNode))
+                            {
+                                StartCoroutine(StartDialogue(nextNode));
+                            }
+                            else
+                            {
+                                Debug.Log($"[{GetType().Name}] MenuNode의 next 값이 없습니다. 종료 또는 대기 처리 필요.");
+                            }
+                        });
+
+                    // 필요한 키가 있으면 다 끝날 때까지 대기 후 버튼 켜기
+                    if (eval.requiredKeys.Count > 0)
+                        StartCoroutine(WaitAndEnableWhenReady(btn, eval.requiredKeys, eval.result));
                 }
             }
             //---------------전투씬 출력---------------

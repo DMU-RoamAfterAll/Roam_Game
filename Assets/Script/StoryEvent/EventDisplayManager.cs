@@ -48,9 +48,6 @@ public class EventDisplayManager : MonoBehaviour
     /// <summary>
     /// 스크립트 출력 메소드
     /// </summary>
-    /// <param name="node">출력할 스크립트 노드</param>
-    /// <param name="buttonText">버튼 라벨</param>
-    /// <param name="HandleNextNode">버튼 클릭 콜백 함수</param>
     public IEnumerator DisplayScript(List<string> textScript, string buttonText, UnityAction HandleNextNode)
     {
         ClearButtons(); //기존 버튼 제거
@@ -67,22 +64,16 @@ public class EventDisplayManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 선택지 출력 메소드
+    /// 선택지 버튼 1개 생성 (초기 활성/비활성 지정 가능). 생성된 Button 반환.
     /// </summary>
-    /// <param name="node">출력할 선택지 노드</param>
-    /// <param name="HandleMenuSelect">선택지를 고른 뒤 실행할 콜백함수</param>
-    public void DisplayMenuButton(MenuOption option, bool isInteract, UnityAction HandleMenuSelect)
+    public Button DisplayMenuButton(MenuOption option, bool isInteract, UnityAction HandleMenuSelect)
     {
-        //각 선택지에 대해 버튼 생성
-        CreateButtons(option.label, isInteract, HandleMenuSelect);
+        return CreateButtons(option.label, isInteract, HandleMenuSelect);
     }
 
     /// <summary>
     /// 전투 인트로 출력 및 전투 삽화 변경 메소드
     /// </summary>
-    /// <param name="battleIntro">출력할 전투 인트로 리스트</param>
-    /// <param name="battleImage">출력할 전투 삽화명</param>
-    /// <param name="onBattleStart">인트로 출력이 끝난 후 실행할 전투 콜백함수</param>
     public void DisplayBattleIntro(List<string> battleIntro, string battleImage, UnityAction onBattleStart)
     {
         ClearButtons(); //기존 버튼 제거
@@ -99,10 +90,6 @@ public class EventDisplayManager : MonoBehaviour
     /// <summary>
     /// 전투 루프 시, 선택지 메뉴 출력 메소드
     /// </summary>
-    /// <typeparam name="T">선택지 요소의 자료형</typeparam>
-    /// <param name="options">선택지로 출력할 옵션 목록(리스트 형식)</param>
-    /// <param name="labelSelector">문자열 추출을 위한 함수</param>
-    /// <param name="onSelected">선택 완료시 실행할 콜백함수</param>
     public IEnumerator DisplaySelectMenu<T>(
     List<T> options,
     Func<T, string> labelSelector,
@@ -135,7 +122,6 @@ public class EventDisplayManager : MonoBehaviour
     /// <summary>
     /// 삽화 이미지 로더 메소드
     /// </summary>
-    /// <param name="imageName">확장자를 제외한 삽화 이미지 파일명 (SectionImage이후 경로 포함)</param>
     public void LoadSceneSprite(string imageName)
     {
         string imagePath = $"{imageFolderPath}/{imageName}"; //이미지 주소 생성
@@ -163,12 +149,8 @@ public class EventDisplayManager : MonoBehaviour
         dialogueText.text = string.Empty; //삽화가 바뀌면 내용 리셋
     }
 
-    /// <summary>
-    /// 버튼 UI 생성 메소드
-    /// </summary>
-    /// <param name="text">버튼에 표시 글자</param>
-    /// <param name="onClick">버튼 onClick 함수</param>
-    /// <returns>생성한 버튼</returns>
+    // --- 버튼 생성 유틸 ---
+
     private Button CreateButtons(string text, UnityAction onClick)
     {
         Button tempBtn = ActivateButton(); //버튼 활성화
@@ -185,38 +167,38 @@ public class EventDisplayManager : MonoBehaviour
         return tempBtn;
     }
 
-    /// <summary>
-    /// 버튼 UI 생성 메소드 : 오버로드 (메뉴)
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="text">버튼에 표시 글자</param>
-    /// <param name="actionResult"></param>
-    /// <param name="onClick">버튼 onClick 함수</param>
-    /// <returns>생성한 버튼</returns>
     private Button CreateButtons(string text, bool isInteract, UnityAction onClick)
     {
         Button tempBtn = ActivateButton(); //버튼 활성화
         SetupButton(tempBtn, text); //버튼 세팅
-        if (isInteract) //버튼 활성화 체크
+
+        tempBtn.onClick.RemoveAllListeners();
+        if (isInteract)
         {
             tempBtn.interactable = true;
-            tempBtn.onClick.RemoveAllListeners();
             tempBtn.onClick.AddListener(() =>
             {
                 ClearButtons(); //클릭 시 버튼 비활
                 onClick?.Invoke(); //onClick 실행
             });
-
-            return tempBtn;
         }
-        tempBtn.interactable = isInteract;
+        else
+        {
+            tempBtn.interactable = false; //일단 잠가두기
+            // 콜백은 나중에 외부에서 interactable이 true가 된 뒤에도 정상 동작하도록 등록해 둔다.
+            tempBtn.onClick.AddListener(() =>
+            {
+                if (tempBtn.interactable)
+                {
+                    ClearButtons();
+                    onClick?.Invoke();
+                }
+            });
+        }
+
         return tempBtn;
     }
 
-    /// <summary>
-    /// 버튼 활성화 메소드
-    /// </summary>
-    /// <returns>활성화된 버튼</returns>
     private Button ActivateButton()
     {
         Button tempBtn = null;
@@ -236,20 +218,12 @@ public class EventDisplayManager : MonoBehaviour
         return tempBtn;
     }
 
-    /// <summary>
-    /// 버튼 오브젝트 설정 메소드
-    /// </summary>
-    /// <param name="btn">설정이 필요한 버튼</param>
-    /// <param name="text">버튼 라벨값</param>
     private void SetupButton(Button btn, string text)
     {
         var buttonText = btn.GetComponentInChildren<TextMeshProUGUI>();
         if (buttonText != null) buttonText.text = text; //버튼 라벨 설정
     }
 
-    /// <summary>
-    /// 전체 버튼 UI 정리 메소드
-    /// </summary>
     private void ClearButtons()
     {
         for (int i = buttonPanel.childCount - 1; i >= 0; i--)
@@ -262,14 +236,10 @@ public class EventDisplayManager : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// 스크립트 타이핑 코루틴 시작 메소드
-    /// </summary>
-    /// <param name="fullText">타이핑 효과를 넣고 싶은 텍스트 전문</param>
-    /// <param name="onComplete">타이핑 완료시 실행할 이벤트</param>
+    // --- 타이핑 유틸 ---
+
     private void StartTyping(string fullText, System.Action onComplete = null, bool append = false)
     {
-        //이전 코루틴이 실행 중이면 중단
         StopTyping();
 
         string baseText = string.Empty;
@@ -277,18 +247,14 @@ public class EventDisplayManager : MonoBehaviour
 
         if (append && dialogueText.text != string.Empty) { baseText = dialogueText.text + '\n' + '\n'; }
 
-        //새 코루틴 실행
         typingCoroutine = StartCoroutine(TypeTextCoroutine(baseText, appendText, () =>
         {
-            typingCoroutine = null; //타이핑이 끝나면 코루틴 정리
-            isTyping = false; //타이핑 끝남 처리
-            onComplete?.Invoke(); //후처리 함수 실행
+            typingCoroutine = null;
+            isTyping = false;
+            onComplete?.Invoke();
         }));
     }
 
-    /// <summary>
-    /// 스크립트 타이핑 코루틴 중지 메소드
-    /// </summary>
     private void StopTyping()
     {
         if (typingCoroutine != null)
@@ -300,35 +266,30 @@ public class EventDisplayManager : MonoBehaviour
         skipRequested = false;
     }
 
-    /// <summary>
-    /// 스크립트 타이핑 효과 코루틴
-    /// </summary>
-    /// <param name="fullText">타이핑 효과를 넣고 싶은 텍스트 전문</param>
-    /// <param name="onComplete">타이핑 완료시 실행할 이벤트</param>
     private IEnumerator TypeTextCoroutine(string baseText, string appendText, System.Action onComplete = null)
     {
-        isTyping = true; //타이핑 시작
-        skipRequested = false; //타이핑 스킵 요청 초기화
+        isTyping = true;
+        skipRequested = false;
 
-        int typingLength = appendText.GetTypingLength(); //문장 길이 측정
+        int typingLength = appendText.GetTypingLength();
 
-        for (int i = 0; i <= typingLength; i++) //타이핑 효과
+        for (int i = 0; i <= typingLength; i++)
         {
-            if (skipRequested) //스킵 요청 시 즉시 전체 텍스트 출력 후 종료
+            if (skipRequested)
             {
                 dialogueText.text = baseText + appendText;
                 break;
             }
 
-            dialogueText.text = baseText + appendText.Typing(i); //타이핑 반복문 동안 기존 텍스트 내용은 유지
+            dialogueText.text = baseText + appendText.Typing(i);
             if (!string.IsNullOrEmpty(dialogueText.text)
                 && dialogueText.text[dialogueText.text.Length - 1] == '\n')
             {
-                yield return new WaitForSeconds(delayPerSentence); //문장 끝일때 딜레이 추가
+                yield return new WaitForSeconds(delayPerSentence);
             }
-            yield return new WaitForSeconds(delayPerChar); //타이핑 딜레이
+            yield return new WaitForSeconds(delayPerChar);
         }
-        dialogueText.text = baseText + appendText; //반복문을 빠져나올 시 텍스트 전체 표시
+        dialogueText.text = baseText + appendText;
         onComplete?.Invoke();
     }
 }

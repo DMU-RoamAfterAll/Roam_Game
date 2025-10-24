@@ -14,7 +14,7 @@ public class AuthManager : MonoBehaviour
     protected string KEY_REFRESH = "auth_refresh_token";
     protected string KEY_USERNAME = "auth_username";
 
-    protected string username = "";
+    public string username = "";
 
     // 서버 URL 루트 (GameDataManager에서 가져옴)
     private string baseUrl; // ex) http://125.176.246.14:8081
