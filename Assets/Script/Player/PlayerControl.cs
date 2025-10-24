@@ -338,7 +338,8 @@ public class PlayerControl : MonoBehaviour {
             }
 
             section.isCanMove = canMove;
-            SaveLoadManager.Instance?.AddClearedSectionIds(section.id);
+            if(section.isCanMove) SaveLoadManager.Instance?.AddCanMoveSectionIds(section.id);
+            if(section.isCleared) SaveLoadManager.Instance?.AddClearedSectionIds(section.id);
             section.UpdateSectionColor();
         }
     }
