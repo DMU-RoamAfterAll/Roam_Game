@@ -90,82 +90,6 @@ public class StepManager : MonoBehaviour
         AvailableStepsChanged?.Invoke(availableSteps);
     }
 
-    private void Update()
-    {
-#if UNITY_ANDROID && !UNITY_EDITOR
-        if (Permission.HasUserAuthorizedPermission(PERMISSION) && !isInitialized)
-            InitializePlugin();
-
-        if (!isInitialized || stepPlugin == null) return;
-
-        int total = ReadTotalFromPluginSafe();
-        if (total < 0) return;
-
-        // 재부팅/리셋 감지
-        if (total < lastTotal) {
-            Debug.LogWarning("[StepManager] Counter reset detected (reboot?). Re-baselining.");
-            Rebaseline(total);
-            sessionLastTotal = total;
-            AvailableStepsChanged?.Invoke(availableSteps);
-        }
-
-        // 증가분 누적
-        int delta = total - lastTotal;
-        if (delta > 0) {
-            rawStepCount  = total;
-            lastTotal     = total;
-            availableSteps += delta;
-            Persist();
-            AvailableStepsChanged?.Invoke(availableSteps);
-        }
-
-        // 세션 집계
-        int sessionDelta = total - sessionLastTotal;
-        if (sessionDelta > 0) {
-            sessionSteps += sessionDelta;
-            sessionLastTotal = total;
-        }
-#endif
-
-#if UNITY_IOS && !UNITY_EDITOR
-        if (!iosInitialized) {
-            PrimeIOSLastTotal();
-            return;
-        }
-
-        int total = 0;
-        try { total = IOSPedometer.iOS_Pedometer_GetTodaySteps(); }
-        catch (Exception ex) {
-            Debug.LogError($"[StepManager][iOS] GetTodaySteps error : {ex}");
-            total = rawStepCount;
-        }
-
-        // 자정/리셋 감지
-        if (total < lastTotal) {
-            Rebaseline(total);
-            sessionLastTotal = total;
-            AvailableStepsChanged?.Invoke(availableSteps);
-        }
-
-        // 증가분 누적
-        int delta = total - lastTotal;
-        if (delta > 0) {
-            rawStepCount  = total;
-            lastTotal     = total;
-            availableSteps += delta;
-            Persist();
-            AvailableStepsChanged?.Invoke(availableSteps);
-        }
-
-        // 세션 집계
-        int sessionDelta = total - sessionLastTotal;
-        if (sessionDelta > 0) {
-            sessionSteps     += sessionDelta;
-            sessionLastTotal  = total;
-        }
-#endif
-    }
-
     // ===== TimeManager 연동 =====
     private void SubscribeToTimeManager()
     {
@@ -208,15 +132,26 @@ public class StepManager : MonoBehaviour
             int currentTotal = GetCurrentTotalFallbackSafe();
             ApplyDailyReset(currentTotal);
             PlayerPrefs.SetString(KEY_BASELINE_DATE, today);
-            PlayerPrefs.DeleteKey(KEY_PRIME_SIG); // 어제 서명 제거
+            PlayerPrefs.DeleteKey(KEY_PRIME_SIG);
             PlayerPrefs.Save();
             Debug.Log($"[StepManager] Startup daily reset → baseline={currentTotal}, available=0");
         }
         else {
-            // 복원
-            int baseline = PlayerPrefs.GetInt(KEY_BASELINE, GetCurrentTotalFallbackSafe());
-            availableSteps = PlayerPrefs.GetInt(KEY_AVAILABLE, Mathf.Max(0, rawStepCount - baseline));
-            lastTotal = PlayerPrefs.GetInt(KEY_LAST_TOTAL, rawStepCount);
+            // === 변경 포인트: 안전 복구 ===
+            int currentTotal = GetCurrentTotalFallbackSafe();
+
+            int baseline = PlayerPrefs.GetInt(KEY_BASELINE, currentTotal);
+            rawStepCount = currentTotal;
+
+            // availableSteps: 저장되어 있지 않으면 0으로 시작 (중복가산 방지)
+            availableSteps = PlayerPrefs.HasKey(KEY_AVAILABLE)
+                ? PlayerPrefs.GetInt(KEY_AVAILABLE)
+                : 0;
+
+            // lastTotal: 저장되어 있지 않으면 '현재 총계'로 프라임 (대기 중 증가분 0)
+            lastTotal = PlayerPrefs.HasKey(KEY_LAST_TOTAL)
+                ? PlayerPrefs.GetInt(KEY_LAST_TOTAL)
+                : currentTotal;
         }
     }
 
@@ -482,6 +417,7 @@ public class StepManager : MonoBehaviour
         string sig = BuildPrimeSignature("resume", day, total);
 
         if (IsSamePrime(sig)) {
+            // 이미 처리됨: 값만 동기화(추가 가산 없음)
             rawStepCount     = total;
             lastTotal        = total;
             sessionLastTotal = total;
@@ -491,19 +427,42 @@ public class StepManager : MonoBehaviour
             return;
         }
 
-        int pending = Mathf.Max(0, total - lastTotal);
-        if (pending > 0) {
-            availableSteps += pending;
-        }
-
-        rawStepCount     = total;
-        lastTotal        = total;
-        sessionLastTotal = total;
+        // ★ 동일 경로로 1회만 누적
+        PollAndAccumulateOnce();
 
         SavePrime(sig);
-        Persist();
-        AvailableStepsChanged?.Invoke(availableSteps);
+        Debug.Log($"[StepManager] Resume applied once (prime={sig})");
+    }
 
-        Debug.Log($"[StepManager] Resume → +{pending}, available={availableSteps}, prime={sig}");
+    // 공용 누적 처리 (Update/Resume에서 동일 사용)
+    private void PollAndAccumulateOnce()
+    {
+        int total = GetCurrentTotalFallbackSafe();
+        if (total < 0) return;
+
+        // 재부팅/리셋 감지
+        if (total < lastTotal) {
+            Debug.LogWarning("[StepManager] Counter reset detected (reboot?). Re-baselining.");
+            Rebaseline(total);
+            sessionLastTotal = total;
+            AvailableStepsChanged?.Invoke(availableSteps);
+            return;
+        }
+
+        int delta = total - lastTotal;
+        if (delta > 0) {
+            rawStepCount   = total;
+            lastTotal      = total;
+            availableSteps += delta;
+            Persist();
+            AvailableStepsChanged?.Invoke(availableSteps);
+        }
+
+        // 세션 집계도 함께
+        int sessionDelta = total - sessionLastTotal;
+        if (sessionDelta > 0) {
+            sessionSteps     += sessionDelta;
+            sessionLastTotal  = total;
+        }
     }
 }

@@ -25,9 +25,7 @@ public class MissionManager : MonoBehaviour {
     public GameObject hiddenBodyPrefab;
 
     void OnEnable() {
-        if(!GameDataManager.Data.tutorialClear) {
-            UpdateSectionInfo();
-        }
+        UpdateSectionInfo();
     }
 
     void UpdateSectionInfo() {
@@ -69,24 +67,28 @@ public class MissionManager : MonoBehaviour {
     const string hiddenFolderPath = "StoryGameData/SectionData/SectionEvent/HiddenSection";
 
     public string AddHiddenSection() {
-        var wm = WeatherManager.Instance;
-        if(wm == null || !wm.isHidden) return null;
+        if(GameDataManager.Data.tutorialClear) {
+            var wm = WeatherManager.Instance;
+            if(wm == null || !wm.isHidden) return null;
 
-        
-        var assets = Resources.LoadAll<TextAsset>(hiddenFolderPath);
-        if(assets == null || assets.Length == 0) return null;
+            
+            var assets = Resources.LoadAll<TextAsset>(hiddenFolderPath);
+            if(assets == null || assets.Length == 0) return null;
 
-        foreach(var ta in assets) {
-            string prefix = GetnNamePrefix(ta.name);
-            if(!string.Equals(prefix, wm.weatherCur, System.StringComparison.OrdinalIgnoreCase)) continue;
+            foreach(var ta in assets) {
+                string prefix = GetnNamePrefix(ta.name);
+                if(!string.Equals(prefix, wm.weatherCur, System.StringComparison.OrdinalIgnoreCase)) continue;
 
-            #if UNITY_EDITOR
-            string assetPath = AssetDatabase.GetAssetPath(ta);
-            return assetPath;
-            #else
-            string resourcePath = $"{hiddenFolderPath}/{ta.name}";
-            return resourcePath;
-            #endif
+                #if UNITY_EDITOR
+                string assetPath = AssetDatabase.GetAssetPath(ta);
+                return assetPath;
+                #else
+                string resourcePath = $"{hiddenFolderPath}/{ta.name}";
+                return resourcePath;
+                #endif
+            }
+
+            return null;
         }
 
         return null;
