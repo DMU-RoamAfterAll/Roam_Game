@@ -50,6 +50,10 @@ public class PlayerControl : MonoBehaviour {
         if (isCanMove) ClickSection();
     }
 
+    void OnEnable() {
+        DetectSection();
+    }
+
     void AutoAssignMasks() {
         sectionMask = NamesToLayerMask(sectionLayerNames);
         if (debugClicks) {
@@ -168,6 +172,7 @@ public class PlayerControl : MonoBehaviour {
             if (go.CompareTag(Tag.Section) || go.CompareTag(Tag.MainSection) ||
                 go.CompareTag(Tag.Origin)  || go.CompareTag(Tag.IrisSection)) {
                 var sd = go.GetComponent<SectionData>();
+                if(!sd.isCanMove) return;
                 if (sd != null) {
                     if (debugClicks) Debug.Log($"[PC] Section matched → HandleSectionClickRoutine id='{sd.id}'");
                     StartCoroutine(HandleSectionClickRoutine(go, sd));
@@ -183,7 +188,7 @@ public class PlayerControl : MonoBehaviour {
                 var realSd = real ? real.GetComponent<SectionData>() : null;
                 if (real && realSd) {
                     if (debugClicks) Debug.Log($"[PC] Virtual matched → real='{real.name}', id='{realSd.id}'");
-                    StartCoroutine(HandleSectionClickRoutine(real, realSd));;
+                    StartCoroutine(HandleSectionClickRoutine(real, realSd, go));;
                     return;
                 }
             }
@@ -215,7 +220,7 @@ public class PlayerControl : MonoBehaviour {
                 var realSd = real ? real.GetComponent<SectionData>() : null;
                 if (real && realSd) {
                     if (debugClicks) Debug.Log($"[PC] (RC) Virtual matched → real='{real.name}', id='{realSd.id}'");
-                    StartCoroutine(HandleSectionClickRoutine(real, realSd));
+                    StartCoroutine(HandleSectionClickRoutine(real, realSd, go));
                     return;
                 }
             }
@@ -228,10 +233,15 @@ public class PlayerControl : MonoBehaviour {
         while(!task.IsCompleted) yield return null;
     }
 
-    IEnumerator HandleSectionClickRoutine(GameObject targetObj, SectionData sd) {
+    IEnumerator HandleSectionClickRoutine(GameObject targetObj, SectionData sd, GameObject virtualSection = null) {
         if (debugClicks) Debug.Log($"[PC] HandleSectionClickAsync → target='{targetObj.name}', id='{sd?.id}'");
         // 2) 줌인
-        cameraZoom.ZoomInSection(targetObj.transform.position);
+        if(!virtualSection) {
+            cameraZoom.ZoomInSection(targetObj.transform.position);
+        }
+        else {
+            cameraZoom.ZoomInSection(virtualSection.transform.position);
+        }
 
         // 3) 중복 입력 방지
         if (_confirmBusy) yield break;
@@ -314,6 +324,7 @@ public class PlayerControl : MonoBehaviour {
             .Where(sd => sd != null)
             .ToHashSet();
 
+        if(MapSceneDataManager.Instance == null) return;
         var allSections = MapSceneDataManager.Instance.sections
             .Concat(MapSceneDataManager.Instance.mainSections)
             .Select(go => go ? go.GetComponent<SectionData>() : null)
@@ -331,13 +342,14 @@ public class PlayerControl : MonoBehaviour {
                     foreach (var link in cur.linkSections) {
                         if (link && link.linkedSection == section.gameObject) { 
                             canMove = true; 
-                            break; 
+
+                            break;
                         }
                     }
                 }
             }
 
-            section.isCanMove = canMove;
+            if(!section.isCanMove) section.isCanMove = canMove;
             if(section.isCanMove) SaveLoadManager.Instance?.AddCanMoveSectionIds(section.id);
             if(section.isCleared) SaveLoadManager.Instance?.AddClearedSectionIds(section.id);
             section.UpdateSectionColor();

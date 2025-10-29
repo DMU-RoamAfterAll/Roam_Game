@@ -48,6 +48,16 @@ public class TutorialManager : MonoBehaviour {
 
             // 6) 주변 감지/색상 갱신 (이제 근처 섹션들이 이동 가능으로 뜸)
             pc.DetectSection();
+            Destroy(this);
         }
+    }
+
+    void Update() {
+        if(sd.isCleared || nextGo != null) Destroy(this);
+        if(prevGo != null && prevGo.GetComponent<SectionData>().isCleared) sd.isCanMove = true;
+
+        else sd.isCanMove = false;
+
+        if(prevGo == null) sd.isCanMove = true;
     }
 }

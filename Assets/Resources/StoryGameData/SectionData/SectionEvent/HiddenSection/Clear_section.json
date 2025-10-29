@@ -36,6 +36,9 @@
   },
 
   "Text_Result1" : {
+    "value" : [
+      "다시 길을 떠난다."
+    ],
     "action" : {
       "getI" : [
         ["item_1001", 1]
@@ -45,6 +48,9 @@
   },
 
   "Text_Result2" : {
+    "value" : [
+      "다시 길을 떠난다."
+    ],
     "action" : {
       "getI" : [
         ["item_1003", 1]
@@ -54,6 +60,9 @@
   },
 
   "Text_Result3" : {
+    "value" : [
+      "다시 길을 떠난다."
+    ],
     "action" : {
       "getI" : [
         ["item_1006", 1]
@@ -63,6 +72,9 @@
   },
 
   "Text_Result4" : {
+    "value" : [
+      "다시 길을 떠난다."
+    ],
     "action" : {
       "getI" : [
         ["item_1007", 1]
@@ -72,6 +84,9 @@
   },
 
   "Text_Result5" : {
+    "value" : [
+      "다시 길을 떠난다."
+    ],
     "action" : {
       "getI" : [
         ["item_1008", 1]
@@ -81,6 +96,9 @@
   },
 
   "Text_Result6" : {
+    "value" : [
+      "다시 길을 떠난다."
+    ],
     "action" : {
       "getI" : [
         ["item_1009", 1]
@@ -90,6 +108,9 @@
   },
 
   "Text_Result7" : {
+    "value" : [
+      "다시 길을 떠난다."
+    ],
     "action" : {
       "getI" : [
         ["item_1012", 1]
@@ -99,6 +120,9 @@
   },
 
   "Text_Result8" : {
+    "value" : [
+      "다시 길을 떠난다."
+    ],
     "action" : {
       "getI" : [
         ["item_1013", 1]
@@ -108,6 +132,9 @@
   },
 
   "Text_Result9" : {
+    "value" : [
+      "다시 길을 떠난다."
+    ],
     "action" : {
       "getI" : [
         ["item_1015", 1]
@@ -117,6 +144,9 @@
   },
 
   "Text_Result10" : {
+    "value" : [
+      "다시 길을 떠난다."
+    ],
     "action" : {
       "getI" : [
         ["item_1016", 1]

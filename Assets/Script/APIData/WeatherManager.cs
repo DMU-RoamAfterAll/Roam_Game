@@ -13,6 +13,7 @@ public class WeatherManager : MonoBehaviour {
     private string baseUrl;
     public string city = "Seoul";
     public bool isHidden;
+    public bool isHiddenSectionClear;
 
     private const float REQUEST_COOLDOWN = 300f;
     private const float AUTO_REFRESH_INTERVAL = 305f;
@@ -68,6 +69,7 @@ public class WeatherManager : MonoBehaviour {
     {
         baseUrl = $"{GameDataManager.Data.baseUrl}:8000";
         isHidden = false;
+        isHiddenSectionClear = false;
 
         RefreshWeather();
         StartCoroutine(AutoRefreshLoop());
@@ -231,21 +233,25 @@ public class WeatherManager : MonoBehaviour {
             case "Thunderstorm" :
                 Debug.Log("폭풍이다");
                 weatherCur = main;
+                hiddenFileName = $"{weatherCur}_section.json";
                 break;
 
             case "Drizzle" :
                 Debug.Log("가랑비다");
                 weatherCur = main;
+                hiddenFileName = $"{weatherCur}_section.json";
                 break;
 
             case "Rain" :
                 Debug.Log("비온다");
                 weatherCur = main;
+                hiddenFileName = $"{weatherCur}_section.json";
                 break;
 
             case "Snow" :
                 Debug.Log("눈온다");
                 weatherCur = main;
+                hiddenFileName = $"{weatherCur}_section.json";
                 break;
             
             case "Mist":
@@ -259,24 +265,25 @@ public class WeatherManager : MonoBehaviour {
             case "Tornado":
                 Debug.Log("습하거나탁하다");
                 weatherCur = "Mist";
+                hiddenFileName = $"{weatherCur}_section.json";
                 break;
 
             case "Clear" :
                 Debug.Log("맑다");
                 weatherCur = main;
+                hiddenFileName = $"{weatherCur}_section.json";
                 break;
 
             case "Clouds" :
                 Debug.Log("흐릿하다");
                 weatherCur = main;
+                hiddenFileName = $"{weatherCur}_section.json";
                 break;
 
             default :
                 Debug.Log("알수없는 날씨");
                 break;
         }
-
-        hiddenFileName = $"{weatherCur}_section.json";
     }
 
     void OnEnable() {
@@ -295,6 +302,7 @@ public class WeatherManager : MonoBehaviour {
 
     void OnNewDay() {
         isHidden = false;
+        isHiddenSectionClear = false;
         if (resp != null) SetWeather(resp.main);
     }
 }

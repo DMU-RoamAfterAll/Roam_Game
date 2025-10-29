@@ -33,8 +33,8 @@ public class SaveLoadManager : MonoBehaviour {
     [SerializeField] private bool autoSaveOnPause = true;
     [SerializeField] private bool prettyPrint = true;
     [SerializeField] public SaveData pendingLoadData;
+
     public bool HasSave() {
-        // path가 아직 초기화 전이어도 안전하게 기본 경로로 검사
         string p = !string.IsNullOrEmpty(path)
             ? path
             : System.IO.Path.Combine(Application.persistentDataPath, "playerDataTest.json");
@@ -86,26 +86,26 @@ public class SaveLoadManager : MonoBehaviour {
 
             save = data;
 
-            // ★ 로드 직후 저장된 값들을 '2구간 정규화'로 통일
+            // 저장된 경로 정규화
             save.currentSectionId = NormalizeId(save.currentSectionId);
             save.preSectionId     = NormalizeId(save.preSectionId);
             if (save.visitedSectionIds != null) {
                 var set = new HashSet<string>();
                 foreach (var raw in save.visitedSectionIds)
                     set.Add(NormalizeId(raw));
-                save.visitedSectionIds = new List<string>(set); // 중복 제거 포함
+                save.visitedSectionIds = new List<string>(set);
             }
             if(save.clearedSectionIds != null) {
                 var set = new HashSet<string>();
                 foreach (var raw in save.clearedSectionIds)
                     set.Add(NormalizeId(raw));
-                save.clearedSectionIds = new List<string>(set); // 중복 제거 포함
+                save.clearedSectionIds = new List<string>(set);
             }
             if(save.canMoveSectionIds != null) {
                 var set = new HashSet<string>();
                 foreach (var raw in save.canMoveSectionIds)
                     set.Add(NormalizeId(raw));
-                save.canMoveSectionIds = new List<string>(set); // 중복 제거 포함
+                save.canMoveSectionIds = new List<string>(set);
             }
             
             Debug.Log($"SaveLoad Loaded from {path}");
@@ -132,7 +132,7 @@ public class SaveLoadManager : MonoBehaviour {
             player.transform.position = data.playerPos;
         }
 
-        // ---- 섹션 맵 만들기: sections + mainSections 모두 포함 (ID -> SectionData)
+        // ---- 섹션 맵: sections + mainSections 모두 포함
         var msdm = MapSceneDataManager.Instance;
         var allGOs = new List<GameObject>();
         if (msdm != null) {
@@ -140,20 +140,19 @@ public class SaveLoadManager : MonoBehaviour {
             if (msdm.mainSections != null) allGOs.AddRange(msdm.mainSections);
         }
 
-        // 맵 만들기 (정규화된 키로!)
         var map = new Dictionary<string, SectionData>();
         foreach (var go in allGOs) {
             if (go == null) continue;
             if (go.TryGetComponent<SectionData>(out var sd) && !string.IsNullOrEmpty(sd.id)) {
-                var key = NormalizeId(sd.id);   // ★ 2구간 정규화
+                var key = NormalizeId(sd.id);
                 map[key] = sd;
             }
         }
 
-        // 방문 복원 (저장값도 정규화)
+        // visited/cleared/canMove 복원
         Debug.Log($"[Load] visited ids in save: {data.visitedSectionIds?.Count ?? 0}");
         foreach (var raw in data.visitedSectionIds) {
-            var id = NormalizeId(raw);          // ★ 2구간 정규화
+            var id = NormalizeId(raw);
             if (map.TryGetValue(id, out var sec)) {
                 sec.isVisited = true;
                 sec.LightObj();
@@ -163,7 +162,7 @@ public class SaveLoadManager : MonoBehaviour {
 
         Debug.Log($"[Load] cleared ids in save: {data.clearedSectionIds?.Count ?? 0}");
         foreach (var raw in data.clearedSectionIds) {
-            var id = NormalizeId(raw);          // ★ 2구간 정규화
+            var id = NormalizeId(raw);
             if (map.TryGetValue(id, out var sec)) {
                 sec.isCleared = true;
             }
@@ -172,7 +171,7 @@ public class SaveLoadManager : MonoBehaviour {
 
         Debug.Log($"[Load] canMove ids in save: {data.canMoveSectionIds?.Count ?? 0}");
         foreach (var raw in data.canMoveSectionIds) {
-            var id = NormalizeId(raw);          // ★ 2구간 정규화
+            var id = NormalizeId(raw);
             if (map.TryGetValue(id, out var sec)) {
                 sec.isCanMove = true;
             }
@@ -180,10 +179,10 @@ public class SaveLoadManager : MonoBehaviour {
         }
 
         var pc = player != null ? player.GetComponent<PlayerControl>() : null;
-        // PlayerControl 복원 (current / previous도 정규화): null;
+
         if (pc != null) {
             if (!string.IsNullOrEmpty(data.currentSectionId)) {
-                var curId = NormalizeId(data.currentSectionId);  // ★
+                var curId = NormalizeId(data.currentSectionId);
                 if (map.TryGetValue(curId, out var cur)) {
                     pc.currentSection = cur.gameObject;
                     pc.sectionData    = cur;
@@ -206,7 +205,7 @@ public class SaveLoadManager : MonoBehaviour {
             }
 
             if (!string.IsNullOrEmpty(data.preSectionId)) {
-                var preId = NormalizeId(data.preSectionId);      // ★
+                var preId = NormalizeId(data.preSectionId);
                 if (map.TryGetValue(preId, out var pre)) {
                     pc.preSection = pre.gameObject;
                     pre.isPlayerOn = false;
@@ -220,15 +219,22 @@ public class SaveLoadManager : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// 새로하기:
+    /// - 세이브 파일 제거 & 메모리 초기화
+    /// - StepManager에 "오늘 누적 즉시 적용" 프라임 호출(중복 방지)
+    /// - 섹션 플래그 초기화
+    /// </summary>
     public void NewGameClear(bool resetSceneFlags = true) {
         GameDataManager.Instance?.NewSeed();
-        // NewGameClear()
         GameDataManager.Instance?.SetTutorialClear(false);
 
-        DeleteSave();              // 파일 삭제
-        save = new SaveData();     // 메모리 초기화
+        DeleteSave();
+        save = new SaveData();
 
-        StepManager.Instance.ResetAllSteps();
+        if (StepManager.Instance != null)
+            StepManager.Instance.OnNewGamePrimeToday();
+
         GameDataManager.Data.tutorialClear = false;
 
         if (!resetSceneFlags) return;
@@ -254,16 +260,17 @@ public class SaveLoadManager : MonoBehaviour {
         save.tutorialClear = GameDataManager.Data.tutorialClear;
         save.originSeed = GameDataManager.Data.seed;
 
+        if(!MapSceneDataManager.Instance) return save;
+
         GameObject player = MapSceneDataManager.Instance.Player;
         if (player != null) save.playerPos = player.transform.position;
 
         PlayerControl pc = player.GetComponent<PlayerControl>();
-   
         if (pc != null) {
             save.currentSectionId = pc.sectionData != null
-                ? NormalizeId(pc.sectionData.id) : null;                           // ★ 2구간 정규화
+                ? NormalizeId(pc.sectionData.id) : null;
             save.preSectionId     = pc.preSection != null
-                ? NormalizeId(pc.preSection.GetComponent<SectionData>()?.id) : null; // ★ 2구간 정규화
+                ? NormalizeId(pc.preSection.GetComponent<SectionData>()?.id) : null;
         }
 
         return save;
@@ -279,14 +286,22 @@ public class SaveLoadManager : MonoBehaviour {
 
     public void SaveData() => SaveNow();
 
+    /// <summary>
+    /// 계속하기(다시하기):
+    /// - 저장을 읽고, StepManager에 "증가분만 1회 흡수" 프라임 호출(중복 방지)
+    /// - 그 다음 씬/플레이어 상태를 복원
+    /// </summary>
     public void LoadData() {
         if(TryLoad(out var data)) {
             GameDataManager.Instance?.ContinueSeed(data.originSeed);
-            
+
             Debug.Log($"[SaveLoad] user = {data.playerName}, seed = {data.originSeed}");
             Debug.Log($"[SaveLoad] pos = {data.playerPos}");
 
             GameDataManager.Data.tutorialClear = data.tutorialClear;
+
+            // ★★★ 여기서 '증가분만 흡수' 1회 처리 (중복 방지 프라임 포함)
+            StepManager.Instance?.OnResumeAbsorbDeltaOnce();
 
             StartCoroutine(ApplyLoadedData(data));
         }
@@ -297,7 +312,7 @@ public class SaveLoadManager : MonoBehaviour {
 
     public void AddVisitedSectionIds(string id) {
         if (save == null) save = new SaveData();
-        var norm = NormalizeId(id);                 // ★ 2구간 정규화
+        var norm = NormalizeId(id);
         if (!string.IsNullOrEmpty(norm) && !save.visitedSectionIds.Contains(norm)) {
             save.visitedSectionIds.Add(norm);
         }
@@ -305,7 +320,7 @@ public class SaveLoadManager : MonoBehaviour {
 
     public void AddClearedSectionIds(string id) {
         if (save == null) save = new SaveData();
-        var norm = NormalizeId(id);                 // ★ 2구간 정규화
+        var norm = NormalizeId(id);
         if (!string.IsNullOrEmpty(norm) && !save.clearedSectionIds.Contains(norm)) {
             save.clearedSectionIds.Add(norm);
         }
@@ -313,13 +328,12 @@ public class SaveLoadManager : MonoBehaviour {
 
     public void AddCanMoveSectionIds(string id) {
         if (save == null) save = new SaveData();
-        var norm = NormalizeId(id);                 // ★ 2구간 정규화
+        var norm = NormalizeId(id);
         if (!string.IsNullOrEmpty(norm) && !save.canMoveSectionIds.Contains(norm)) {
             save.canMoveSectionIds.Add(norm);
         }
     }
 
-    // SaveLoadManager.cs 내부 아무 public 메서드들 아래에 추가
     public void OverwriteLocal(SaveData data, bool normalize = true)
     {
         if (data == null) return;
@@ -356,20 +370,13 @@ public class SaveLoadManager : MonoBehaviour {
         }
     }
 
-    // SaveLoadManager.cs 내부 (클래스 안)
     public void SaveNowAndUpload(string username, MonoBehaviour caller = null)
     {
-        // 1) 로컬 세이브 즉시 반영(현재 위치/섹션 포함)
         SaveNow();
-
-        // 2) 서버 업로드
         if (caller != null) caller.StartCoroutine(UploadCurrentSaveToServer(username));
         else                StartCoroutine(UploadCurrentSaveToServer(username));
     }
 
-    /// <summary>
-    /// 현재 Save 스냅샷을 서버에 PUT 업로드
-    /// </summary>
     public IEnumerator UploadCurrentSaveToServer(string username)
     {
         if (string.IsNullOrEmpty(username))
@@ -378,10 +385,8 @@ public class SaveLoadManager : MonoBehaviour {
             yield break;
         }
 
-        // 서버 URL (스웨거 경로에 맞춰 수정)
         string url = $"{GameDataManager.Data.baseUrl}:8081/api/save/{UnityWebRequest.EscapeURL(username)}";
 
-        // 현재 상태 스냅샷(여기서 currentSectionId / preSectionId 정규화됨)
         var data = TakeSnapshot();
         string json = JsonUtility.ToJson(data);
 
@@ -391,7 +396,6 @@ public class SaveLoadManager : MonoBehaviour {
             req.downloadHandler = new DownloadHandlerBuffer();
             req.SetRequestHeader("Content-Type", "application/json");
 
-            // (선택) 인증 헤더
             var token = AuthManager.Instance != null ? AuthManager.Instance.AccessToken : null;
             if (!string.IsNullOrEmpty(token))
                 req.SetRequestHeader("Authorization", $"Bearer {token}");
@@ -409,8 +413,7 @@ public class SaveLoadManager : MonoBehaviour {
         }
     }
 
-
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
     [ContextMenu("Print Saved JSON (from file)")]
     private void PrintSavedJsonFromFile() {
         try {
@@ -427,13 +430,11 @@ public class SaveLoadManager : MonoBehaviour {
             Debug.LogError($"[SaveLoad] Print failed: {e.Message}");
         }
     }
-    #endif
+#endif
 
-
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
     [ContextMenu("Debug/Compare Saved IDs vs Scene IDs")]
     private void DebugCompareIds() {
-        // 씬에 있는 SectionData 수집 (sections + mainSections)
         var msdm = MapSceneDataManager.Instance;
         var allGOs = new System.Collections.Generic.List<GameObject>();
         if (msdm != null) {
@@ -455,7 +456,6 @@ public class SaveLoadManager : MonoBehaviour {
 
         if (save == null) { Debug.LogWarning("[Saved] no in-memory save"); return; }
 
-        // current / previous
         string curRaw  = save.currentSectionId;
         string curNorm = NormalizeId(curRaw);
         Debug.Log($"[Saved] current raw='{curRaw}', norm='{curNorm}', inScene={sceneIds.Contains(curNorm)}");
@@ -464,14 +464,12 @@ public class SaveLoadManager : MonoBehaviour {
         string preNorm = NormalizeId(preRaw);
         Debug.Log($"[Saved] previous raw='{preRaw}', norm='{preNorm}', inScene={sceneIds.Contains(preNorm)}");
 
-        // visited
         if (save.visitedSectionIds != null) {
             foreach (var v in save.visitedSectionIds) {
                 var n = NormalizeId(v);
                 Debug.Log($"[Saved] visited raw='{v}', norm='{n}', inScene={sceneIds.Contains(n)}");
             }
         }
-        //cleared
         if (save.clearedSectionIds != null) {
             foreach (var v in save.clearedSectionIds) {
                 var n = NormalizeId(v);
@@ -486,31 +484,27 @@ public class SaveLoadManager : MonoBehaviour {
             }
         }
     }
-    #endif
+#endif
 
     // ★★★★★ 마지막 3구간만 남기기 + 확장자 제거 ★★★★★
     private static string NormalizeId(string raw) {
         if (string.IsNullOrWhiteSpace(raw)) return raw;
 
-        // 슬래시 통일 + 앞/뒤 정리
         string s = raw.Replace('\\', '/').Trim().TrimEnd('/');
 
-        // (선택) Resources 접두사 잘라내기
         const string RES1 = "Assets/Resources/";
         const string RES2 = "Resources/";
-        if (s.StartsWith(RES1, System.StringComparison.OrdinalIgnoreCase)) s = s.Substring(RES1.Length);
-        else if (s.StartsWith(RES2, System.StringComparison.OrdinalIgnoreCase)) s = s.Substring(RES2.Length);
+        if (s.StartsWith(RES1, StringComparison.OrdinalIgnoreCase)) s = s.Substring(RES1.Length);
+        else if (s.StartsWith(RES2, StringComparison.OrdinalIgnoreCase)) s = s.Substring(RES2.Length);
 
         var parts = s.Split('/');
         if (parts.Length == 0) return s;
 
-        // 마지막 세그먼트에서 확장자 제거
         string last = parts[^1];
         int dot = last.LastIndexOf('.');
         if (dot > 0) last = last.Substring(0, dot);
         parts[^1] = last;
 
-        // 끝에서 3개 취합(부족하면 가능한 만큼)
         int keep = 3;
         int start = Mathf.Max(0, parts.Length - keep);
         int len = parts.Length - start;

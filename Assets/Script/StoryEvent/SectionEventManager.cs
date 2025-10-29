@@ -99,11 +99,11 @@ public class ActionEval
 public class SectionEventManager : MonoBehaviour
 {
     private Dictionary<string, object> sectionData = new Dictionary<string, object>();
-    private BattleEventManager battleEventManager;
-    private EventDisplayManager eventDisplayManager;
-    private SectionEventParser sectionEventParser;
-    private UserDataManager userDataManager;
-    private DataService dataService;
+    public BattleEventManager battleEventManager;
+    public EventDisplayManager eventDisplayManager;
+    public SectionEventParser sectionEventParser;
+    public UserDataManager userDataManager;
+    public DataService dataService;
 
     //디버깅용 변수
     TextNode testjson = null;
@@ -135,6 +135,7 @@ public class SectionEventManager : MonoBehaviour
     public void LoadJson()
     {
         string filePath = Path.ChangeExtension(GameDataManager.Instance.sectionPath, null);
+        Debug.Log("Section filePath = " + filePath);
 
         TextAsset jsonFile = Resources.Load<TextAsset>(filePath);
         if (jsonFile == null)
@@ -544,19 +545,25 @@ public class SectionEventManager : MonoBehaviour
                             SwitchSceneManager.Instance.EnterBaseFromBoot();
                         }
 
-                        if(nextNode.Equals("EndS")) {
-                            if (MapSceneDataManager.Instance?.Player?.TryGetComponent<PlayerControl>(out var pc) == true &&
-                                pc.sectionData != null)
-                            {
-                                pc.sectionData.isCleared = true;
-                                SaveLoadManager.Instance?.AddClearedSectionIds(pc.sectionData.id);
+                        if(!WeatherManager.Instance.isHiddenSectionClear) {
+                            if(nextNode.Equals("EndS")) {
+                                if (MapSceneDataManager.Instance?.Player?.TryGetComponent<PlayerControl>(out var pc) == true &&
+                                    pc.sectionData != null)
+                                {
+                                    pc.sectionData.isCleared = true;
+                                    SaveLoadManager.Instance?.AddClearedSectionIds(pc.sectionData.id);
+                                }
+                            }
+                            else if (nextNode.Equals("EndF")) {
+                                _ = MapSceneDataManager.Instance?.Player?.TryGetComponent<PlayerControl>(out var pc) == true
+                                && pc.sectionData != null
+                                && (pc.sectionData.isCleared = false);
                             }
                         }
-                        else if (nextNode.Equals("EndF")) {
-                            _ = MapSceneDataManager.Instance?.Player?.TryGetComponent<PlayerControl>(out var pc) == true
-                            && pc.sectionData != null
-                            && (pc.sectionData.isCleared = false);
-                        }
+                        else {
+                            WeatherManager.Instance.isHidden = false;
+                            WeatherManager.Instance.isHiddenSectionClear = false;
+                        }      
 
                         SwitchSceneManager.GoToMapScene();
                     }

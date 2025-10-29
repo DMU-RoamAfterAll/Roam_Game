@@ -24,12 +24,13 @@ public class LinkSection : MonoBehaviour {
         }
     }
 
-    public void CreateVirtualSection() {
-        // ✅ 튜토리얼 중엔 생성 금지
-        if (!GameDataManager.Data.tutorialClear) return;
+    void Update() {
+        CreateVirtualSection();
+    }
 
+    public void CreateVirtualSection() {
         // 상대 섹션에 플레이어가 올라가 있을 때만
-        if (sectionData != null && sectionData.isPlayerOn) {
+        if (sectionData != null && !sectionData.isNotSightOn && sectionData.isCanMove) {
             // 내(=이 LinkSection이 붙은 쪽)의 SectionData가 아직 방문 전일 때만
             var mySd = GetComponent<SectionData>();
             if (mySd != null && !mySd.isVisited && !mySd.isCanMove) {

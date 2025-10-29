@@ -58,4 +58,35 @@ public class GameDataManager : MonoBehaviour {
         gameData.tutorialClear = value;
         PersistCoreToPrefs();
     }
+    
+    #if UNITY_EDITOR
+    [Header("설정")]
+    public KeyCode captureKey = KeyCode.F12;  // 캡처 키
+    public string saveFolder = "Screenshots"; // 저장 폴더 이름
+
+    void Update()
+    {
+        // 특정 키 눌렀을 때 캡처 실행
+        if (Input.GetKeyDown(captureKey))
+        {
+            CaptureScreenshot();
+        }
+    }
+
+    void CaptureScreenshot()
+    {
+        // 저장 폴더 경로 생성 (프로젝트 폴더 기준)
+        string folderPath = Path.Combine(Application.dataPath, "..", saveFolder);
+        if (!Directory.Exists(folderPath))
+            Directory.CreateDirectory(folderPath);
+
+        // 저장 파일명 (예: Screenshot_2025-10-27_21-44-12.png)
+        string fileName = $"Screenshot_{System.DateTime.Now:yyyy-MM-dd_HH-mm-ss}.png";
+        string filePath = Path.Combine(folderPath, fileName);
+
+        // 캡처 실행
+        ScreenCapture.CaptureScreenshot(filePath);
+        Debug.Log($"✅ 스크린샷 저장 완료: {filePath}");
+    }
+    #endif
 }

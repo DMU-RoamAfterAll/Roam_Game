@@ -1310,7 +1310,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &320775155
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2959,6 +2959,7 @@ GameObject:
   - component: {fileID: 581593619}
   - component: {fileID: 581593618}
   - component: {fileID: 581593617}
+  - component: {fileID: 581593621}
   m_Layer: 5
   m_Name: LoginUI
   m_TagString: Untagged
@@ -3057,6 +3058,21 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &581593621
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 581593616}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b241754b03c2471597e07e3f0103c59, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  idInput: {fileID: 1707143299}
+  pwInput: {fileID: 1336504695}
+  rememberMeToggle: {fileID: 0}
 --- !u!1 &581762268
 GameObject:
   m_ObjectHideFlags: 0
@@ -5087,7 +5103,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1028908440
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7590,6 +7606,8 @@ MonoBehaviour:
     preSectionId: 
     tutorialClear: 0
     visitedSectionIds: []
+    clearedSectionIds: []
+    canMoveSectionIds: []
   path: 
   folder: 
   autoSaveOnPause: 1
@@ -7602,6 +7620,8 @@ MonoBehaviour:
     preSectionId: 
     tutorialClear: 0
     visitedSectionIds: []
+    clearedSectionIds: []
+    canMoveSectionIds: []
 --- !u!1 &1688167437
 GameObject:
   m_ObjectHideFlags: 0
