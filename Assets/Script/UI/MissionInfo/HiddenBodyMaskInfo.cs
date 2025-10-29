@@ -14,7 +14,9 @@ public class HiddenBodyMaskInfo : MonoBehaviour {
     }
 
     public void EnterHidden() {
+        WeatherManager.Instance.HiddenEvent();
         GameDataManager.Instance.sectionPath = hiddenFolderPath + WeatherManager.Instance.hiddenFileName;
+        Debug.Log("hiddenFileName = " + WeatherManager.Instance.hiddenFileName);
         WeatherManager.Instance.isHiddenSectionClear = true;
         SwitchSceneManager.Instance.MoveScene(SceneList.Story);
     }

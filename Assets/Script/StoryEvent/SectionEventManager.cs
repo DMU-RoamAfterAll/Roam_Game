@@ -122,6 +122,9 @@ public class SectionEventManager : MonoBehaviour
 
     private void Start()
     {
+        if(!eventDisplayManager) Debug.Log("eventDisplayManager");
+        if(!eventDisplayManager.dialogueText) Debug.Log("dialogueText");
+
         eventDisplayManager.dialogueText.text = string.Empty; //시작시 텍스트 비우기
 
         //Json테스트 출력

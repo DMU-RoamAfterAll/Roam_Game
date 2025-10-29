@@ -25,7 +25,9 @@ public class MissionManager : MonoBehaviour {
     public GameObject hiddenBodyPrefab;
 
     void OnEnable() {
-        UpdateSectionInfo();
+        if(!GameDataManager.Data.tutorialClear) {
+            UpdateSectionInfo();
+        }
     }
 
     void UpdateSectionInfo() {

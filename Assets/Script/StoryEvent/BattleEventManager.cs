@@ -2,6 +2,8 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
+using TMPro;
+using UnityEngine.UI;
 
 // --------------------------------------------------------------------
 // 적 런타임 슬롯(이번 전투에서만 HP 추적). 스탯은 enemy json 기준으로 사용.
@@ -76,6 +78,8 @@ public class BattleEventManager : MonoBehaviour
     List<WeaponDataNode> menuList = new List<WeaponDataNode>(); //메뉴 표시 리스트
     private Dictionary<string, EnemyScriptNode> enemyScriptDict =
         new Dictionary<string, EnemyScriptNode>(); //적 전투 스크립트
+    
+    public TextMeshProUGUI hptext;
 
     private void Awake()
     {
@@ -84,6 +88,8 @@ public class BattleEventManager : MonoBehaviour
         sectionEventManager = GetComponent<SectionEventManager>();
         eventDisplayManager = GetComponent<EventDisplayManager>();
         dataService = GetComponent<DataService>();
+
+        RefreshHPText();
     }
 
     // ------------- 외부에서 시작하는 진입점 -------------
@@ -107,6 +113,7 @@ public class BattleEventManager : MonoBehaviour
 
         playerSlot = new PlayerSlot(dataService.player.GetPlayerData()); //플레이어 슬롯 생성
         turnOrder = BuildCurrentEnemyList(battleOrder); //적 리스트를 받아 슬롯 생성
+        RefreshHPText();
 
         if (turnOrder == null || turnOrder.Count == 0)
         { //배틀 턴이 비었다면 그대로 종료
@@ -380,6 +387,7 @@ public class BattleEventManager : MonoBehaviour
             //적 데미지 계산
             int damage = ComputeEnemyDamage(target); //데미지 계산
             playerSlot.hp = Mathf.Max(0, playerSlot.hp - damage); //적 체력 수정
+            RefreshHPText();
             Debug.Log($"[{GetType().Name}] 적:{target.InstanceName} -> 유저 | 데미지:{damage} (HP {playerSlot.hp}/{playerSlot.playerData.hp})");
 
             int idx = SecureRng.Range(0, enemyScriptNode.atkMiss.Count()); //문장 랜덤 선택
@@ -415,6 +423,7 @@ public class BattleEventManager : MonoBehaviour
                 //적 데미지 계산
                 int damage = ComputeEnemyDamage(enemy); //데미지 계산
                 playerSlot.hp = Mathf.Max(0, playerSlot.hp - damage); //플레이어 체력 수정
+                RefreshHPText();
                 Debug.Log($"[{GetType().Name}] 적:{enemy.InstanceName} -> 유저 | 데미지:{damage} (HP {playerSlot.hp}/{playerSlot.playerData.hp})");
 
                 int idx = SecureRng.Range(0, enemyScriptNode.evdMiss.Count()); //문장 랜덤 선택
@@ -615,6 +624,7 @@ public class BattleEventManager : MonoBehaviour
     /// <param name="win"></param>
     private void OnBattleFinished(bool win)
     {
+        RefreshHPText();
         Debug.Log(win ? "전투 승리" : "전투 패배");
 
         // 기존 루틴 정리
@@ -626,5 +636,19 @@ public class BattleEventManager : MonoBehaviour
 
         //다음 노드로 이동
         StartCoroutine(sectionEventManager.StartDialogue(win ? nextOnWin : nextOnLose));
+    }
+
+    void RefreshHPText() {
+        if (hptext == null || playerSlot == null || playerSlot.playerData == null) return;
+
+        int cur = Mathf.Max(0, playerSlot.hp);
+        int max = Mathf.Max(1, playerSlot.playerData.hp);
+        hptext.text = $"{cur}/{max}";
+
+        // 가독성용 색상(옵션): >50% 흰색, 20~50% 주황, ≤20% 빨강
+        float r = (float)cur / max;
+        if      (r > 0.5f) hptext.color = Color.black;
+        else if (r > 0.2f) hptext.color = new Color(1f, 0.65f, 0f);
+        else               hptext.color = Color.red;
     }
 }
