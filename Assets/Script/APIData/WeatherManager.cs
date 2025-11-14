@@ -217,7 +217,7 @@ public class WeatherManager : MonoBehaviour {
     }
 
     public void HiddenEvent() {
-        if(!GameDataManager.Data.tutorialClear && isHidden) return;
+        if(!GameDataManager.Data.tutorialClear || isHidden) return;
         //false조건도 달아야 함!!!!!!
 
         var wm = WeatherManager.Instance;

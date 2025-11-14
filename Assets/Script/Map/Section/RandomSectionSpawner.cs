@@ -91,7 +91,7 @@ public class RandomSectionSpawner : MonoBehaviour {
         areaAsset = Resources.Load<AreaAsset>($"AreaAssetData/{this.gameObject.name}Data");
 
         // 2) Get configuration from GameDataManager
-        seed               = GameDataManager.Data.seed;
+        seed               = 123456789;
         initialMinDistance = MapSceneDataManager.mapData.initialMinDistance;
         initialMaxDistance = MapSceneDataManager.mapData.initialMaxDistance;
         maxRadius          = MapSceneDataManager.mapData.maxRadius;

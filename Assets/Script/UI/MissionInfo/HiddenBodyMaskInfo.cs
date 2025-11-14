@@ -11,6 +11,7 @@ public class HiddenBodyMaskInfo : MonoBehaviour {
     void Start() {
         tagName.text = "날씨";
         titleName.text = WeatherManager.Instance.weatherCur;
+        WeatherManager.Instance.HiddenEvent();
     }
 
     public void EnterHidden() {
